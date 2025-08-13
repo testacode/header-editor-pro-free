@@ -21,6 +21,7 @@ class HeaderEditorPopup {
         profiles: {
           default: {
             name: 'Default',
+            description: '',
             requestHeaders: [],
             responseHeaders: []
           }
@@ -39,10 +40,14 @@ class HeaderEditorPopup {
       
       // Migrate old header format to include 'enabled' property
       this.migrateHeaderFormat();
+      
+      // Migrate profiles to include description field
+      this.migrateProfileFormat();
     } catch (error) {
       this.profiles = {
         default: {
           name: 'Default',
+          description: '',
           requestHeaders: [],
           responseHeaders: []
         }
@@ -65,6 +70,14 @@ class HeaderEditorPopup {
           }));
         }
       });
+    });
+  }
+
+  migrateProfileFormat() {
+    Object.values(this.profiles).forEach(profile => {
+      if (profile.description === undefined) {
+        profile.description = '';
+      }
     });
   }
 
@@ -255,6 +268,18 @@ class HeaderEditorPopup {
     const profileName = document.getElementById('profile-name');
     profileName.textContent = this.profiles[this.currentProfile]?.name || 'Default';
     
+    // Update profile description
+    const currentProfile = this.profiles[this.currentProfile];
+    const descriptionDiv = document.getElementById('profile-description');
+    const descriptionText = document.getElementById('description-text');
+    
+    if (currentProfile?.description && currentProfile.description.trim()) {
+      descriptionText.textContent = currentProfile.description;
+      descriptionDiv.style.display = 'block';
+    } else {
+      descriptionDiv.style.display = 'none';
+    }
+    
     // Update pause button
     const pauseBtn = document.getElementById('pause-btn');
     if (this.isPaused) {
@@ -307,10 +332,12 @@ class HeaderEditorPopup {
   createNewProfile() {
     const name = prompt('Enter profile name:');
     if (name && name.trim()) {
+      const description = prompt('Enter profile description (optional):');
       this.profileCounter++;
       const key = 'profile_' + Date.now();
       this.profiles[key] = {
         name: name.trim(),
+        description: description && description.trim() ? description.trim() : '',
         requestHeaders: [],
         responseHeaders: []
       };
@@ -420,10 +447,13 @@ class HeaderEditorPopup {
       return; // User cancelled
     }
 
+    const profileDescription = prompt('Enter description for the imported profile (optional):');
+
     this.profileCounter++;
     const key = 'profile_' + Date.now();
     this.profiles[key] = {
       name: profileName.trim(),
+      description: profileDescription && profileDescription.trim() ? profileDescription.trim() : '',
       requestHeaders: requestHeaders,
       responseHeaders: responseHeaders
     };

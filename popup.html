@@ -165,6 +165,21 @@
       color: #ff9800;
     }
 
+    /* Profile description */
+    .profile-description {
+      background: #2d2d2d;
+      border-bottom: 1px solid #404040;
+      padding: 12px 16px;
+    }
+
+    .description-text {
+      font-size: 13px;
+      color: #ccc;
+      font-style: italic;
+      line-height: 1.4;
+      margin: 0;
+    }
+
     /* Content area */
     .content {
       flex: 1;
@@ -347,6 +362,11 @@
         <button class="toolbar-btn" id="fullscreen-btn" title="Fullscreen">⛶</button>
         <button class="toolbar-btn" id="menu-btn" title="Menu">⋮</button>
       </div>
+    </div>
+
+    <!-- Profile Description -->
+    <div class="profile-description" id="profile-description" style="display: none;">
+      <div class="description-text" id="description-text"></div>
     </div>
 
     <!-- Content -->
