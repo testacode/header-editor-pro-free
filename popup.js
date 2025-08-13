@@ -234,7 +234,20 @@ class HeaderEditorPopup {
     Object.entries(this.profiles).forEach(([key, profile], index) => {
       const circleDiv = document.createElement('div');
       circleDiv.className = `profile-circle ${key === this.currentProfile ? 'active' : ''}`;
-      circleDiv.textContent = index + 1;
+      
+      // Extract number from profile name or use fallback
+      let displayNumber = index + 1;
+      if (key === 'default') {
+        displayNumber = 'D';
+      } else {
+        // Try to extract number from profile name
+        const nameMatch = profile.name.match(/(\d+)$/);
+        if (nameMatch) {
+          displayNumber = nameMatch[1];
+        }
+      }
+      
+      circleDiv.textContent = displayNumber;
       circleDiv.title = profile.name;
       
       // Add indicator
