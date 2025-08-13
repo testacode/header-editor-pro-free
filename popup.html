@@ -43,6 +43,9 @@
           >
             <i class="fas fa-thumbtack"></i>
           </button>
+          <button class="toolbar-btn" id="color-picker-btn" title="Profile Color">
+            <i class="fas fa-palette"></i>
+          </button>
           <button class="toolbar-btn" id="fullscreen-btn" title="Fullscreen">
             <i class="fas fa-expand"></i>
           </button>
@@ -134,6 +137,57 @@
             <button class="btn btn-copy" id="modal-copy" style="display: none">
               <i class="fas fa-copy"></i> Copy
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Color Picker Modal -->
+      <div class="modal-overlay" id="color-picker-overlay" style="display: none">
+        <div class="modal color-picker-modal">
+          <div class="modal-header">
+            <h3 class="modal-title">Profile Color</h3>
+            <button class="modal-close" id="color-picker-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="color-picker-content">
+              <div class="color-preview-section">
+                <span class="color-preview-label">Preview:</span>
+                <div class="color-preview-circle" id="color-preview-circle">
+                  <span id="color-preview-text">1</span>
+                </div>
+              </div>
+              
+              <div class="color-picker-tabs">
+                <button class="color-tab active" id="background-tab">BACKGROUND</button>
+                <button class="color-tab" id="text-tab">TEXT COLOR</button>
+              </div>
+              
+              <div class="color-picker-area">
+                <div class="color-gradient" id="color-gradient">
+                  <div class="color-selector" id="color-selector"></div>
+                </div>
+                <div class="hue-slider-container">
+                  <input type="range" class="hue-slider" id="hue-slider" min="0" max="360" value="180">
+                </div>
+              </div>
+              
+              <div class="preset-colors">
+                <div class="preset-color" data-color="#4caf50" style="background: #4caf50;"></div>
+                <div class="preset-color" data-color="#2196f3" style="background: #2196f3;"></div>
+                <div class="preset-color" data-color="#ff9800" style="background: #ff9800;"></div>
+                <div class="preset-color" data-color="#f44336" style="background: #f44336;"></div>
+                <div class="preset-color" data-color="#9c27b0" style="background: #9c27b0;"></div>
+                <div class="preset-color" data-color="#607d8b" style="background: #607d8b;"></div>
+                <div class="preset-color" data-color="#795548" style="background: #795548;"></div>
+                <div class="preset-color" data-color="#ffc107" style="background: #ffc107;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="color-picker-cancel">Cancel</button>
+            <button class="btn btn-primary" id="color-picker-save">Save</button>
           </div>
         </div>
       </div>

@@ -24,7 +24,9 @@ class HeaderEditorPopup {
             name: 'Default',
             description: 'Click to edit description',
             requestHeaders: [],
-            responseHeaders: []
+            responseHeaders: [],
+            backgroundColor: '#4caf50',
+            textColor: '#ffffff'
           }
         },
         currentProfile: 'default',
@@ -46,6 +48,16 @@ class HeaderEditorPopup {
       
       // Migrate profiles to include description field
       this.migrateProfileFormat();
+      
+      // Initialize color picker state
+      this.colorPickerState = {
+        currentTab: 'background', // 'background' or 'text'
+        tempBackgroundColor: '#4caf50',
+        tempTextColor: '#ffffff',
+        hue: 180,
+        saturation: 1,
+        lightness: 0.5
+      };
     } catch (error) {
       this.profiles = {
         default: {
@@ -135,6 +147,10 @@ class HeaderEditorPopup {
       this.closeDropdown();
     });
 
+    document.getElementById('color-picker-btn').addEventListener('click', () => {
+      this.showColorPicker();
+    });
+
     document.getElementById('fullscreen-btn').addEventListener('click', () => {
       this.openFullscreen();
     });
@@ -213,6 +229,25 @@ class HeaderEditorPopup {
       }
     });
 
+    // Color picker modal event listeners
+    document.getElementById('color-picker-close').addEventListener('click', () => {
+      this.closeColorPicker();
+    });
+
+    document.getElementById('color-picker-cancel').addEventListener('click', () => {
+      this.closeColorPicker();
+    });
+
+    document.getElementById('color-picker-save').addEventListener('click', () => {
+      this.saveProfileColor();
+    });
+
+    document.getElementById('color-picker-overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        this.closeColorPicker();
+      }
+    });
+
     // JSON validation on input
     document.getElementById('json-textarea').addEventListener('input', () => {
       this.validateJSON();
@@ -264,6 +299,14 @@ class HeaderEditorPopup {
       // Use first letter of profile name
       const firstLetter = profile.name.charAt(0).toUpperCase();
       circleDiv.textContent = firstLetter;
+      
+      // Apply custom colors
+      if (profile.backgroundColor) {
+        circleDiv.style.backgroundColor = profile.backgroundColor;
+      }
+      if (profile.textColor) {
+        circleDiv.style.color = profile.textColor;
+      }
       
       // Use description as tooltip if available, otherwise just the name
       let tooltip = profile.name;
@@ -477,7 +520,9 @@ class HeaderEditorPopup {
       name: `Profile ${this.profileCounter}`,
       description: 'Click to edit description',
       requestHeaders: [],
-      responseHeaders: []
+      responseHeaders: [],
+      backgroundColor: '#4caf50',
+      textColor: '#ffffff'
     };
     this.currentProfile = key;
     this.saveData();
@@ -1041,6 +1086,173 @@ class HeaderEditorPopup {
     
     // Clean up the URL object
     URL.revokeObjectURL(url);
+  }
+
+  // Color Picker Methods
+  showColorPicker() {
+    const profile = this.profiles[this.currentProfile];
+    
+    // Set initial colors from current profile
+    this.colorPickerState.tempBackgroundColor = profile.backgroundColor || '#4caf50';
+    this.colorPickerState.tempTextColor = profile.textColor || '#ffffff';
+    this.colorPickerState.currentTab = 'background';
+    
+    // Update UI
+    this.updateColorPickerUI();
+    
+    // Show modal
+    document.getElementById('color-picker-overlay').style.display = 'flex';
+  }
+
+  closeColorPicker() {
+    document.getElementById('color-picker-overlay').style.display = 'none';
+  }
+
+  updateColorPickerUI() {
+    const profile = this.profiles[this.currentProfile];
+    const previewCircle = document.getElementById('color-preview-circle');
+    const previewText = document.getElementById('color-preview-text');
+    
+    // Update preview circle
+    previewCircle.style.backgroundColor = this.colorPickerState.tempBackgroundColor;
+    previewText.style.color = this.colorPickerState.tempTextColor;
+    previewText.textContent = profile.name.charAt(0).toUpperCase();
+    
+    // Update tab states
+    document.getElementById('background-tab').classList.toggle('active', this.colorPickerState.currentTab === 'background');
+    document.getElementById('text-tab').classList.toggle('active', this.colorPickerState.currentTab === 'text');
+    
+    // Update color gradient background based on current tab
+    const currentColor = this.colorPickerState.currentTab === 'background' 
+      ? this.colorPickerState.tempBackgroundColor 
+      : this.colorPickerState.tempTextColor;
+    
+    this.updateGradientBackground(currentColor);
+    this.setupColorPickerInteractions();
+  }
+
+  updateGradientBackground(color) {
+    const hslColor = this.hexToHsl(color);
+    this.colorPickerState.hue = hslColor.h;
+    
+    const gradient = document.getElementById('color-gradient');
+    const hueSlider = document.getElementById('hue-slider');
+    
+    // Update gradient background
+    gradient.style.background = `linear-gradient(to right, #ffffff, hsl(${this.colorPickerState.hue}, 100%, 50%))`;
+    gradient.style.backgroundImage = 'linear-gradient(to top, #000000, transparent)';
+    
+    // Update hue slider
+    hueSlider.value = this.colorPickerState.hue;
+  }
+
+  setupColorPickerInteractions() {
+    // Tab switching
+    document.getElementById('background-tab').onclick = () => {
+      this.colorPickerState.currentTab = 'background';
+      this.updateColorPickerUI();
+    };
+    
+    document.getElementById('text-tab').onclick = () => {
+      this.colorPickerState.currentTab = 'text';
+      this.updateColorPickerUI();
+    };
+    
+    // Color gradient interaction
+    const gradient = document.getElementById('color-gradient');
+    const selector = document.getElementById('color-selector');
+    
+    gradient.onclick = (e) => {
+      const rect = gradient.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const saturation = x / rect.width;
+      const lightness = 1 - (y / rect.height);
+      
+      const color = this.hslToHex(this.colorPickerState.hue, saturation, lightness);
+      
+      if (this.colorPickerState.currentTab === 'background') {
+        this.colorPickerState.tempBackgroundColor = color;
+      } else {
+        this.colorPickerState.tempTextColor = color;
+      }
+      
+      // Update selector position
+      selector.style.left = `${saturation * 100}%`;
+      selector.style.top = `${(1 - lightness) * 100}%`;
+      
+      this.updateColorPickerUI();
+    };
+    
+    // Hue slider
+    const hueSlider = document.getElementById('hue-slider');
+    hueSlider.oninput = () => {
+      this.colorPickerState.hue = parseInt(hueSlider.value);
+      this.updateGradientBackground(this.colorPickerState.currentTab === 'background' 
+        ? this.colorPickerState.tempBackgroundColor 
+        : this.colorPickerState.tempTextColor);
+    };
+    
+    // Preset colors
+    document.querySelectorAll('.preset-color').forEach(preset => {
+      preset.onclick = () => {
+        const color = preset.getAttribute('data-color');
+        if (this.colorPickerState.currentTab === 'background') {
+          this.colorPickerState.tempBackgroundColor = color;
+        } else {
+          this.colorPickerState.tempTextColor = color;
+        }
+        this.updateColorPickerUI();
+      };
+    });
+  }
+
+  saveProfileColor() {
+    const profile = this.profiles[this.currentProfile];
+    profile.backgroundColor = this.colorPickerState.tempBackgroundColor;
+    profile.textColor = this.colorPickerState.tempTextColor;
+    
+    this.saveData();
+    this.renderProfileCircles();
+    this.closeColorPicker();
+  }
+
+  // Color utility functions
+  hexToHsl(hex) {
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+      h = s = 0;
+    } else {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+
+    return { h: Math.round(h * 360), s, l };
+  }
+
+  hslToHex(h, s, l) {
+    h /= 360;
+    const a = s * Math.min(l, 1 - l);
+    const f = n => {
+      const k = (n + h / (1/12)) % 12;
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * color).toString(16).padStart(2, '0');
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
   }
 }
 
