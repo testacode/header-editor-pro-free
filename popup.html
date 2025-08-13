@@ -1,7 +1,226 @@
+<!DOCTYPE html>
 <html>
-  <body>
-    <h1>ModHeader</h1>
-    <p>Modify HTTP headers for testing and development</p>
-    <script src="popup.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 400px;
+      min-height: 500px;
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+    
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    .profile-section {
+      margin-bottom: 20px;
+    }
+    
+    .profile-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    
+    select, input, button {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    select {
+      flex: 1;
+    }
+    
+    button {
+      background: #2196F3;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    button:hover {
+      background: #1976D2;
+    }
+    
+    button.secondary {
+      background: #6c757d;
+    }
+    
+    button.secondary:hover {
+      background: #5a6268;
+    }
+    
+    button.danger {
+      background: #dc3545;
+    }
+    
+    button.danger:hover {
+      background: #c82333;
+    }
+    
+    .headers-section {
+      margin-bottom: 20px;
+    }
+    
+    .header-item {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    
+    .header-item input {
+      flex: 1;
+    }
+    
+    .header-item button {
+      padding: 4px 8px;
+      font-size: 12px;
+      min-width: 60px;
+    }
+    
+    .add-header {
+      width: 100%;
+      margin-top: 10px;
+    }
+    
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    
+    .status {
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .status.active {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status.inactive {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1 class="title">ModHeader</h1>
+    <div class="toggle-container">
+      <span id="status-text">Off</span>
+      <label class="toggle">
+        <input type="checkbox" id="enabled-toggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div id="status-indicator" class="status inactive">Extension is disabled</div>
+
+  <div class="profile-section">
+    <div class="section-title">Profile</div>
+    <div class="profile-controls">
+      <select id="profile-select">
+        <option value="default">Default Profile</option>
+      </select>
+      <button id="add-profile-btn">New</button>
+      <button id="delete-profile-btn" class="danger">Delete</button>
+    </div>
+  </div>
+
+  <div class="headers-section">
+    <div class="section-title">Request Headers</div>
+    <div id="request-headers-list">
+      <!-- Headers will be added here dynamically -->
+    </div>
+    <button id="add-request-header" class="add-header">+ Add Request Header</button>
+  </div>
+
+  <div class="headers-section">
+    <div class="section-title">Response Headers</div>
+    <div id="response-headers-list">
+      <!-- Headers will be added here dynamically -->
+    </div>
+    <button id="add-response-header" class="add-header">+ Add Response Header</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
 </html>

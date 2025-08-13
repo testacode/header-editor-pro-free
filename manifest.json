@@ -3,6 +3,17 @@
   "description": "Modify HTTP request and response headers for testing and development",
   "version": "1.0.0",
   "manifest_version": 3,
+  "permissions": [
+    "declarativeNetRequest",
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon.png"
