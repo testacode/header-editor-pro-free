@@ -39,12 +39,6 @@
           <button class="toolbar-btn" id="pause-btn" title="Pause Extension">
             <i class="fas fa-pause"></i>
           </button>
-          <button class="toolbar-btn" id="import-btn" title="Import">
-            <i class="fas fa-file-import"></i>
-          </button>
-          <button class="toolbar-btn" id="export-btn" title="Export">
-            <i class="fas fa-file-export"></i>
-          </button>
           <button
             class="toolbar-btn"
             id="pin-btn"
@@ -63,6 +57,14 @@
 
       <!-- Dropdown Menu -->
       <div class="dropdown-menu" id="profile-dropdown" style="display: none">
+        <div class="dropdown-item" id="import-item">
+          <i class="fas fa-file-import"></i>
+          <span>Import Configuration</span>
+        </div>
+        <div class="dropdown-item" id="export-item">
+          <i class="fas fa-file-export"></i>
+          <span>Export Configuration</span>
+        </div>
         <div class="dropdown-item" id="delete-profile-item">
           <i class="fas fa-trash-alt"></i>
           <span>Delete Profile</span>

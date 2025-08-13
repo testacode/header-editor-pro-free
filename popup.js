@@ -129,12 +129,14 @@ class HeaderEditorPopup {
       this.refreshHeaders();
     });
 
-    document.getElementById('import-btn').addEventListener('click', () => {
+    document.getElementById('import-item').addEventListener('click', () => {
       this.showImportModal();
+      this.closeDropdown();
     });
 
-    document.getElementById('export-btn').addEventListener('click', () => {
+    document.getElementById('export-item').addEventListener('click', () => {
       this.showExportModal();
+      this.closeDropdown();
     });
 
     document.getElementById('fullscreen-btn').addEventListener('click', () => {
@@ -184,6 +186,7 @@ class HeaderEditorPopup {
         return; // Don't delete if disabled
       }
       this.deleteCurrentProfile();
+      this.closeDropdown();
     });
 
     // Close dropdown when clicking outside

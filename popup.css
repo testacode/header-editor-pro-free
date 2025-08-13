@@ -242,6 +242,9 @@ body {
 
 .dropdown-item.danger {
   color: #f44336;
+  border-top: 1px solid #404040;
+  margin-top: 4px;
+  padding-top: 16px;
 }
 
 .dropdown-item.danger:hover {
