@@ -132,6 +132,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
 }
 
 .profile-name-input {
@@ -201,7 +202,6 @@ body {
   color: #2196f3;
   background: rgba(33, 150, 243, 0.1);
 }
-
 
 /* Dropdown Menu */
 .dropdown-menu {
@@ -625,7 +625,6 @@ body {
 .header-delete:hover {
   background: rgba(244, 67, 54, 0.1);
 }
-
 
 .add-header-btn {
   display: flex;
