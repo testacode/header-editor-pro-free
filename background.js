@@ -7,7 +7,9 @@ class HeaderEditorBackground {
   }
 
   detectFirefox() {
-    return typeof browser !== 'undefined' || navigator.userAgent.includes('Firefox');
+    const isFirefox = typeof browser !== 'undefined' || navigator.userAgent.includes('Firefox');
+    console.log('HeaderEditor: Browser detection - isFirefox:', isFirefox, 'userAgent:', navigator.userAgent);
+    return isFirefox;
   }
 
   delay(ms) {
@@ -61,16 +63,25 @@ class HeaderEditorBackground {
   }
 
   async applyHeaderRules(data) {
+    console.log('HeaderEditor: Applying header rules', { 
+      enabled: data.enabled, 
+      paused: data.paused, 
+      currentProfile: data.currentProfile,
+      isFirefox: this.isFirefox 
+    });
+
     // Clear existing rules first
     await this.clearAllRules();
 
     // Firefox needs extra time between clearing and applying rules
     if (this.isFirefox) {
+      console.log('HeaderEditor: Firefox detected - adding delay');
       await this.delay(100);
     }
 
     // If extension is disabled or paused, don't apply any new rules
     if (!data.enabled || data.paused) {
+      console.log('HeaderEditor: Extension disabled or paused - not applying rules');
       return;
     }
 
@@ -103,13 +114,20 @@ class HeaderEditorBackground {
       }
     }
 
+    console.log('HeaderEditor: Rules to apply:', rules.length);
+    
     if (rules.length > 0) {
       // Firefox needs extra time before adding new rules
       if (this.isFirefox) {
+        console.log('HeaderEditor: Firefox - adding delay before applying rules');
         await this.delay(100);
       }
       
+      console.log('HeaderEditor: About to add rules:', rules);
       await this.addRules(rules);
+      console.log('HeaderEditor: Rules added successfully');
+    } else {
+      console.log('HeaderEditor: No rules to apply');
     }
   }
 
