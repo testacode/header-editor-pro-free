@@ -103,6 +103,15 @@ class HeaderEditorPopup {
       this.refreshHeaders();
     });
 
+    document.getElementById('import-btn').addEventListener('click', () => {
+      this.showImportDialog();
+    });
+
+    // Handle file input change
+    document.getElementById('import-file-input').addEventListener('change', (e) => {
+      this.handleImportFile(e);
+    });
+
     // Profile management
     document.getElementById('add-profile').addEventListener('click', () => {
       this.createNewProfile();
@@ -341,6 +350,90 @@ class HeaderEditorPopup {
 
   refreshHeaders() {
     this.renderHeaders();
+  }
+
+  showImportDialog() {
+    const fileInput = document.getElementById('import-file-input');
+    fileInput.click();
+  }
+
+  async handleImportFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.json')) {
+      alert('Please select a JSON file');
+      return;
+    }
+
+    try {
+      const text = await this.readFileAsText(file);
+      const importData = JSON.parse(text);
+      await this.importProfile(importData);
+      
+      // Clear the file input
+      event.target.value = '';
+    } catch (error) {
+      alert('Error importing file: ' + error.message);
+      event.target.value = '';
+    }
+  }
+
+  readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    });
+  }
+
+  async importProfile(importData) {
+    // Validate the import data structure
+    if (!Array.isArray(importData)) {
+      throw new Error('Invalid JSON format. Expected an array of headers.');
+    }
+
+    // Extract headers from the import data
+    const requestHeaders = [];
+    const responseHeaders = [];
+
+    importData.forEach(header => {
+      if (!header.name || typeof header.name !== 'string') {
+        return; // Skip invalid headers
+      }
+
+      const newHeader = {
+        name: header.name,
+        value: header.value || '',
+        enabled: header.enabled !== false
+      };
+
+      // ModHeader format may not specify type, assume request by default
+      // or you could add logic to detect response headers
+      requestHeaders.push(newHeader);
+    });
+
+    // Create a new profile with imported data
+    const profileName = prompt('Enter name for the imported profile:', 'Imported Profile');
+    if (!profileName || !profileName.trim()) {
+      return; // User cancelled
+    }
+
+    this.profileCounter++;
+    const key = 'profile_' + Date.now();
+    this.profiles[key] = {
+      name: profileName.trim(),
+      requestHeaders: requestHeaders,
+      responseHeaders: responseHeaders
+    };
+
+    // Switch to the new profile
+    this.currentProfile = key;
+    await this.saveData();
+    this.renderUI();
+
+    alert(`Successfully imported ${requestHeaders.length} headers to profile "${profileName.trim()}"`);
   }
 }
 

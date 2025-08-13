@@ -342,6 +342,7 @@
         <button class="toolbar-btn" id="refresh-btn" title="Refresh">↻</button>
         <button class="toolbar-btn" id="add-btn" title="Add Header">+</button>
         <button class="toolbar-btn" id="pause-btn" title="Pause Extension">⏸</button>
+        <button class="toolbar-btn" id="import-btn" title="Import">↙</button>
         <button class="toolbar-btn" id="export-btn" title="Export">↗</button>
         <button class="toolbar-btn" id="fullscreen-btn" title="Fullscreen">⛶</button>
         <button class="toolbar-btn" id="menu-btn" title="Menu">⋮</button>
@@ -383,6 +384,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Hidden file input for import -->
+  <input type="file" id="import-file-input" accept=".json" style="display: none;">
 
   <script src="popup.js"></script>
 </body>
