@@ -6,7 +6,8 @@
   "permissions": ["declarativeNetRequest", "storage", "activeTab"],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
   },
   "action": {
     "default_popup": "popup.html",
@@ -17,5 +18,11 @@
     "32": "icons/icon32.jpeg",
     "48": "icons/icon48.jpeg",
     "128": "icons/icon128.jpeg"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "header-editor-pro@testacode.com",
+      "strict_min_version": "109.0"
+    }
   }
 }
