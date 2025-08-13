@@ -121,11 +121,11 @@ class HeaderEditorPopup {
     });
 
     document.getElementById('import-btn').addEventListener('click', () => {
-      this.showImportDialog();
+      this.showImportModal();
     });
 
     document.getElementById('export-btn').addEventListener('click', () => {
-      this.exportCurrentProfile();
+      this.showExportModal();
     });
 
     // Handle file input change
@@ -176,6 +176,34 @@ class HeaderEditorPopup {
     // Close dropdown when clicking outside
     document.addEventListener('click', () => {
       this.closeDropdown();
+    });
+
+    // Modal event listeners
+    document.getElementById('modal-close').addEventListener('click', () => {
+      this.closeModal();
+    });
+
+    document.getElementById('modal-cancel').addEventListener('click', () => {
+      this.closeModal();
+    });
+
+    document.getElementById('modal-action').addEventListener('click', () => {
+      this.handleModalAction();
+    });
+
+    document.getElementById('modal-copy').addEventListener('click', () => {
+      this.copyToClipboard();
+    });
+
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        this.closeModal();
+      }
+    });
+
+    // JSON validation on input
+    document.getElementById('json-textarea').addEventListener('input', () => {
+      this.validateJSON();
     });
 
     // Profile management
@@ -579,6 +607,130 @@ class HeaderEditorPopup {
     this.renderHeadersList(type);
   }
 
+  showImportModal() {
+    this.currentModalMode = 'import';
+    document.getElementById('modal-title').textContent = 'Import Configuration';
+    document.getElementById('json-textarea').value = '';
+    document.getElementById('json-textarea').placeholder = 'Paste your JSON configuration here...';
+    document.getElementById('modal-action').textContent = 'Import';
+    document.getElementById('modal-action').style.display = 'block';
+    document.getElementById('modal-copy').style.display = 'none';
+    document.getElementById('validation-message').textContent = '';
+    document.getElementById('modal-overlay').style.display = 'flex';
+    
+    // Focus on textarea
+    setTimeout(() => {
+      document.getElementById('json-textarea').focus();
+    }, 100);
+  }
+
+  showExportModal() {
+    this.currentModalMode = 'export';
+    const currentProfile = this.profiles[this.currentProfile];
+    const exportData = this.convertToModHeaderFormat(currentProfile);
+    const jsonString = JSON.stringify(exportData, null, 2);
+    
+    document.getElementById('modal-title').textContent = 'Export Configuration';
+    document.getElementById('json-textarea').value = jsonString;
+    document.getElementById('json-textarea').placeholder = '';
+    document.getElementById('modal-action').style.display = 'none';
+    document.getElementById('modal-copy').style.display = 'block';
+    document.getElementById('validation-message').innerHTML = 
+      '<span class="success">✓ Valid JSON - Ready to copy</span>';
+    document.getElementById('modal-overlay').style.display = 'flex';
+    
+    // Select all text for easy copying
+    setTimeout(() => {
+      document.getElementById('json-textarea').select();
+    }, 100);
+  }
+
+  closeModal() {
+    document.getElementById('modal-overlay').style.display = 'none';
+    this.currentModalMode = null;
+  }
+
+  validateJSON() {
+    const textarea = document.getElementById('json-textarea');
+    const message = document.getElementById('validation-message');
+    const actionBtn = document.getElementById('modal-action');
+    
+    if (!textarea.value.trim()) {
+      message.textContent = '';
+      actionBtn.disabled = true;
+      return;
+    }
+    
+    try {
+      const parsed = JSON.parse(textarea.value);
+      
+      // Validate structure for import
+      if (this.currentModalMode === 'import') {
+        if (!Array.isArray(parsed)) {
+          throw new Error('JSON must be an array of headers');
+        }
+        
+        // Check if headers have required structure
+        for (let i = 0; i < parsed.length; i++) {
+          const header = parsed[i];
+          if (!header.name || typeof header.name !== 'string') {
+            throw new Error(`Header ${i + 1}: missing or invalid 'name' field`);
+          }
+        }
+        
+        message.innerHTML = `<span class="success">✓ Valid JSON (${parsed.length} headers)</span>`;
+      } else {
+        message.innerHTML = '<span class="success">✓ Valid JSON</span>';
+      }
+      
+      actionBtn.disabled = false;
+    } catch (error) {
+      message.innerHTML = `<span class="error">✗ ${error.message}</span>`;
+      actionBtn.disabled = true;
+    }
+  }
+
+  async handleModalAction() {
+    if (this.currentModalMode === 'import') {
+      await this.handleImportFromModal();
+    }
+  }
+
+  async handleImportFromModal() {
+    const textarea = document.getElementById('json-textarea');
+    
+    try {
+      const importData = JSON.parse(textarea.value);
+      await this.importProfileFromData(importData);
+      this.closeModal();
+    } catch (error) {
+      const message = document.getElementById('validation-message');
+      message.innerHTML = `<span class="error">✗ Import failed: ${error.message}</span>`;
+    }
+  }
+
+  async copyToClipboard() {
+    const textarea = document.getElementById('json-textarea');
+    const copyBtn = document.getElementById('modal-copy');
+    
+    try {
+      await navigator.clipboard.writeText(textarea.value);
+      const originalText = copyBtn.textContent;
+      copyBtn.textContent = '✓ Copied!';
+      copyBtn.style.background = '#4CAF50';
+      
+      setTimeout(() => {
+        copyBtn.textContent = originalText;
+        copyBtn.style.background = '#2196F3';
+      }, 2000);
+    } catch (error) {
+      // Fallback for older browsers
+      textarea.select();
+      document.execCommand('copy');
+      copyBtn.textContent = '✓ Copied!';
+    }
+  }
+
   showImportDialog() {
     const fileInput = document.getElementById('import-file-input');
     fileInput.click();
@@ -616,6 +768,11 @@ class HeaderEditorPopup {
   }
 
   async importProfile(importData) {
+    await this.importProfileFromData(importData);
+    alert(`Successfully imported to profile "${this.profiles[this.currentProfile].name}"`);
+  }
+
+  async importProfileFromData(importData) {
     // Validate the import data structure
     if (!Array.isArray(importData)) {
       throw new Error('Invalid JSON format. Expected an array of headers.');
@@ -655,8 +812,6 @@ class HeaderEditorPopup {
     this.currentProfile = key;
     await this.saveData();
     this.renderUI();
-
-    alert(`Successfully imported ${requestHeaders.length} headers to profile "${this.profiles[key].name}"`);
   }
 
   exportCurrentProfile() {
