@@ -121,10 +121,6 @@ class HeaderEditorPopup {
       this.togglePin();
     });
 
-    document.getElementById('add-btn').addEventListener('click', () => {
-      this.addHeader('request');
-    });
-
     document.getElementById('refresh-btn').addEventListener('click', () => {
       this.refreshHeaders();
     });
