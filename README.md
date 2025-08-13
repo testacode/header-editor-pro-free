@@ -32,7 +32,13 @@
 
 ## 📸 Screenshots
 
-*Extension popup showing profile management and header editing*
+<div align="center">
+
+![Header Editor Pro - Free Interface](screenshots/screenshot.jpg)
+
+*Professional dark interface with profile circles, header management, and clean design*
+
+</div>
 
 ## 🚀 Installation
 
