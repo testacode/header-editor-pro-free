@@ -181,6 +181,52 @@
       color: #ff9800;
     }
 
+    /* Dropdown Menu */
+    .dropdown-menu {
+      position: absolute;
+      top: 50px;
+      right: 16px;
+      background: #2d2d2d;
+      border: 1px solid #404040;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      min-width: 160px;
+      overflow: hidden;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      color: #ffffff;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 13px;
+    }
+
+    .dropdown-item:hover {
+      background: #404040;
+    }
+
+    .dropdown-item.disabled {
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .dropdown-item.disabled:hover {
+      background: transparent;
+    }
+
+    .dropdown-item.danger {
+      color: #f44336;
+    }
+
+    .dropdown-item.danger:hover {
+      background: rgba(244, 67, 54, 0.1);
+    }
+
     /* Profile description */
     .profile-description {
       background: #2d2d2d;
@@ -398,6 +444,14 @@
         <button class="toolbar-btn" id="export-btn" title="Export">↗</button>
         <button class="toolbar-btn" id="fullscreen-btn" title="Fullscreen">⛶</button>
         <button class="toolbar-btn" id="menu-btn" title="Menu">⋮</button>
+      </div>
+    </div>
+
+    <!-- Dropdown Menu -->
+    <div class="dropdown-menu" id="profile-dropdown" style="display: none;">
+      <div class="dropdown-item" id="delete-profile-item">
+        <span>🗑️</span>
+        <span>Delete Profile</span>
       </div>
     </div>
 

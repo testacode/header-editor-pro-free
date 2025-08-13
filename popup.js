@@ -160,6 +160,24 @@ class HeaderEditorPopup {
       document.getElementById('profile-description').style.display = 'block';
     });
 
+    // Dropdown menu functionality
+    document.getElementById('menu-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleDropdown();
+    });
+
+    document.getElementById('delete-profile-item').addEventListener('click', (e) => {
+      if (e.target.closest('.dropdown-item').classList.contains('disabled')) {
+        return; // Don't delete if disabled
+      }
+      this.deleteCurrentProfile();
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      this.closeDropdown();
+    });
+
     // Profile management
     document.getElementById('add-profile').addEventListener('click', () => {
       this.createNewProfile();
@@ -381,12 +399,16 @@ class HeaderEditorPopup {
   }
 
   async deleteCurrentProfile() {
+    // Close dropdown first
+    this.closeDropdown();
+    
     if (this.currentProfile === 'default') {
-      alert('Cannot delete the default profile');
-      return;
+      return; // Should not happen due to UI logic, but safety check
     }
     
-    if (confirm('Are you sure you want to delete this profile?')) {
+    const profileName = this.profiles[this.currentProfile]?.name || 'this profile';
+    
+    if (confirm(`Are you sure you want to delete "${profileName}"? This action cannot be undone.`)) {
       delete this.profiles[this.currentProfile];
       this.currentProfile = 'default';
       await this.saveData();
@@ -432,6 +454,29 @@ class HeaderEditorPopup {
     if (!newDescription.trim()) {
       descriptionDiv.style.display = 'none';
     }
+  }
+
+  toggleDropdown() {
+    const dropdown = document.getElementById('profile-dropdown');
+    const deleteItem = document.getElementById('delete-profile-item');
+    
+    // Update delete item state based on current profile
+    if (this.currentProfile === 'default') {
+      deleteItem.classList.add('disabled');
+      deleteItem.innerHTML = '<span>🗑️</span><span>Cannot delete default profile</span>';
+    } else {
+      deleteItem.classList.remove('disabled');
+      deleteItem.classList.add('danger');
+      deleteItem.innerHTML = '<span>🗑️</span><span>Delete Profile</span>';
+    }
+    
+    // Toggle dropdown visibility
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+  }
+
+  closeDropdown() {
+    const dropdown = document.getElementById('profile-dropdown');
+    dropdown.style.display = 'none';
   }
 
   showImportDialog() {
