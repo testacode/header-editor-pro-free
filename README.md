@@ -129,8 +129,9 @@
 ### Project Structure
 ```
 ├── manifest.json          # Extension configuration
-├── popup.html             # Main UI interface  
-├── popup.js              # Frontend logic and profile management
+├── popup.html             # Clean HTML structure (191 lines)
+├── popup.css              # Professional dark theme styling (652 lines)
+├── popup.js              # Frontend logic and profile management (1041 lines)
 ├── background.js         # Service worker for header modification
 ├── privacy.html          # Privacy policy page
 ├── icons/               # Extension icons (16px, 32px, 48px, 128px)
