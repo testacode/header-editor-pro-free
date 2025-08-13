@@ -2,7 +2,16 @@ class HeaderEditorBackground {
   constructor() {
     this.currentRuleId = 1;
     this.activeRules = new Set();
+    this.isFirefox = this.detectFirefox();
     this.init();
+  }
+
+  detectFirefox() {
+    return typeof browser !== 'undefined' || navigator.userAgent.includes('Firefox');
+  }
+
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   init() {
@@ -55,6 +64,11 @@ class HeaderEditorBackground {
     // Clear existing rules first
     await this.clearAllRules();
 
+    // Firefox needs extra time between clearing and applying rules
+    if (this.isFirefox) {
+      await this.delay(100);
+    }
+
     // If extension is disabled or paused, don't apply any new rules
     if (!data.enabled || data.paused) {
       return;
@@ -90,6 +104,11 @@ class HeaderEditorBackground {
     }
 
     if (rules.length > 0) {
+      // Firefox needs extra time before adding new rules
+      if (this.isFirefox) {
+        await this.delay(100);
+      }
+      
       await this.addRules(rules);
     }
   }
@@ -183,10 +202,27 @@ class HeaderEditorBackground {
         await chrome.declarativeNetRequest.updateDynamicRules({
           removeRuleIds: allRuleIds
         });
+        
+        // Firefox needs extra time to process rule removal
+        if (this.isFirefox) {
+          await this.delay(50);
+        }
       }
       
       // Clear our tracking
       this.activeRules.clear();
+      
+      // Firefox: Double-check and clear any remaining rules
+      if (this.isFirefox) {
+        await this.delay(50);
+        const remainingRules = await chrome.declarativeNetRequest.getDynamicRules();
+        if (remainingRules.length > 0) {
+          await chrome.declarativeNetRequest.updateDynamicRules({
+            removeRuleIds: remainingRules.map(rule => rule.id)
+          });
+          await this.delay(50);
+        }
+      }
       
     } catch (error) {
       // Fallback: try to remove tracked rules
@@ -195,6 +231,10 @@ class HeaderEditorBackground {
           await chrome.declarativeNetRequest.updateDynamicRules({
             removeRuleIds: Array.from(this.activeRules)
           });
+          
+          if (this.isFirefox) {
+            await this.delay(50);
+          }
         }
         this.activeRules.clear();
       } catch (fallbackError) {
