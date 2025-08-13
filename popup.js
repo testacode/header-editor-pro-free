@@ -206,6 +206,18 @@ class HeaderEditorPopup {
       this.validateJSON();
     });
 
+    // Close popup when clicking outside (blur event)
+    window.addEventListener('blur', () => {
+      // Only close if no modal is open
+      const modalOverlay = document.getElementById('modal-overlay');
+      const dropdown = document.getElementById('profile-dropdown');
+      
+      if (modalOverlay.style.display === 'none' && 
+          dropdown.style.display === 'none') {
+        window.close();
+      }
+    });
+
     // Profile management
     document.getElementById('add-profile').addEventListener('click', () => {
       this.createNewProfile();
