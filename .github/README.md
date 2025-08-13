@@ -1,6 +1,6 @@
 # GitHub Actions Workflows
 
-This directory contains automated workflows for building and releasing the Header Editor Pro - Free Chrome extension.
+This directory contains automated workflows for building and releasing the Header Editor Pro - Free extension for both Chrome and Firefox.
 
 ## 🔄 Available Workflows
 
@@ -95,12 +95,19 @@ The workflows automatically include only the essential extension files:
 - `CLAUDE.md` - Development notes
 - `index.html` - GitHub Pages landing page
 
-## 🚀 Using the ZIP for Chrome Web Store
+## 🚀 Using the ZIP for Extension Stores
 
+### Chrome Web Store
 1. **Download** the ZIP file from GitHub release
 2. **Extract** to verify contents
 3. **Upload** directly to Chrome Web Store Developer Dashboard
 4. **Submit** for review
+
+### Firefox Add-ons (AMO)
+1. **Download** the same ZIP file from GitHub release
+2. **Extract** to verify contents (same files work for both browsers)
+3. **Upload** directly to Firefox Add-ons Developer Hub
+4. **Submit** for review (free, no payment required)
 
 ## 🛠️ Workflow Customization
 

@@ -2,11 +2,12 @@
 
 <div align="center">
 
-🚀 **Professional HTTP Header Editor for Chrome** 🚀
+🚀 **Professional HTTP Header Editor for Chrome & Firefox** 🚀
 
 *Completely free alternative to paid header modification tools*
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-brightgreen?logo=googlechrome&logoColor=white)]()
+[![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--ons-orange?logo=firefox&logoColor=white)]()
 [![GitHub](https://img.shields.io/badge/GitHub-Open%20Source-blue?logo=github&logoColor=white)](https://github.com/testacode/header-editor-pro-free)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)]()
 
@@ -42,17 +43,31 @@
 
 ## 🚀 Installation
 
-### From Chrome Web Store (Recommended)
+### Chrome Web Store (Recommended)
 1. Visit the [Chrome Web Store](#) (link coming soon)
 2. Click "Add to Chrome"
 3. Click "Add Extension" in the popup
 
+### Firefox Add-ons (Recommended)
+1. Visit [Firefox Add-ons](#) (link coming soon)
+2. Click "Add to Firefox"
+3. Click "Add" in the confirmation popup
+
 ### Manual Installation (Developer Mode)
+
+#### Chrome
 1. Download or clone this repository
 2. Open Chrome and go to `chrome://extensions`
 3. Enable "Developer mode" (top right)
 4. Click "Load unpacked" and select the project folder
 5. The extension icon will appear in your toolbar
+
+#### Firefox
+1. Download or clone this repository
+2. Open Firefox and go to `about:debugging`
+3. Click "This Firefox" in the sidebar
+4. Click "Load Temporary Add-on"
+5. Select the `manifest.json` file from the project folder
 
 ## 💡 How to Use
 
@@ -81,6 +96,11 @@
 - **Quick add**: "+" button to add request headers
 
 ## 🔧 Technical Details
+
+### Cross-Browser Compatibility
+🌟 **Single Codebase** - Same extension works on both Chrome and Firefox using Manifest V3  
+⚡ **Universal APIs** - Uses standard WebExtensions APIs supported by both browsers  
+🔧 **Automatic Detection** - Extension adapts to browser-specific features automatically
 
 ### Permissions Used
 - **declarativeNetRequest**: Modify HTTP headers efficiently
