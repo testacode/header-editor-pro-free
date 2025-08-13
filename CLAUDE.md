@@ -10,8 +10,9 @@ Header Editor Pro - Free is a professional Chrome extension for modifying HTTP r
 
 **Current Structure:**
 - `manifest.json` - Chrome extension manifest (v3) with declarativeNetRequest permissions
-- `popup.html` - Professional ModHeader-style interface with sidebar and dark theme (600x500px)
-- `popup.js` - Complete header and profile management system with unlimited profiles
+- `popup.html` - Clean HTML structure referencing external CSS and JS files (191 lines)
+- `popup.css` - Professional dark theme styling with ModHeader-style interface (652 lines)
+- `popup.js` - Complete header and profile management system with unlimited profiles (1041 lines)
 - `background.js` - Service worker handling header modification via declarativeNetRequest API
 - `icon.png` - Extension icon from Chrome developer tutorial
 
