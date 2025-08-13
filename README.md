@@ -135,6 +135,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Privacy Policy**: [View Policy](https://testacode.github.io/header-editor-pro-free/privacy.html)
 - **Documentation**: This README and inline code comments
 
+## 💖 Support This Project
+
+If you find Header Editor Pro - Free helpful, consider supporting its development:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/☕%20Buy%20Me%20A%20Coffee-Support-orange?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/charlybrown)
+[![GitHub Sponsors](https://img.shields.io/badge/💝%20GitHub%20Sponsors-Support-pink?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/testacode)
+
+Your support helps keep this extension **completely free** and actively maintained for the developer community!
+
 ## 🌟 Show Your Support
 
 If you find this extension helpful:
@@ -142,6 +151,7 @@ If you find this extension helpful:
 - 🔄 Share with fellow developers
 - 🐛 Report bugs and suggest features
 - 📝 Contribute to the codebase
+- ☕ Buy me a coffee to fuel development
 
 ---
 
