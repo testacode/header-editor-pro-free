@@ -145,7 +145,8 @@ body {
   border-radius: 4px;
   transition: background 0.2s;
   min-width: 100px;
-  max-width: 200px;
+  max-width: 400px;
+  flex: 1;
 }
 
 .profile-name-input:hover {
