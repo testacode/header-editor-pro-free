@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required for creating releases
     
     steps:
     - name: Checkout repository
@@ -48,9 +50,9 @@ jobs:
         echo "Extension version: $VERSION"
         
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
+      if: github.ref_type == 'tag'
       with:
-        tag_name: ${{ github.ref_name }}
         name: "Header Editor Pro - Free v${{ steps.get_version.outputs.version }}"
         body: |
           ## 🚀 Header Editor Pro - Free v${{ steps.get_version.outputs.version }}

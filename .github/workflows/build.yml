@@ -47,3 +47,4 @@ jobs:
         name: header-editor-pro-free-extension
         path: header-editor-pro-free-extension.zip
         retention-days: 30
+        compression-level: 6  # Optimize compression
