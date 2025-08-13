@@ -289,6 +289,54 @@
         padding: 24px 20px;
       }
 
+      /* Modal Options */
+      .modal-options {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #404040;
+      }
+
+      .option-group {
+        margin-bottom: 16px;
+      }
+
+      .option-group:last-child {
+        margin-bottom: 0;
+      }
+
+      .option-label {
+        display: block;
+        font-size: 13px;
+        color: #ccc;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .radio-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #fff;
+        padding: 4px 0;
+      }
+
+      .radio-option input[type="radio"] {
+        accent-color: #4caf50;
+        margin: 0;
+      }
+
+      .radio-option:hover {
+        color: #4caf50;
+      }
+
       .textarea-container {
         position: relative;
       }
@@ -660,11 +708,42 @@
             <button class="modal-close" id="modal-close">✕</button>
           </div>
           <div class="modal-body">
+            <!-- Export/Import Options -->
+            <div class="modal-options" id="modal-options">
+              <div class="option-group">
+                <label class="option-label">Export scope:</label>
+                <div class="radio-group">
+                  <label class="radio-option">
+                    <input type="radio" name="export-scope" value="current" checked>
+                    <span>Current profile only</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="export-scope" value="all">
+                    <span>All profiles</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="option-group" id="import-options">
+                <label class="option-label">Import mode:</label>
+                <div class="radio-group">
+                  <label class="radio-option">
+                    <input type="radio" name="import-mode" value="new" checked>
+                    <span>Create new profile</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="import-mode" value="replace">
+                    <span>Replace current profile</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
             <div class="textarea-container">
               <textarea
                 id="json-textarea"
                 placeholder="Paste your JSON configuration here..."
-                rows="12"
+                rows="10"
               ></textarea>
               <div class="validation-message" id="validation-message"></div>
             </div>

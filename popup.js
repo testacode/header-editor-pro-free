@@ -638,6 +638,11 @@ class HeaderEditorPopup {
     document.getElementById('modal-action').style.display = 'block';
     document.getElementById('modal-copy').style.display = 'none';
     document.getElementById('validation-message').textContent = '';
+    
+    // Show import options, hide export options
+    document.getElementById('import-options').style.display = 'block';
+    document.querySelector('.option-group:first-child').style.display = 'none'; // Hide export scope
+    
     document.getElementById('modal-overlay').style.display = 'flex';
     
     // Focus on textarea
@@ -648,23 +653,69 @@ class HeaderEditorPopup {
 
   showExportModal() {
     this.currentModalMode = 'export';
-    const currentProfile = this.profiles[this.currentProfile];
-    const exportData = this.convertToModHeaderFormat(currentProfile);
-    const jsonString = JSON.stringify(exportData, null, 2);
     
     document.getElementById('modal-title').textContent = 'Export Configuration';
-    document.getElementById('json-textarea').value = jsonString;
     document.getElementById('json-textarea').placeholder = '';
     document.getElementById('modal-action').style.display = 'none';
     document.getElementById('modal-copy').style.display = 'block';
-    document.getElementById('validation-message').innerHTML = 
-      '<span class="success">✓ Valid JSON - Ready to copy</span>';
+    
+    // Show export options, hide import options
+    document.querySelector('.option-group:first-child').style.display = 'block'; // Show export scope
+    document.getElementById('import-options').style.display = 'none';
+    
+    // Generate initial export based on current selection
+    this.updateExportData();
+    
+    // Add event listener for export scope changes
+    document.querySelectorAll('input[name="export-scope"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        this.updateExportData();
+      });
+    });
+    
     document.getElementById('modal-overlay').style.display = 'flex';
     
     // Select all text for easy copying
     setTimeout(() => {
       document.getElementById('json-textarea').select();
     }, 100);
+  }
+
+  updateExportData() {
+    const exportScope = document.querySelector('input[name="export-scope"]:checked').value;
+    let exportData;
+    
+    if (exportScope === 'current') {
+      const currentProfile = this.profiles[this.currentProfile];
+      exportData = this.convertToModHeaderFormat(currentProfile);
+    } else {
+      // Export all profiles in a more comprehensive format
+      exportData = {
+        profiles: {},
+        currentProfile: this.currentProfile,
+        exportedAt: new Date().toISOString()
+      };
+      
+      Object.entries(this.profiles).forEach(([key, profile]) => {
+        exportData.profiles[key] = {
+          name: profile.name,
+          description: profile.description,
+          requestHeaders: profile.requestHeaders || [],
+          responseHeaders: profile.responseHeaders || []
+        };
+      });
+    }
+    
+    const jsonString = JSON.stringify(exportData, null, 2);
+    document.getElementById('json-textarea').value = jsonString;
+    
+    const headerCount = exportScope === 'current' 
+      ? exportData.length 
+      : Object.values(this.profiles).reduce((count, profile) => 
+          count + (profile.requestHeaders?.length || 0) + (profile.responseHeaders?.length || 0), 0);
+      
+    document.getElementById('validation-message').innerHTML = 
+      `<span class="success">✓ Ready to copy (${exportScope === 'current' ? 'current profile' : Object.keys(this.profiles).length + ' profiles'})</span>`;
   }
 
   closeModal() {
@@ -720,15 +771,63 @@ class HeaderEditorPopup {
 
   async handleImportFromModal() {
     const textarea = document.getElementById('json-textarea');
+    const importMode = document.querySelector('input[name="import-mode"]:checked').value;
     
     try {
       const importData = JSON.parse(textarea.value);
-      await this.importProfileFromData(importData);
+      
+      if (importMode === 'new') {
+        await this.importProfileFromData(importData);
+      } else {
+        // Replace current profile
+        await this.replaceCurrentProfile(importData);
+      }
+      
       this.closeModal();
     } catch (error) {
       const message = document.getElementById('validation-message');
       message.innerHTML = `<span class="error">✗ Import failed: ${error.message}</span>`;
     }
+  }
+
+  async replaceCurrentProfile(importData) {
+    // Handle different import formats
+    if (Array.isArray(importData)) {
+      // ModHeader format - array of headers
+      const headers = this.extractHeadersFromArray(importData);
+      this.profiles[this.currentProfile].requestHeaders = headers;
+      this.profiles[this.currentProfile].responseHeaders = [];
+    } else if (importData.profiles) {
+      // Full export format - multiple profiles
+      if (Object.keys(importData.profiles).length === 1) {
+        // Import single profile from multi-profile export
+        const profileKey = Object.keys(importData.profiles)[0];
+        const profileData = importData.profiles[profileKey];
+        this.profiles[this.currentProfile].requestHeaders = profileData.requestHeaders || [];
+        this.profiles[this.currentProfile].responseHeaders = profileData.responseHeaders || [];
+      } else {
+        throw new Error('Cannot replace current profile with multiple profiles. Use "Create new profile" mode instead.');
+      }
+    } else {
+      throw new Error('Invalid import format');
+    }
+    
+    await this.saveData();
+    this.renderUI();
+  }
+
+  extractHeadersFromArray(importData) {
+    const headers = [];
+    importData.forEach(header => {
+      if (header.name && typeof header.name === 'string') {
+        headers.push({
+          name: header.name,
+          value: header.value || '',
+          enabled: header.enabled !== false
+        });
+      }
+    });
+    return headers;
   }
 
   async copyToClipboard() {
@@ -795,43 +894,62 @@ class HeaderEditorPopup {
   }
 
   async importProfileFromData(importData) {
-    // Validate the import data structure
-    if (!Array.isArray(importData)) {
-      throw new Error('Invalid JSON format. Expected an array of headers.');
+    if (Array.isArray(importData)) {
+      // ModHeader format - single profile from headers array
+      this.createProfileFromHeaders(importData);
+    } else if (importData.profiles) {
+      // Full export format - multiple profiles
+      await this.importMultipleProfiles(importData);
+    } else {
+      throw new Error('Invalid JSON format. Expected array of headers or profiles object.');
     }
+  }
 
-    // Extract headers from the import data
-    const requestHeaders = [];
-    const responseHeaders = [];
-
-    importData.forEach(header => {
-      if (!header.name || typeof header.name !== 'string') {
-        return; // Skip invalid headers
-      }
-
-      const newHeader = {
-        name: header.name,
-        value: header.value || '',
-        enabled: header.enabled !== false
-      };
-
-      // ModHeader format may not specify type, assume request by default
-      // or you could add logic to detect response headers
-      requestHeaders.push(newHeader);
-    });
-
-    // Create a new profile with imported data using default names
+  createProfileFromHeaders(headersArray) {
+    const headers = this.extractHeadersFromArray(headersArray);
+    
     this.profileCounter++;
     const key = 'profile_' + Date.now();
     this.profiles[key] = {
       name: `Imported Profile ${this.profileCounter}`,
       description: 'Imported from JSON - click to edit',
-      requestHeaders: requestHeaders,
-      responseHeaders: responseHeaders
+      requestHeaders: headers,
+      responseHeaders: []
     };
 
-    // Switch to the new profile
     this.currentProfile = key;
+    this.saveData();
+    this.renderUI();
+  }
+
+  async importMultipleProfiles(exportData) {
+    let importedCount = 0;
+    
+    for (const [originalKey, profileData] of Object.entries(exportData.profiles)) {
+      this.profileCounter++;
+      const newKey = 'profile_' + Date.now() + '_' + importedCount;
+      
+      this.profiles[newKey] = {
+        name: profileData.name || `Imported Profile ${this.profileCounter}`,
+        description: profileData.description || 'Imported from JSON - click to edit',
+        requestHeaders: profileData.requestHeaders || [],
+        responseHeaders: profileData.responseHeaders || []
+      };
+      
+      importedCount++;
+      
+      // Small delay to ensure unique timestamps
+      await new Promise(resolve => setTimeout(resolve, 1));
+    }
+
+    // Switch to first imported profile
+    const firstImportedKey = Object.keys(this.profiles).find(key => 
+      key.includes('profile_' + Date.now().toString().slice(0, -3))
+    );
+    if (firstImportedKey) {
+      this.currentProfile = firstImportedKey;
+    }
+
     await this.saveData();
     this.renderUI();
   }
