@@ -6,8 +6,8 @@
   "permissions": ["declarativeNetRequest", "storage", "activeTab"],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
   },
   "action": {
     "default_popup": "popup.html",
