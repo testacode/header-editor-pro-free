@@ -2,7 +2,9 @@ class ModHeaderPopup {
   constructor() {
     this.currentProfile = 'default';
     this.profiles = {};
-    this.isEnabled = false;
+    this.isEnabled = true;
+    this.isPaused = false;
+    this.profileCounter = 1;
     this.init();
   }
 
@@ -18,69 +20,92 @@ class ModHeaderPopup {
       const data = result.modHeaderData || {
         profiles: {
           default: {
-            name: 'Default Profile',
+            name: 'Default',
             requestHeaders: [],
             responseHeaders: []
           }
         },
         currentProfile: 'default',
-        enabled: false
+        enabled: true,
+        paused: false,
+        profileCounter: 1
       };
       
       this.profiles = data.profiles;
       this.currentProfile = data.currentProfile;
       this.isEnabled = data.enabled;
+      this.isPaused = data.paused || false;
+      this.profileCounter = data.profileCounter || 1;
+      
+      // Migrate old header format to include 'enabled' property
+      this.migrateHeaderFormat();
     } catch (error) {
       this.profiles = {
         default: {
-          name: 'Default Profile',
+          name: 'Default',
           requestHeaders: [],
           responseHeaders: []
         }
       };
       this.currentProfile = 'default';
-      this.isEnabled = false;
+      this.isEnabled = true;
+      this.isPaused = false;
+      this.profileCounter = 1;
     }
+  }
+
+  migrateHeaderFormat() {
+    Object.values(this.profiles).forEach(profile => {
+      ['requestHeaders', 'responseHeaders'].forEach(headerType => {
+        if (profile[headerType]) {
+          profile[headerType] = profile[headerType].map(header => ({
+            name: header.name || '',
+            value: header.value || '',
+            enabled: header.enabled !== undefined ? header.enabled : true
+          }));
+        }
+      });
+    });
   }
 
   async saveData() {
     const data = {
       profiles: this.profiles,
       currentProfile: this.currentProfile,
-      enabled: this.isEnabled
+      enabled: this.isEnabled,
+      paused: this.isPaused,
+      profileCounter: this.profileCounter
     };
     await chrome.storage.local.set({ modHeaderData: data });
     
     // Notify background script of changes
-    await chrome.runtime.sendMessage({
-      action: 'updateHeaders',
-      data: data
-    });
+    try {
+      await chrome.runtime.sendMessage({
+        action: 'updateHeaders',
+        data: data
+      });
+    } catch (error) {
+      // Background script might not be ready, ignore error
+    }
   }
 
   setupEventListeners() {
-    // Enable/Disable toggle
-    const enabledToggle = document.getElementById('enabled-toggle');
-    enabledToggle.addEventListener('change', async (e) => {
-      this.isEnabled = e.target.checked;
-      await this.saveData();
-      this.updateStatus();
+    // Toolbar buttons
+    document.getElementById('pause-btn').addEventListener('click', () => {
+      this.togglePause();
+    });
+
+    document.getElementById('add-btn').addEventListener('click', () => {
+      this.addHeader('request');
+    });
+
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+      this.refreshHeaders();
     });
 
     // Profile management
-    const profileSelect = document.getElementById('profile-select');
-    profileSelect.addEventListener('change', async (e) => {
-      this.currentProfile = e.target.value;
-      await this.saveData();
-      this.renderHeaders();
-    });
-
-    document.getElementById('add-profile-btn').addEventListener('click', () => {
+    document.getElementById('add-profile').addEventListener('click', () => {
       this.createNewProfile();
-    });
-
-    document.getElementById('delete-profile-btn').addEventListener('click', () => {
-      this.deleteCurrentProfile();
     });
 
     // Header management
@@ -94,21 +119,38 @@ class ModHeaderPopup {
   }
 
   renderUI() {
-    this.renderProfileSelect();
+    this.renderProfileCircles();
     this.renderHeaders();
-    this.updateStatus();
+    this.updateToolbar();
   }
 
-  renderProfileSelect() {
-    const select = document.getElementById('profile-select');
-    select.innerHTML = '';
+  renderProfileCircles() {
+    const container = document.getElementById('profile-circles');
+    container.innerHTML = '';
     
-    Object.entries(this.profiles).forEach(([key, profile]) => {
-      const option = document.createElement('option');
-      option.value = key;
-      option.textContent = profile.name;
-      option.selected = key === this.currentProfile;
-      select.appendChild(option);
+    Object.entries(this.profiles).forEach(([key, profile], index) => {
+      const circleDiv = document.createElement('div');
+      circleDiv.className = `profile-circle ${key === this.currentProfile ? 'active' : ''}`;
+      circleDiv.textContent = index + 1;
+      circleDiv.title = profile.name;
+      
+      // Add indicator
+      const indicator = document.createElement('div');
+      indicator.className = `profile-indicator ${key === this.currentProfile ? 'active' : 'inactive'}`;
+      circleDiv.appendChild(indicator);
+      
+      // Click to activate profile
+      circleDiv.addEventListener('click', () => {
+        this.switchProfile(key);
+      });
+
+      // Context menu for profile management
+      circleDiv.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        this.showProfileMenu(key, e.clientX, e.clientY);
+      });
+      
+      container.appendChild(circleDiv);
     });
   }
 
@@ -120,7 +162,7 @@ class ModHeaderPopup {
   renderHeadersList(type) {
     const listId = `${type}-headers-list`;
     const list = document.getElementById(listId);
-    const headers = this.profiles[this.currentProfile][`${type}Headers`];
+    const headers = this.profiles[this.currentProfile][`${type}Headers`] || [];
     
     list.innerHTML = '';
     
@@ -134,65 +176,115 @@ class ModHeaderPopup {
     const div = document.createElement('div');
     div.className = 'header-item';
     
+    // Checkbox for enable/disable
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'header-checkbox';
+    checkbox.checked = header.enabled !== false;
+    checkbox.addEventListener('change', (e) => {
+      this.updateHeader(type, index, 'enabled', e.target.checked);
+    });
+    
+    // Header name input
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
+    nameInput.className = 'header-name';
     nameInput.placeholder = 'Header name';
     nameInput.value = header.name || '';
-    nameInput.addEventListener('change', (e) => {
+    nameInput.addEventListener('input', (e) => {
       this.updateHeader(type, index, 'name', e.target.value);
     });
-    
-    const valueInput = document.createElement('input');
-    valueInput.type = 'text';
-    valueInput.placeholder = 'Header value';
-    valueInput.value = header.value || '';
-    valueInput.addEventListener('change', (e) => {
-      this.updateHeader(type, index, 'value', e.target.value);
+    nameInput.addEventListener('blur', () => {
+      this.saveData();
     });
     
-    const removeButton = document.createElement('button');
-    removeButton.className = 'danger';
-    removeButton.textContent = 'Remove';
-    removeButton.addEventListener('click', () => {
+    // Header value input
+    const valueInput = document.createElement('input');
+    valueInput.type = 'text';
+    valueInput.className = 'header-value';
+    valueInput.placeholder = 'Header value';
+    valueInput.value = header.value || '';
+    valueInput.addEventListener('input', (e) => {
+      this.updateHeader(type, index, 'value', e.target.value);
+    });
+    valueInput.addEventListener('blur', () => {
+      this.saveData();
+    });
+    
+    // Actions
+    const actions = document.createElement('div');
+    actions.className = 'header-actions';
+    
+    // Delete button
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'header-delete';
+    deleteButton.innerHTML = '✕';
+    deleteButton.title = 'Delete header';
+    deleteButton.addEventListener('click', () => {
       this.removeHeader(type, index);
     });
     
+    // Menu button
+    const menuButton = document.createElement('button');
+    menuButton.className = 'header-menu';
+    menuButton.innerHTML = '⋮';
+    menuButton.title = 'Header options';
+    
+    actions.appendChild(deleteButton);
+    actions.appendChild(menuButton);
+    
+    div.appendChild(checkbox);
     div.appendChild(nameInput);
     div.appendChild(valueInput);
-    div.appendChild(removeButton);
+    div.appendChild(actions);
     
     return div;
   }
 
-  updateStatus() {
-    const toggle = document.getElementById('enabled-toggle');
-    const statusText = document.getElementById('status-text');
-    const statusIndicator = document.getElementById('status-indicator');
+  updateToolbar() {
+    // Update profile name
+    const profileName = document.getElementById('profile-name');
+    profileName.textContent = this.profiles[this.currentProfile]?.name || 'Default';
     
-    toggle.checked = this.isEnabled;
-    statusText.textContent = this.isEnabled ? 'On' : 'Off';
-    
-    if (this.isEnabled) {
-      statusIndicator.textContent = 'Extension is active - Headers are being modified';
-      statusIndicator.className = 'status active';
+    // Update pause button
+    const pauseBtn = document.getElementById('pause-btn');
+    if (this.isPaused) {
+      pauseBtn.classList.add('paused');
+      pauseBtn.title = 'Resume Extension';
+      pauseBtn.innerHTML = '▶';
     } else {
-      statusIndicator.textContent = 'Extension is disabled';
-      statusIndicator.className = 'status inactive';
+      pauseBtn.classList.remove('paused');
+      pauseBtn.title = 'Pause Extension';
+      pauseBtn.innerHTML = '⏸';
     }
+  }
+
+  async switchProfile(profileKey) {
+    this.currentProfile = profileKey;
+    await this.saveData();
+    this.renderUI();
+  }
+
+  async togglePause() {
+    this.isPaused = !this.isPaused;
+    await this.saveData();
+    this.updateToolbar();
   }
 
   addHeader(type) {
     const headers = this.profiles[this.currentProfile][`${type}Headers`];
-    headers.push({ name: '', value: '' });
-    this.saveData();
+    headers.push({ name: '', value: '', enabled: true });
     this.renderHeadersList(type);
+    // Don't save immediately, wait for user input
   }
 
   async updateHeader(type, index, field, value) {
     const headers = this.profiles[this.currentProfile][`${type}Headers`];
     if (headers[index]) {
       headers[index][field] = value;
-      await this.saveData();
+      if (field === 'enabled') {
+        await this.saveData(); // Save immediately for enable/disable
+      }
     }
   }
 
@@ -206,6 +298,7 @@ class ModHeaderPopup {
   createNewProfile() {
     const name = prompt('Enter profile name:');
     if (name && name.trim()) {
+      this.profileCounter++;
       const key = 'profile_' + Date.now();
       this.profiles[key] = {
         name: name.trim(),
@@ -231,11 +324,27 @@ class ModHeaderPopup {
       this.renderUI();
     }
   }
+
+  showProfileMenu(profileKey, x, y) {
+    // Simple context menu - could be enhanced
+    if (profileKey !== 'default') {
+      if (confirm(`Delete profile "${this.profiles[profileKey].name}"?`)) {
+        delete this.profiles[profileKey];
+        if (this.currentProfile === profileKey) {
+          this.currentProfile = 'default';
+        }
+        this.saveData();
+        this.renderUI();
+      }
+    }
+  }
+
+  refreshHeaders() {
+    this.renderHeaders();
+  }
 }
 
-// Global instance for HTML event handlers
-let popup;
-
+// Initialize popup when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  popup = new ModHeaderPopup();
+  new ModHeaderPopup();
 });

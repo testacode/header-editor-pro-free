@@ -29,10 +29,16 @@ class ModHeaderBackground {
       const result = await chrome.storage.local.get(['modHeaderData']);
       const data = result.modHeaderData || {
         profiles: {
-          default: { requestHeaders: [], responseHeaders: [] }
+          default: { 
+            name: 'Default',
+            requestHeaders: [], 
+            responseHeaders: [] 
+          }
         },
         currentProfile: 'default',
-        enabled: false
+        enabled: true,
+        paused: false,
+        profileCounter: 1
       };
 
       await this.applyHeaderRules(data);
@@ -49,7 +55,7 @@ class ModHeaderBackground {
     // Clear existing rules
     await this.clearAllRules();
 
-    if (!data.enabled) {
+    if (!data.enabled || data.paused) {
       return;
     }
 
@@ -60,19 +66,25 @@ class ModHeaderBackground {
 
     const rules = [];
 
-    // Process request headers
+    // Process request headers - only enabled ones
     if (currentProfile.requestHeaders && currentProfile.requestHeaders.length > 0) {
-      const requestHeaderRule = this.createRequestHeaderRule(currentProfile.requestHeaders);
-      if (requestHeaderRule) {
-        rules.push(requestHeaderRule);
+      const enabledRequestHeaders = currentProfile.requestHeaders.filter(h => h.enabled !== false);
+      if (enabledRequestHeaders.length > 0) {
+        const requestHeaderRule = this.createRequestHeaderRule(enabledRequestHeaders);
+        if (requestHeaderRule) {
+          rules.push(requestHeaderRule);
+        }
       }
     }
 
-    // Process response headers
+    // Process response headers - only enabled ones
     if (currentProfile.responseHeaders && currentProfile.responseHeaders.length > 0) {
-      const responseHeaderRule = this.createResponseHeaderRule(currentProfile.responseHeaders);
-      if (responseHeaderRule) {
-        rules.push(responseHeaderRule);
+      const enabledResponseHeaders = currentProfile.responseHeaders.filter(h => h.enabled !== false);
+      if (enabledResponseHeaders.length > 0) {
+        const responseHeaderRule = this.createResponseHeaderRule(enabledResponseHeaders);
+        if (responseHeaderRule) {
+          rules.push(responseHeaderRule);
+        }
       }
     }
 

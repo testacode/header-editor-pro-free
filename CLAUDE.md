@@ -4,17 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ModHeader is a Chrome extension for modifying HTTP request and response headers during testing and development. This is a basic Chrome extension following the Hello World tutorial structure.
+ModHeader is a professional Chrome extension for modifying HTTP request and response headers during testing and development. Features unlimited profiles, individual header controls, and a modern dark-themed interface matching the original ModHeader extension.
 
 ## Architecture
 
 **Current Structure:**
-- `manifest.json` - Chrome extension manifest (v3) with basic popup action
-- `popup.html` - Simple popup interface with title and description
-- `popup.js` - Basic JavaScript that logs popup loading
+- `manifest.json` - Chrome extension manifest (v3) with declarativeNetRequest permissions
+- `popup.html` - Professional ModHeader-style interface with sidebar and dark theme (600x500px)
+- `popup.js` - Complete header and profile management system with unlimited profiles
+- `background.js` - Service worker handling header modification via declarativeNetRequest API
 - `icon.png` - Extension icon from Chrome developer tutorial
 
-**Extension Type:** Basic popup-only extension with no background service worker, content scripts, or permissions currently configured.
+**Extension Features:**
+- **Profile Management**: Unlimited profiles with numbered circle UI and active/inactive indicators
+- **Header Modification**: Both request and response header support with individual enable/disable checkboxes
+- **Professional UI**: Dark theme matching original ModHeader with left sidebar navigation
+- **Pause Functionality**: Global pause/resume without losing configurations
+- **Real-time Updates**: Instant header rule application through background service worker
+- **Persistent Storage**: All configurations saved automatically using Chrome storage API
 
 ## Development Workflow
 
@@ -29,10 +36,40 @@ ModHeader is a Chrome extension for modifying HTTP request and response headers 
 - HTML/JS changes in popup require extension reload to see changes
 - Use Chrome DevTools to debug popup (right-click extension icon > Inspect popup)
 
-## Future Development Considerations
+## User Interface
 
-The extension is currently a basic Hello World implementation. To fulfill the "ModHeader" purpose of header modification, it will need:
-- `declarativeNetRequest` permissions in manifest
-- Background service worker for header manipulation
-- More sophisticated popup UI for header configuration
-- Storage permissions for saving header configurations
+**Layout:**
+- **Sidebar (60px)**: Profile circles with numbered indicators and active/inactive status
+- **Main Content**: Top toolbar with profile name and action buttons, content area with header sections
+- **Headers Display**: Condensed format with checkboxes, name/value inputs, delete and menu buttons
+
+**Key UI Elements:**
+- Profile circles: Click to switch, right-click to delete (except default)
+- Pause button: ⏸ (pause) / ▶ (resume) in toolbar
+- Header checkboxes: Individual enable/disable per header
+- Add buttons: + in toolbar and at bottom of each section
+
+## Data Structure
+
+**Storage Format:**
+```javascript
+{
+  profiles: {
+    'profile_id': {
+      name: 'Profile Name',
+      requestHeaders: [{ name: 'header', value: 'value', enabled: true }],
+      responseHeaders: [{ name: 'header', value: 'value', enabled: true }]
+    }
+  },
+  currentProfile: 'profile_id',
+  enabled: true,
+  paused: false,
+  profileCounter: 1
+}
+```
+
+**Future Enhancements:**
+- URL filtering for targeted header modification
+- Import/Export functionality for sharing profiles
+- Header templates and presets for common use cases
+- Advanced context menus for profile and header management
