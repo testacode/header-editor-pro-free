@@ -39,7 +39,23 @@ This directory contains automated workflows for building and releasing the Heade
 
 **How to create a release:**
 
-#### Option A: Command Line
+#### Option A: Automated Scripts (Recommended)
+```bash
+# Interactive release script (Mac/Linux)
+./scripts/release.sh
+
+# Cross-platform Node.js version  
+node scripts/release.js
+```
+
+**Benefits:**
+- ✅ Interactive version selection (patch/minor/major/custom)
+- ✅ Automatic manifest.json updates
+- ✅ Proper commit messages and tags
+- ✅ Safety checks and validation
+- ✅ No manual errors
+
+#### Option B: Manual Command Line
 ```bash
 # 1. Update version in manifest.json
 # 2. Commit your changes
@@ -51,11 +67,13 @@ git tag v1.1.0
 git push origin main --tags
 ```
 
-#### Option B: GitHub UI
+#### Option C: GitHub UI
 1. Go to repository **Releases** page
 2. Click **"Create a new release"**
 3. Create a new tag (e.g., `v1.1.0`)
 4. The workflow will run automatically
+
+**📝 Note:** All methods trigger the same GitHub Actions workflow to build the ZIP and create the release.
 
 ## 📦 Files Included in ZIP Package
 

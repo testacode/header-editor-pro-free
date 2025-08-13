@@ -113,7 +113,10 @@
 ├── popup.js              # Frontend logic and profile management
 ├── background.js         # Service worker for header modification
 ├── privacy.html          # Privacy policy page
-└── icons/               # Extension icons (16px, 32px, 48px, 128px)
+├── icons/               # Extension icons (16px, 32px, 48px, 128px)
+├── scripts/             # Release automation scripts
+├── .github/workflows/   # GitHub Actions for automated builds
+└── screenshots/         # Extension screenshots
 ```
 
 ### Local Development
@@ -122,6 +125,34 @@
 3. Go to `chrome://extensions`
 4. Click "Reload" on the extension card
 5. Test your changes
+
+### 🚀 Creating Releases
+
+#### Option 1: Automated Script (Recommended)
+```bash
+# Interactive release script (Mac/Linux)
+./scripts/release.sh
+
+# Cross-platform Node.js version  
+node scripts/release.js
+```
+
+**The script will:**
+- Update version in manifest.json
+- Create proper git commit and tag
+- Push to GitHub (triggers automated ZIP build)
+- Guide you through the entire process
+
+#### Option 2: Manual Process
+```bash
+# Update version in manifest.json first, then:
+git add .
+git commit -m "release: bump version to 1.1.0"
+git tag v1.1.0
+git push origin main --tags
+```
+
+Both methods trigger **GitHub Actions** to automatically build the extension ZIP and create a GitHub release.
 
 ### Contributing
 Contributions are welcome! Please:
