@@ -21,7 +21,7 @@ class HeaderEditorPopup {
         profiles: {
           default: {
             name: 'Default',
-            description: '',
+            description: 'Click to edit description',
             requestHeaders: [],
             responseHeaders: []
           }
@@ -47,7 +47,7 @@ class HeaderEditorPopup {
       this.profiles = {
         default: {
           name: 'Default',
-          description: '',
+          description: 'Click to edit description',
           requestHeaders: [],
           responseHeaders: []
         }
@@ -74,9 +74,13 @@ class HeaderEditorPopup {
   }
 
   migrateProfileFormat() {
-    Object.values(this.profiles).forEach(profile => {
+    Object.entries(this.profiles).forEach(([key, profile]) => {
       if (profile.description === undefined) {
-        profile.description = '';
+        // Give default profile and others a placeholder description
+        profile.description = key === 'default' ? 'Click to edit description' : '';
+      } else if (key === 'default' && profile.description === '') {
+        // Update existing empty default profile description
+        profile.description = 'Click to edit description';
       }
     });
   }
