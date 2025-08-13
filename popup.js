@@ -250,6 +250,15 @@ class HeaderEditorPopup {
   createHeaderElement(type, header, index) {
     const div = document.createElement('div');
     div.className = 'header-item';
+    div.draggable = true;
+    div.dataset.headerType = type;
+    div.dataset.headerIndex = index;
+    
+    // Drag handle
+    const dragHandle = document.createElement('div');
+    dragHandle.className = 'drag-handle';
+    dragHandle.innerHTML = '⋮⋮';
+    dragHandle.title = 'Drag to reorder';
     
     // Checkbox for enable/disable
     const checkbox = document.createElement('input');
@@ -308,10 +317,14 @@ class HeaderEditorPopup {
     actions.appendChild(deleteButton);
     actions.appendChild(menuButton);
     
+    div.appendChild(dragHandle);
     div.appendChild(checkbox);
     div.appendChild(nameInput);
     div.appendChild(valueInput);
     div.appendChild(actions);
+    
+    // Add drag and drop event listeners
+    this.addDragListeners(div, type, index);
     
     return div;
   }
@@ -477,6 +490,93 @@ class HeaderEditorPopup {
   closeDropdown() {
     const dropdown = document.getElementById('profile-dropdown');
     dropdown.style.display = 'none';
+  }
+
+  addDragListeners(element, type, index) {
+    element.addEventListener('dragstart', (e) => {
+      this.handleDragStart(e, type, index);
+    });
+
+    element.addEventListener('dragover', (e) => {
+      this.handleDragOver(e);
+    });
+
+    element.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+    });
+
+    element.addEventListener('dragleave', (e) => {
+      if (!e.currentTarget.contains(e.relatedTarget)) {
+        e.currentTarget.classList.remove('drop-target');
+      }
+    });
+
+    element.addEventListener('drop', (e) => {
+      this.handleDrop(e, type, index);
+    });
+
+    element.addEventListener('dragend', (e) => {
+      this.handleDragEnd(e);
+    });
+  }
+
+  handleDragStart(e, type, index) {
+    this.dragData = { type, index };
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.target.outerHTML);
+  }
+
+  handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    
+    // Clear all drop targets first
+    document.querySelectorAll('.drop-target').forEach(item => {
+      item.classList.remove('drop-target');
+    });
+    
+    const headerItem = e.target.closest('.header-item');
+    if (headerItem && !headerItem.classList.contains('dragging')) {
+      headerItem.classList.add('drop-target');
+    }
+  }
+
+  handleDrop(e, type, targetIndex) {
+    e.preventDefault();
+    
+    if (!this.dragData) return;
+    
+    const { type: sourceType, index: sourceIndex } = this.dragData;
+    
+    // Only allow reordering within the same type (request/response)
+    if (sourceType !== type) return;
+    
+    if (sourceIndex !== targetIndex) {
+      this.reorderHeaders(type, sourceIndex, targetIndex);
+    }
+    
+    this.clearDragStyles();
+  }
+
+  handleDragEnd(e) {
+    this.clearDragStyles();
+    this.dragData = null;
+  }
+
+  clearDragStyles() {
+    document.querySelectorAll('.header-item').forEach(item => {
+      item.classList.remove('dragging', 'drop-target');
+    });
+  }
+
+  async reorderHeaders(type, fromIndex, toIndex) {
+    const headers = this.profiles[this.currentProfile][`${type}Headers`];
+    const movedHeader = headers.splice(fromIndex, 1)[0];
+    headers.splice(toIndex, 0, movedHeader);
+    
+    await this.saveData();
+    this.renderHeadersList(type);
   }
 
   showImportDialog() {

@@ -307,6 +307,37 @@
       background: #252525;
     }
 
+    .header-item.dragging {
+      opacity: 0.5;
+      background: #333;
+    }
+
+    .header-item.drop-target {
+      background: #2a4a2a;
+      border-top: 2px solid #4CAF50;
+    }
+
+    .drag-handle {
+      color: #666;
+      cursor: move;
+      padding: 4px;
+      margin-right: 8px;
+      font-size: 12px;
+      line-height: 1;
+      user-select: none;
+      transition: color 0.2s;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+
+    .drag-handle:hover {
+      color: #999;
+    }
+
+    .header-item:hover .drag-handle {
+      color: #ccc;
+    }
+
     .header-checkbox {
       width: 16px;
       height: 16px;
