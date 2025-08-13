@@ -120,6 +120,10 @@ class HeaderEditorPopup {
       this.showImportDialog();
     });
 
+    document.getElementById('export-btn').addEventListener('click', () => {
+      this.exportCurrentProfile();
+    });
+
     // Handle file input change
     document.getElementById('import-file-input').addEventListener('change', (e) => {
       this.handleImportFile(e);
@@ -464,6 +468,61 @@ class HeaderEditorPopup {
     this.renderUI();
 
     alert(`Successfully imported ${requestHeaders.length} headers to profile "${profileName.trim()}"`);
+  }
+
+  exportCurrentProfile() {
+    const currentProfile = this.profiles[this.currentProfile];
+    if (!currentProfile) {
+      alert('No profile selected to export');
+      return;
+    }
+
+    // Convert to ModHeader format
+    const exportData = this.convertToModHeaderFormat(currentProfile);
+    
+    // Create and download the file
+    this.downloadJSON(exportData, `${currentProfile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_headers.json`);
+  }
+
+  convertToModHeaderFormat(profile) {
+    const headers = [];
+    
+    // Add request headers
+    if (profile.requestHeaders) {
+      profile.requestHeaders.forEach(header => {
+        if (header.name && header.name.trim()) {
+          headers.push({
+            appendMode: false,
+            enabled: header.enabled !== false,
+            name: header.name,
+            value: header.value || ''
+          });
+        }
+      });
+    }
+
+    // Add response headers (if needed in the future)
+    // Response headers would need different handling in ModHeader format
+    
+    return headers;
+  }
+
+  downloadJSON(data, filename) {
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up the URL object
+    URL.revokeObjectURL(url);
   }
 }
 
