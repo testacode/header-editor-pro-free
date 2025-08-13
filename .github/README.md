@@ -1,0 +1,143 @@
+# GitHub Actions Workflows
+
+This directory contains automated workflows for building and releasing the Header Editor Pro - Free Chrome extension.
+
+## 🔄 Available Workflows
+
+### 1. `build.yml` - Development Builds
+
+**Triggers:**
+- Every push to `main` or `master` branch
+- Every pull request to `main` or `master` branch
+
+**What it does:**
+- Creates a clean ZIP package with only extension files
+- Uploads ZIP as a downloadable artifact
+- Keeps artifacts for 30 days
+- Perfect for testing development versions
+
+**How to use:**
+1. Push your changes to main branch
+2. Go to **Actions** tab in GitHub repository
+3. Click on the latest workflow run
+4. Download the `header-editor-pro-free-extension` artifact
+5. Extract and load in Chrome for testing
+
+---
+
+### 2. `release.yml` - Official Releases
+
+**Triggers:**
+- When you push a version tag (e.g., `v1.0.0`, `v1.1.0`)
+- Manual trigger from GitHub Actions UI
+
+**What it does:**
+- Creates a professional GitHub release
+- Generates ZIP file for Chrome Web Store submission
+- Extracts version number from `manifest.json`
+- Includes detailed release notes with installation instructions
+
+**How to create a release:**
+
+#### Option A: Command Line
+```bash
+# 1. Update version in manifest.json
+# 2. Commit your changes
+git add .
+git commit -m "release: bump version to 1.1.0"
+
+# 3. Create and push tag
+git tag v1.1.0
+git push origin main --tags
+```
+
+#### Option B: GitHub UI
+1. Go to repository **Releases** page
+2. Click **"Create a new release"**
+3. Create a new tag (e.g., `v1.1.0`)
+4. The workflow will run automatically
+
+## 📦 Files Included in ZIP Package
+
+The workflows automatically include only the essential extension files:
+
+✅ **Included:**
+- `manifest.json` - Extension configuration
+- `popup.html` - Main UI interface
+- `popup.js` - Frontend logic
+- `background.js` - Service worker
+- `privacy.html` - Privacy policy page
+- `icons/` - Extension icons (if folder exists)
+
+❌ **Excluded:**
+- `README.md` - Documentation
+- `screenshots/` - Screenshots for documentation
+- `.github/` - Workflow files
+- `.git/` - Git repository files
+- `CLAUDE.md` - Development notes
+- `index.html` - GitHub Pages landing page
+
+## 🚀 Using the ZIP for Chrome Web Store
+
+1. **Download** the ZIP file from GitHub release
+2. **Extract** to verify contents
+3. **Upload** directly to Chrome Web Store Developer Dashboard
+4. **Submit** for review
+
+## 🛠️ Workflow Customization
+
+### Adding New Files to ZIP
+Edit both workflow files and add your file to the copy commands:
+```yaml
+cp your-new-file.js extension-build/
+```
+
+### Changing Triggers
+Modify the `on:` section in each workflow file:
+```yaml
+on:
+  push:
+    branches: [ main, develop ]  # Add more branches
+```
+
+### Auto-Publishing to Chrome Web Store
+The `release.yml` has a placeholder for Chrome Web Store auto-publishing. To enable:
+1. Get Chrome Web Store API credentials
+2. Add them as GitHub Secrets
+3. Change `if: false` to `if: true` in the upload step
+4. Implement the upload script
+
+## 📊 Workflow Status
+
+You can check workflow status:
+- **Actions tab** - See all workflow runs
+- **Repository badges** - Add status badges to main README
+- **Email notifications** - GitHub sends emails on failures
+
+## 🔧 Troubleshooting
+
+### Workflow Not Triggering
+- Check branch names match (main vs master)
+- Ensure tag format is correct (`v1.0.0` not `1.0.0`)
+- Verify you have proper permissions
+
+### ZIP Missing Files
+- Check file paths in workflow
+- Ensure files exist in repository
+- Review workflow logs in Actions tab
+
+### Release Creation Failed
+- Check `GITHUB_TOKEN` permissions
+- Verify tag doesn't already exist
+- Review manifest.json syntax for version extraction
+
+## 💡 Tips
+
+1. **Test first** - Use development builds before creating releases
+2. **Version consistency** - Ensure manifest.json version matches your git tag
+3. **Clean releases** - Always test the ZIP package before submitting to Chrome Web Store
+4. **Documentation** - Update main README.md with new features before releasing
+
+---
+
+**Need help?** Check the [GitHub Actions documentation](https://docs.github.com/en/actions) or open an issue in this repository.

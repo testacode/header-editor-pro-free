@@ -1,0 +1,101 @@
+name: Build and Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0, v1.1.0, etc.
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Create extension ZIP
+      run: |
+        # Create a clean directory for the extension files
+        mkdir -p extension-build
+        
+        # Copy only the files needed for the Chrome extension
+        cp manifest.json extension-build/
+        cp popup.html extension-build/
+        cp popup.js extension-build/
+        cp background.js extension-build/
+        cp privacy.html extension-build/
+        
+        # Copy icons directory if it exists
+        if [ -d "icons" ]; then
+          cp -r icons extension-build/
+        fi
+        
+        # Create the ZIP file
+        cd extension-build
+        zip -r ../header-editor-pro-free-extension.zip .
+        cd ..
+        
+        # Verify the ZIP contents
+        echo "ZIP file contents:"
+        unzip -l header-editor-pro-free-extension.zip
+        
+    - name: Get version from manifest
+      id: get_version
+      run: |
+        VERSION=$(cat manifest.json | grep '"version"' | cut -d'"' -f4)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Extension version: $VERSION"
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: "Header Editor Pro - Free v${{ steps.get_version.outputs.version }}"
+        body: |
+          ## 🚀 Header Editor Pro - Free v${{ steps.get_version.outputs.version }}
+          
+          ### 📦 Chrome Extension Package
+          Download the `header-editor-pro-free-extension.zip` file below and install it in Chrome:
+          
+          **Installation Steps:**
+          1. Download the ZIP file
+          2. Extract it to a folder
+          3. Open Chrome and go to `chrome://extensions`
+          4. Enable "Developer mode" 
+          5. Click "Load unpacked" and select the extracted folder
+          
+          ### 🔄 What's New
+          - Check the commit history for detailed changes
+          - All features remain completely free
+          - No data collection or tracking
+          
+          ### 🌟 Features
+          - ✅ Unlimited profiles
+          - ✅ Real-time header modification  
+          - ✅ Professional dark UI
+          - ✅ Individual header controls
+          - ✅ Privacy-focused (local storage only)
+          
+          **Support this project:** [Buy me a coffee](https://buymeacoffee.com/charlybrown) ☕
+        draft: false
+        prerelease: false
+        
+    - name: Upload ZIP to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./header-editor-pro-free-extension.zip
+        asset_name: header-editor-pro-free-extension.zip
+        asset_content_type: application/zip
+        
+    - name: Upload to Chrome Web Store (Optional)
+      if: false  # Set to true when you want to auto-publish to Chrome Web Store
+      run: |
+        echo "Auto-upload to Chrome Web Store can be configured here"
+        echo "You would need to add Chrome Web Store API credentials"

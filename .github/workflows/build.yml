@@ -1,0 +1,49 @@
+name: Build Extension ZIP
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Create extension ZIP
+      run: |
+        # Create a clean directory for the extension files
+        mkdir -p extension-build
+        
+        # Copy only the files needed for the Chrome extension
+        cp manifest.json extension-build/
+        cp popup.html extension-build/
+        cp popup.js extension-build/
+        cp background.js extension-build/
+        cp privacy.html extension-build/
+        
+        # Copy icons directory if it exists
+        if [ -d "icons" ]; then
+          cp -r icons extension-build/
+        fi
+        
+        # Create the ZIP file
+        cd extension-build
+        zip -r ../header-editor-pro-free-extension.zip .
+        cd ..
+        
+        # Show file size and contents
+        ls -lh header-editor-pro-free-extension.zip
+        echo "ZIP file contents:"
+        unzip -l header-editor-pro-free-extension.zip
+        
+    - name: Upload ZIP as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: header-editor-pro-free-extension
+        path: header-editor-pro-free-extension.zip
+        retention-days: 30
