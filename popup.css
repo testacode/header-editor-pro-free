@@ -622,21 +622,6 @@ body {
   background: rgba(244, 67, 54, 0.1);
 }
 
-.header-menu {
-  background: none;
-  border: none;
-  color: #666;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 4px;
-  border-radius: 3px;
-  transition: all 0.2s;
-}
-
-.header-menu:hover {
-  background: #333;
-  color: #ccc;
-}
 
 .add-header-btn {
   display: flex;

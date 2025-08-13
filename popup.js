@@ -245,6 +245,7 @@ class HeaderEditorPopup {
     document.getElementById('add-response-header').addEventListener('click', () => {
       this.addHeader('response');
     });
+
   }
 
   renderUI() {
@@ -321,7 +322,7 @@ class HeaderEditorPopup {
     // Drag handle
     const dragHandle = document.createElement('div');
     dragHandle.className = 'drag-handle';
-    dragHandle.innerHTML = '⋮⋮';
+    dragHandle.innerHTML = '<i class="fas fa-grip-vertical"></i>';
     dragHandle.title = 'Drag to reorder';
     
     // Checkbox for enable/disable
@@ -372,14 +373,7 @@ class HeaderEditorPopup {
       this.removeHeader(type, index);
     });
     
-    // Menu button
-    const menuButton = document.createElement('button');
-    menuButton.className = 'header-menu';
-    menuButton.innerHTML = '⋮';
-    menuButton.title = 'Header options';
-    
     actions.appendChild(deleteButton);
-    actions.appendChild(menuButton);
     
     div.appendChild(dragHandle);
     div.appendChild(checkbox);
@@ -566,11 +560,11 @@ class HeaderEditorPopup {
     // Update delete item state based on current profile
     if (this.currentProfile === 'default') {
       deleteItem.classList.add('disabled');
-      deleteItem.innerHTML = '<span>🗑️</span><span>Cannot delete default profile</span>';
+      deleteItem.innerHTML = '<i class="fas fa-trash-alt"></i><span>Cannot delete default profile</span>';
     } else {
       deleteItem.classList.remove('disabled');
       deleteItem.classList.add('danger');
-      deleteItem.innerHTML = '<span>🗑️</span><span>Delete Profile</span>';
+      deleteItem.innerHTML = '<i class="fas fa-trash-alt"></i><span>Delete Profile</span>';
     }
     
     // Toggle dropdown visibility
@@ -581,6 +575,7 @@ class HeaderEditorPopup {
     const dropdown = document.getElementById('profile-dropdown');
     dropdown.style.display = 'none';
   }
+
 
   addDragListeners(element, type, index) {
     element.addEventListener('dragstart', (e) => {
