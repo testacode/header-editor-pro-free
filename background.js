@@ -52,9 +52,10 @@ class HeaderEditorBackground {
   }
 
   async applyHeaderRules(data) {
-    // Clear existing rules
+    // Clear existing rules first
     await this.clearAllRules();
 
+    // If extension is disabled or paused, don't apply any new rules
     if (!data.enabled || data.paused) {
       return;
     }
@@ -174,19 +175,25 @@ class HeaderEditorBackground {
 
   async clearAllRules() {
     try {
-      if (this.activeRules.size > 0) {
+      // Always get current dynamic rules to ensure we remove everything
+      const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
+      const allRuleIds = existingRules.map(rule => rule.id);
+      
+      if (allRuleIds.length > 0) {
         await chrome.declarativeNetRequest.updateDynamicRules({
-          removeRuleIds: Array.from(this.activeRules)
+          removeRuleIds: allRuleIds
         });
-        this.activeRules.clear();
       }
+      
+      // Clear our tracking
+      this.activeRules.clear();
+      
     } catch (error) {
-      // If specific removal fails, try to get and remove all dynamic rules
+      // Fallback: try to remove tracked rules
       try {
-        const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
-        if (existingRules.length > 0) {
+        if (this.activeRules.size > 0) {
           await chrome.declarativeNetRequest.updateDynamicRules({
-            removeRuleIds: existingRules.map(rule => rule.id)
+            removeRuleIds: Array.from(this.activeRules)
           });
         }
         this.activeRules.clear();
