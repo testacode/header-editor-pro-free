@@ -4,6 +4,7 @@ class HeaderEditorPopup {
     this.profiles = {};
     this.isEnabled = true;
     this.isPaused = false;
+    this.isPinned = false;
     this.profileCounter = 1;
     this.init();
   }
@@ -29,6 +30,7 @@ class HeaderEditorPopup {
         currentProfile: 'default',
         enabled: true,
         paused: false,
+        pinned: false,
         profileCounter: 1
       };
       
@@ -36,6 +38,7 @@ class HeaderEditorPopup {
       this.currentProfile = data.currentProfile;
       this.isEnabled = data.enabled;
       this.isPaused = data.paused || false;
+      this.isPinned = data.pinned || false;
       this.profileCounter = data.profileCounter || 1;
       
       // Migrate old header format to include 'enabled' property
@@ -55,6 +58,7 @@ class HeaderEditorPopup {
       this.currentProfile = 'default';
       this.isEnabled = true;
       this.isPaused = false;
+      this.isPinned = false;
       this.profileCounter = 1;
     }
   }
@@ -91,6 +95,7 @@ class HeaderEditorPopup {
       currentProfile: this.currentProfile,
       enabled: this.isEnabled,
       paused: this.isPaused,
+      pinned: this.isPinned,
       profileCounter: this.profileCounter
     };
     await chrome.storage.local.set({ headerEditorData: data });
@@ -110,6 +115,10 @@ class HeaderEditorPopup {
     // Toolbar buttons
     document.getElementById('pause-btn').addEventListener('click', () => {
       this.togglePause();
+    });
+
+    document.getElementById('pin-btn').addEventListener('click', () => {
+      this.togglePin();
     });
 
     document.getElementById('add-btn').addEventListener('click', () => {
@@ -208,11 +217,12 @@ class HeaderEditorPopup {
 
     // Close popup when clicking outside (blur event)
     window.addEventListener('blur', () => {
-      // Only close if no modal is open
+      // Only close if not pinned and no modal is open
       const modalOverlay = document.getElementById('modal-overlay');
       const dropdown = document.getElementById('profile-dropdown');
       
-      if (modalOverlay.style.display === 'none' && 
+      if (!this.isPinned && 
+          modalOverlay.style.display === 'none' && 
           dropdown.style.display === 'none') {
         window.close();
       }
@@ -409,6 +419,16 @@ class HeaderEditorPopup {
       pauseBtn.title = 'Pause Extension';
       pauseBtn.innerHTML = '⏸';
     }
+    
+    // Update pin button
+    const pinBtn = document.getElementById('pin-btn');
+    if (this.isPinned) {
+      pinBtn.classList.add('pinned');
+      pinBtn.title = 'Unpin (Enable auto-close)';
+    } else {
+      pinBtn.classList.remove('pinned');
+      pinBtn.title = 'Pin (Disable auto-close)';
+    }
   }
 
   async switchProfile(profileKey) {
@@ -419,6 +439,12 @@ class HeaderEditorPopup {
 
   async togglePause() {
     this.isPaused = !this.isPaused;
+    await this.saveData();
+    this.updateToolbar();
+  }
+
+  async togglePin() {
+    this.isPinned = !this.isPinned;
     await this.saveData();
     this.updateToolbar();
   }

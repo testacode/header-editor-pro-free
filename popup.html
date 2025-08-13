@@ -12,7 +12,7 @@
 
       body {
         width: 600px;
-        height: 500px;
+        height: 600px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           sans-serif;
         font-size: 13px;
@@ -181,6 +181,11 @@
 
       .toolbar-btn.paused {
         color: #ff9800;
+      }
+
+      .toolbar-btn.pinned {
+        color: #2196f3;
+        background: rgba(33, 150, 243, 0.1);
       }
 
       /* Dropdown Menu */
@@ -685,6 +690,13 @@
           </button>
           <button class="toolbar-btn" id="import-btn" title="Import">↙</button>
           <button class="toolbar-btn" id="export-btn" title="Export">↗</button>
+          <button
+            class="toolbar-btn"
+            id="pin-btn"
+            title="Pin (Disable auto-close)"
+          >
+            📌
+          </button>
           <button class="toolbar-btn" id="fullscreen-btn" title="Fullscreen">
             ⛶
           </button>
@@ -714,25 +726,35 @@
                 <label class="option-label">Export scope:</label>
                 <div class="radio-group">
                   <label class="radio-option">
-                    <input type="radio" name="export-scope" value="current" checked>
+                    <input
+                      type="radio"
+                      name="export-scope"
+                      value="current"
+                      checked
+                    />
                     <span>Current profile only</span>
                   </label>
                   <label class="radio-option">
-                    <input type="radio" name="export-scope" value="all">
+                    <input type="radio" name="export-scope" value="all" />
                     <span>All profiles</span>
                   </label>
                 </div>
               </div>
-              
+
               <div class="option-group" id="import-options">
                 <label class="option-label">Import mode:</label>
                 <div class="radio-group">
                   <label class="radio-option">
-                    <input type="radio" name="import-mode" value="new" checked>
+                    <input
+                      type="radio"
+                      name="import-mode"
+                      value="new"
+                      checked
+                    />
                     <span>Create new profile</span>
                   </label>
                   <label class="radio-option">
-                    <input type="radio" name="import-mode" value="replace">
+                    <input type="radio" name="import-mode" value="replace" />
                     <span>Replace current profile</span>
                   </label>
                 </div>

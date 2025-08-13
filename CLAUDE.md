@@ -20,6 +20,7 @@ Header Editor Pro - Free is a professional Chrome extension for modifying HTTP r
 - **Header Modification**: Both request and response header support with individual enable/disable checkboxes
 - **Professional UI**: Dark theme matching original ModHeader with left sidebar navigation
 - **Pause Functionality**: Global pause/resume without losing configurations
+- **Pin Functionality**: Toggle button to disable/enable auto-close on outside click
 - **Real-time Updates**: Instant header rule application through background service worker
 - **Persistent Storage**: All configurations saved automatically using Chrome storage API
 
@@ -46,6 +47,7 @@ Header Editor Pro - Free is a professional Chrome extension for modifying HTTP r
 **Key UI Elements:**
 - Profile circles: Click to switch, right-click to delete (except default)
 - Pause button: ⏸ (pause) / ▶ (resume) in toolbar
+- Pin button: 📌 toggle to disable/enable auto-close on outside click
 - Header checkboxes: Individual enable/disable per header
 - Add buttons: + in toolbar and at bottom of each section
 
@@ -64,6 +66,7 @@ Header Editor Pro - Free is a professional Chrome extension for modifying HTTP r
   currentProfile: 'profile_id',
   enabled: true,
   paused: false,
+  pinned: false,
   profileCounter: 1
 }
 ```
