@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ModHeader is a professional Chrome extension for modifying HTTP request and response headers during testing and development. Features unlimited profiles, individual header controls, and a modern dark-themed interface matching the original ModHeader extension.
+Header Editor Pro - Free is a professional Chrome extension for modifying HTTP request and response headers during testing and development. Features unlimited profiles, individual header controls, and a modern dark-themed interface. Completely free alternative to paid header modification tools.
 
 ## Architecture
 

@@ -1,4 +1,4 @@
-class ModHeaderBackground {
+class HeaderEditorBackground {
   constructor() {
     this.currentRuleId = 1;
     this.activeRules = new Set();
@@ -18,7 +18,7 @@ class ModHeaderBackground {
     });
 
     chrome.storage.onChanged.addListener((changes, area) => {
-      if (area === 'local' && changes.modHeaderData) {
+      if (area === 'local' && changes.headerEditorData) {
         this.loadAndApplyRules();
       }
     });
@@ -26,8 +26,8 @@ class ModHeaderBackground {
 
   async loadAndApplyRules() {
     try {
-      const result = await chrome.storage.local.get(['modHeaderData']);
-      const data = result.modHeaderData || {
+      const result = await chrome.storage.local.get(['headerEditorData']);
+      const data = result.headerEditorData || {
         profiles: {
           default: { 
             name: 'Default',
@@ -199,4 +199,4 @@ class ModHeaderBackground {
 }
 
 // Initialize the background service
-new ModHeaderBackground();
+new HeaderEditorBackground();

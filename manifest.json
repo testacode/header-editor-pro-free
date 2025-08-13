@@ -1,6 +1,6 @@
 {
-  "name": "ModHeader",
-  "description": "Modify HTTP request and response headers for testing and development",
+  "name": "Header Editor Pro - Free",
+  "description": "Professional HTTP header editor for web developers, API testing, and debugging - completely free with unlimited profiles",
   "version": "1.0.0",
   "manifest_version": 3,
   "permissions": [

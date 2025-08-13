@@ -1,4 +1,4 @@
-class ModHeaderPopup {
+class HeaderEditorPopup {
   constructor() {
     this.currentProfile = 'default';
     this.profiles = {};
@@ -16,8 +16,8 @@ class ModHeaderPopup {
 
   async loadData() {
     try {
-      const result = await chrome.storage.local.get(['modHeaderData']);
-      const data = result.modHeaderData || {
+      const result = await chrome.storage.local.get(['headerEditorData']);
+      const data = result.headerEditorData || {
         profiles: {
           default: {
             name: 'Default',
@@ -76,7 +76,7 @@ class ModHeaderPopup {
       paused: this.isPaused,
       profileCounter: this.profileCounter
     };
-    await chrome.storage.local.set({ modHeaderData: data });
+    await chrome.storage.local.set({ headerEditorData: data });
     
     // Notify background script of changes
     try {
@@ -346,5 +346,5 @@ class ModHeaderPopup {
 
 // Initialize popup when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  new ModHeaderPopup();
+  new HeaderEditorPopup();
 });
