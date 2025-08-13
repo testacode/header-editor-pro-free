@@ -137,6 +137,10 @@ class HeaderEditorPopup {
       this.showExportModal();
     });
 
+    document.getElementById('fullscreen-btn').addEventListener('click', () => {
+      this.openFullscreen();
+    });
+
     // Handle file input change
     document.getElementById('import-file-input').addEventListener('change', (e) => {
       this.handleImportFile(e);
@@ -521,6 +525,16 @@ class HeaderEditorPopup {
 
   refreshHeaders() {
     this.renderHeaders();
+  }
+
+  openFullscreen() {
+    // Open the extension in a new tab for fullscreen experience
+    chrome.tabs.create({
+      url: chrome.runtime.getURL('popup.html')
+    });
+    
+    // Close the popup
+    window.close();
   }
 
   async updateProfileName(newName) {

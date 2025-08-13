@@ -16,6 +16,16 @@ body {
   overflow: hidden;
 }
 
+/* Fullscreen mode - when opened in a tab */
+@media (min-width: 800px) and (min-height: 700px) {
+  body {
+    width: 100vw;
+    height: 100vh;
+    min-width: 800px;
+    min-height: 700px;
+  }
+}
+
 /* Sidebar for profiles */
 .sidebar {
   width: 60px;
