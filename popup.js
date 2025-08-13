@@ -238,7 +238,14 @@ class HeaderEditorPopup {
       // Use first letter of profile name
       const firstLetter = profile.name.charAt(0).toUpperCase();
       circleDiv.textContent = firstLetter;
-      circleDiv.title = profile.name;
+      
+      // Use description as tooltip if available, otherwise just the name
+      let tooltip = profile.name;
+      if (profile.description && profile.description.trim() && 
+          profile.description !== 'Click to edit description') {
+        tooltip = `${profile.name}\n${profile.description}`;
+      }
+      circleDiv.title = tooltip;
       
       // Add indicator
       const indicator = document.createElement('div');
