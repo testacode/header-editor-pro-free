@@ -129,6 +129,33 @@ class HeaderEditorPopup {
       this.handleImportFile(e);
     });
 
+    // Profile name inline editing
+    document.getElementById('profile-name-input').addEventListener('blur', (e) => {
+      this.updateProfileName(e.target.value);
+    });
+
+    document.getElementById('profile-name-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.target.blur();
+      }
+    });
+
+    // Profile description inline editing
+    document.getElementById('description-input').addEventListener('blur', (e) => {
+      this.updateProfileDescription(e.target.value);
+    });
+
+    document.getElementById('description-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.target.blur();
+      }
+    });
+
+    // Show description input when clicking if it's hidden
+    document.getElementById('description-input').addEventListener('focus', () => {
+      document.getElementById('profile-description').style.display = 'block';
+    });
+
     // Profile management
     document.getElementById('add-profile').addEventListener('click', () => {
       this.createNewProfile();
@@ -268,20 +295,22 @@ class HeaderEditorPopup {
   }
 
   updateToolbar() {
-    // Update profile name
-    const profileName = document.getElementById('profile-name');
-    profileName.textContent = this.profiles[this.currentProfile]?.name || 'Default';
+    // Update profile name input
+    const profileNameInput = document.getElementById('profile-name-input');
+    profileNameInput.value = this.profiles[this.currentProfile]?.name || 'Default';
     
     // Update profile description
     const currentProfile = this.profiles[this.currentProfile];
     const descriptionDiv = document.getElementById('profile-description');
-    const descriptionText = document.getElementById('description-text');
+    const descriptionInput = document.getElementById('description-input');
     
-    if (currentProfile?.description && currentProfile.description.trim()) {
-      descriptionText.textContent = currentProfile.description;
+    // Always show description input, but adjust visibility based on content
+    descriptionInput.value = currentProfile?.description || '';
+    if (currentProfile?.description && currentProfile.description !== 'Click to edit description') {
       descriptionDiv.style.display = 'block';
     } else {
-      descriptionDiv.style.display = 'none';
+      // Show for new profiles with placeholder, hide for profiles without description
+      descriptionDiv.style.display = currentProfile?.description ? 'block' : 'none';
     }
     
     // Update pause button
@@ -334,21 +363,17 @@ class HeaderEditorPopup {
   }
 
   createNewProfile() {
-    const name = prompt('Enter profile name:');
-    if (name && name.trim()) {
-      const description = prompt('Enter profile description (optional):');
-      this.profileCounter++;
-      const key = 'profile_' + Date.now();
-      this.profiles[key] = {
-        name: name.trim(),
-        description: description && description.trim() ? description.trim() : '',
-        requestHeaders: [],
-        responseHeaders: []
-      };
-      this.currentProfile = key;
-      this.saveData();
-      this.renderUI();
-    }
+    this.profileCounter++;
+    const key = 'profile_' + Date.now();
+    this.profiles[key] = {
+      name: `Profile ${this.profileCounter}`,
+      description: 'Click to edit description',
+      requestHeaders: [],
+      responseHeaders: []
+    };
+    this.currentProfile = key;
+    this.saveData();
+    this.renderUI();
   }
 
   async deleteCurrentProfile() {
@@ -381,6 +406,28 @@ class HeaderEditorPopup {
 
   refreshHeaders() {
     this.renderHeaders();
+  }
+
+  async updateProfileName(newName) {
+    if (newName && newName.trim()) {
+      this.profiles[this.currentProfile].name = newName.trim();
+      await this.saveData();
+      this.renderProfileCircles(); // Update tooltips
+    } else {
+      // Restore original name if empty
+      this.updateToolbar();
+    }
+  }
+
+  async updateProfileDescription(newDescription) {
+    this.profiles[this.currentProfile].description = newDescription.trim();
+    await this.saveData();
+    
+    // Hide description div if empty
+    const descriptionDiv = document.getElementById('profile-description');
+    if (!newDescription.trim()) {
+      descriptionDiv.style.display = 'none';
+    }
   }
 
   showImportDialog() {
@@ -445,19 +492,12 @@ class HeaderEditorPopup {
       requestHeaders.push(newHeader);
     });
 
-    // Create a new profile with imported data
-    const profileName = prompt('Enter name for the imported profile:', 'Imported Profile');
-    if (!profileName || !profileName.trim()) {
-      return; // User cancelled
-    }
-
-    const profileDescription = prompt('Enter description for the imported profile (optional):');
-
+    // Create a new profile with imported data using default names
     this.profileCounter++;
     const key = 'profile_' + Date.now();
     this.profiles[key] = {
-      name: profileName.trim(),
-      description: profileDescription && profileDescription.trim() ? profileDescription.trim() : '',
+      name: `Imported Profile ${this.profileCounter}`,
+      description: 'Imported from JSON - click to edit',
       requestHeaders: requestHeaders,
       responseHeaders: responseHeaders
     };
@@ -467,7 +507,7 @@ class HeaderEditorPopup {
     await this.saveData();
     this.renderUI();
 
-    alert(`Successfully imported ${requestHeaders.length} headers to profile "${profileName.trim()}"`);
+    alert(`Successfully imported ${requestHeaders.length} headers to profile "${this.profiles[key].name}"`);
   }
 
   exportCurrentProfile() {

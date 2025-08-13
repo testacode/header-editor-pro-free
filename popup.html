@@ -126,10 +126,26 @@
       gap: 12px;
     }
 
-    .profile-name {
+    .profile-name-input {
       font-size: 16px;
       font-weight: 500;
       color: #ffffff;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+      min-width: 100px;
+      max-width: 200px;
+    }
+
+    .profile-name-input:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .profile-name-input:focus {
+      background: rgba(255, 255, 255, 0.15);
     }
 
     .toolbar-actions {
@@ -172,12 +188,33 @@
       padding: 12px 16px;
     }
 
-    .description-text {
+    .description-input {
       font-size: 13px;
       color: #ccc;
       font-style: italic;
       line-height: 1.4;
       margin: 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 100%;
+      padding: 2px 4px;
+      border-radius: 3px;
+      transition: background 0.2s;
+    }
+
+    .description-input:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .description-input:focus {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .description-input::placeholder {
+      color: #666;
+      font-style: italic;
     }
 
     /* Content area */
@@ -351,7 +388,7 @@
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="profile-info">
-        <span class="profile-name" id="profile-name">Default</span>
+        <input class="profile-name-input" id="profile-name-input" type="text" value="Default">
       </div>
       <div class="toolbar-actions">
         <button class="toolbar-btn" id="refresh-btn" title="Refresh">↻</button>
@@ -366,7 +403,7 @@
 
     <!-- Profile Description -->
     <div class="profile-description" id="profile-description" style="display: none;">
-      <div class="description-text" id="description-text"></div>
+      <input class="description-input" id="description-input" type="text" placeholder="Click to add description...">
     </div>
 
     <!-- Content -->
