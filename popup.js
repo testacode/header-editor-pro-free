@@ -134,13 +134,32 @@ class ModHeaderPopup {
     const div = document.createElement('div');
     div.className = 'header-item';
     
-    div.innerHTML = `
-      <input type="text" placeholder="Header name" value="${header.name || ''}" 
-             onchange="popup.updateHeader('${type}', ${index}, 'name', this.value)">
-      <input type="text" placeholder="Header value" value="${header.value || ''}" 
-             onchange="popup.updateHeader('${type}', ${index}, 'value', this.value)">
-      <button class="danger" onclick="popup.removeHeader('${type}', ${index})">Remove</button>
-    `;
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = 'Header name';
+    nameInput.value = header.name || '';
+    nameInput.addEventListener('change', (e) => {
+      this.updateHeader(type, index, 'name', e.target.value);
+    });
+    
+    const valueInput = document.createElement('input');
+    valueInput.type = 'text';
+    valueInput.placeholder = 'Header value';
+    valueInput.value = header.value || '';
+    valueInput.addEventListener('change', (e) => {
+      this.updateHeader(type, index, 'value', e.target.value);
+    });
+    
+    const removeButton = document.createElement('button');
+    removeButton.className = 'danger';
+    removeButton.textContent = 'Remove';
+    removeButton.addEventListener('click', () => {
+      this.removeHeader(type, index);
+    });
+    
+    div.appendChild(nameInput);
+    div.appendChild(valueInput);
+    div.appendChild(removeButton);
     
     return div;
   }
