@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Header Editor Pro - Free</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
@@ -12,7 +13,7 @@
         <!-- Profile circles will be added here dynamically -->
       </div>
       <div class="add-profile-circle" id="add-profile" title="Add Profile">
-        +
+        <i class="fas fa-plus"></i>
       </div>
     </div>
 
@@ -30,25 +31,33 @@
         </div>
         <div class="toolbar-actions">
           <button class="toolbar-btn" id="refresh-btn" title="Refresh">
-            ↻
+            <i class="fas fa-sync-alt"></i>
           </button>
-          <button class="toolbar-btn" id="add-btn" title="Add Header">+</button>
+          <button class="toolbar-btn" id="add-btn" title="Add Header">
+            <i class="fas fa-plus"></i>
+          </button>
           <button class="toolbar-btn" id="pause-btn" title="Pause Extension">
-            ⏸
+            <i class="fas fa-pause"></i>
           </button>
-          <button class="toolbar-btn" id="import-btn" title="Import">↙</button>
-          <button class="toolbar-btn" id="export-btn" title="Export">↗</button>
+          <button class="toolbar-btn" id="import-btn" title="Import">
+            <i class="fas fa-file-import"></i>
+          </button>
+          <button class="toolbar-btn" id="export-btn" title="Export">
+            <i class="fas fa-file-export"></i>
+          </button>
           <button
             class="toolbar-btn"
             id="pin-btn"
             title="Pin (Disable auto-close)"
           >
-            📌
+            <i class="fas fa-thumbtack"></i>
           </button>
           <button class="toolbar-btn" id="fullscreen-btn" title="Fullscreen">
-            ⛶
+            <i class="fas fa-expand"></i>
           </button>
-          <button class="toolbar-btn" id="menu-btn" title="Menu">⋮</button>
+          <button class="toolbar-btn" id="menu-btn" title="Menu">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
         </div>
       </div>
 
@@ -65,7 +74,9 @@
         <div class="modal">
           <div class="modal-header">
             <h3 class="modal-title" id="modal-title">Import Configuration</h3>
-            <button class="modal-close" id="modal-close">✕</button>
+            <button class="modal-close" id="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           <div class="modal-body">
             <!-- Export/Import Options -->
@@ -148,14 +159,16 @@
         <div class="section" id="request-section">
           <div class="section-header">
             <span class="section-title">Request headers</span>
-            <button class="toolbar-btn" id="request-menu">⋮</button>
+            <button class="toolbar-btn" id="request-menu">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
           </div>
           <div class="section-content">
             <div id="request-headers-list">
               <!-- Request headers will be added here -->
             </div>
             <button class="add-header-btn" id="add-request-header">
-              <span>+</span> Add header
+              <i class="fas fa-plus"></i> Add header
             </button>
           </div>
         </div>
@@ -164,14 +177,16 @@
         <div class="section" id="response-section">
           <div class="section-header">
             <span class="section-title">Response headers</span>
-            <button class="toolbar-btn" id="response-menu">⋮</button>
+            <button class="toolbar-btn" id="response-menu">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
           </div>
           <div class="section-content">
             <div id="response-headers-list">
               <!-- Response headers will be added here -->
             </div>
             <button class="add-header-btn" id="add-response-header">
-              <span>+</span> Add header
+              <i class="fas fa-plus"></i> Add header
             </button>
           </div>
         </div>

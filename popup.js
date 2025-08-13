@@ -417,11 +417,11 @@ class HeaderEditorPopup {
     if (this.isPaused) {
       pauseBtn.classList.add('paused');
       pauseBtn.title = 'Resume Extension';
-      pauseBtn.innerHTML = '▶';
+      pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
     } else {
       pauseBtn.classList.remove('paused');
       pauseBtn.title = 'Pause Extension';
-      pauseBtn.innerHTML = '⏸';
+      pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
     }
     
     // Update pin button

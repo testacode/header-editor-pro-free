@@ -7,8 +7,7 @@
 body {
   width: 600px;
   height: 600px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 13px;
   background: #1a1a1a;
   color: #ffffff;
@@ -95,12 +94,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-bottom: 4px;
   cursor: pointer;
   color: #666;
-  font-size: 20px;
+  font-size: 16px;
   margin: 5px 0;
   transition: all 0.2s;
+}
+
+.add-profile-circle i {
+  font-size: 16px;
 }
 
 .add-profile-circle:hover {
@@ -167,11 +169,18 @@ body {
   padding: 6px;
   cursor: pointer;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 14px;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.toolbar-btn i {
+  font-size: 14px;
+  line-height: 1;
 }
 
 .toolbar-btn:hover {
@@ -191,6 +200,7 @@ body {
   color: #2196f3;
   background: rgba(33, 150, 243, 0.1);
 }
+
 
 /* Dropdown Menu */
 .dropdown-menu {
@@ -282,11 +292,15 @@ body {
   background: none;
   border: none;
   color: #ccc;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
   padding: 4px;
   border-radius: 3px;
   transition: all 0.2s;
+}
+
+.modal-close i {
+  font-size: 16px;
 }
 
 .modal-close:hover {
@@ -636,6 +650,10 @@ body {
   font-size: 13px;
   transition: all 0.2s;
   width: 100%;
+}
+
+.add-header-btn i {
+  font-size: 13px;
 }
 
 .add-header-btn:hover {
