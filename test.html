@@ -1108,6 +1108,58 @@
         results.classList.add("animate-fade-in");
       }
 
+      function displayResponseHeaders(headers, testName) {
+        const results = document.getElementById("responseHeaderResults");
+
+        // Standard server/browser response headers to filter out
+        const serverHeaders = [
+          'content-type', 'content-length', 'date', 'server', 'connection',
+          'keep-alive', 'transfer-encoding', 'cache-control', 'expires',
+          'last-modified', 'etag', 'vary', 'set-cookie', 'x-amzn-trace-id',
+          'x-amzn-requestid', 'access-control-allow-origin', 'content-encoding',
+          'x-cache', 'x-frame-options', 'x-content-type-options', 'referrer-policy',
+          'strict-transport-security', 'x-xss-protection', 'content-security-policy',
+          'x-powered-by', 'x-ratelimit-limit', 'x-ratelimit-remaining'
+        ];
+
+        // Filter to show only extension-modified response headers
+        const extensionHeaders = Object.entries(headers).filter(([name]) => {
+          const lowerName = name.toLowerCase();
+          return !serverHeaders.includes(lowerName) &&
+                 !lowerName.startsWith('cf-') &&
+                 !lowerName.startsWith('x-amzn-') &&
+                 !lowerName.includes('cloudflare') &&
+                 (lowerName.length < 30 && !lowerName.includes('amazon'));
+        });
+
+        if (extensionHeaders.length === 0) {
+          results.innerHTML = `
+            <div class="status error">No extension response headers detected</div>
+            <div class="empty-state">
+              <div class="empty-state-icon">⚠️</div>
+              <div class="empty-state-text">
+                Make sure your extension has response headers configured
+              </div>
+            </div>
+          `;
+        } else {
+          results.innerHTML = `
+                  <div class="status success">${extensionHeaders.length} Extension Response Headers Detected</div>
+                  ${extensionHeaders
+                    .map(
+                      ([name, value]) => `
+                      <div class="header-item injected animate-slide-in">
+                          <span class="header-name">${name}</span>
+                          <span class="header-value">${value}</span>
+                      </div>
+                  `
+                    )
+                    .join("")}
+              `;
+        }
+        results.classList.add("animate-fade-in");
+      }
+
       function displayResponseData(data, testName) {
         const results = document.getElementById("responseResults");
 
@@ -1154,23 +1206,7 @@ ${headers.join("\n")}
             headers[name] = value;
           });
 
-          const results = document.getElementById("responseHeaderResults");
-          results.innerHTML = `
-                    <div class="status success">Response Headers Retrieved</div>
-                    ${Object.entries(headers)
-                      .map(
-                        ([name, value]) => `
-                        <div class="header-item ${
-                          name.toLowerCase().startsWith("x-") ? "injected" : ""
-                        } animate-slide-in">
-                            <span class="header-name">${name}</span>
-                            <span class="header-value">${value}</span>
-                        </div>
-                    `
-                      )
-                      .join("")}
-                `;
-          results.classList.add("animate-fade-in");
+          displayResponseHeaders(headers, "Response Headers Test");
 
           addToSummary(
             "Response Headers Test",
