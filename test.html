@@ -865,15 +865,6 @@
         </ol>
       </div>
 
-      <div class="callout warning">
-        <span class="callout-icon">⚠️</span>
-        <h3>Important:</h3>
-        <p>
-          This page uses various APIs and services to test header injection.
-          Make sure you have an internet connection and the extension has the
-          necessary permissions.
-        </p>
-      </div>
 
       <div class="section">
         <div class="section-header">
@@ -939,55 +930,6 @@
         </div>
       </div>
 
-      <div class="section">
-        <div class="section-header">
-          <div class="section-icon">📡</div>
-          <div>
-            <h2>Response Header Tests</h2>
-          </div>
-        </div>
-        <p class="section-description">
-          These tests help verify if response headers are being modified
-          correctly.
-        </p>
-
-        <div class="test-layout">
-          <div class="test-main">
-            <div class="button-group">
-              <button class="test-button" onclick="testResponseHeaders()">
-                🔍 Check Response Headers
-              </button>
-              <button class="test-button secondary" onclick="testCORS()">
-                🌍 Test CORS Headers
-              </button>
-              <button
-                class="test-button secondary"
-                onclick="testSecurityHeaders()"
-              >
-                🔒 Test Security Headers
-              </button>
-            </div>
-          </div>
-          <div class="test-sidebar">
-            <div class="config-box warning-box">
-              <label class="config-label">⚠️ Important Limitation</label>
-              <div class="config-hint">
-                Response header modification depends on the website's CORS
-                policy and browser security restrictions
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="responseHeaderResults" class="results">
-          <div class="empty-state">
-            <div class="empty-state-icon">📡</div>
-            <div class="empty-state-text">
-              Click a test button above to check response headers
-            </div>
-          </div>
-        </div>
-      </div>
 
 
     </div>
@@ -1138,7 +1080,9 @@
             <div class="empty-state">
               <div class="empty-state-icon">⚠️</div>
               <div class="empty-state-text">
-                Make sure your extension has response headers configured
+                Response header modification has browser security limitations.<br>
+                Extension response headers may not appear in HTTP responses due to CORS policies.<br>
+                Try checking browser DevTools Network tab for more details.
               </div>
             </div>
           `;
@@ -1191,85 +1135,6 @@ ${headers.join("\n")}
         results.classList.add("animate-fade-in");
       }
 
-      async function testResponseHeaders() {
-        const button = event.target;
-        button.disabled = true;
-        button.innerHTML = '<div class="loading"></div> Testing...';
-
-        try {
-          const response = await fetch(
-            "https://httpbin.org/response-headers?X-Custom-Response=test-value"
-          );
-
-          const headers = {};
-          response.headers.forEach((value, name) => {
-            headers[name] = value;
-          });
-
-          displayResponseHeaders(headers, "Response Headers Test");
-
-          addToSummary(
-            "Response Headers Test",
-            true,
-            `Found ${Object.keys(headers).length} headers`
-          );
-        } catch (error) {
-          const results = document.getElementById("responseHeaderResults");
-          results.innerHTML = `
-                    <div class="status error">Error: ${error.message}</div>
-                `;
-          results.classList.add("animate-fade-in");
-          addToSummary("Response Headers Test", false, error.message);
-        } finally {
-          button.disabled = false;
-          button.innerHTML = "Check Response Headers";
-        }
-      }
-
-      function testCORS() {
-        const results = document.getElementById("responseHeaderResults");
-        results.innerHTML = `
-                <div class="status pending">CORS Test Instructions</div>
-                <div class="code">
-To test CORS headers:
-
-1. Add these response headers in Header Editor Pro:
-   - Access-Control-Allow-Origin: *
-   - Access-Control-Allow-Methods: GET, POST, PUT, DELETE
-   - Access-Control-Allow-Headers: Content-Type, Authorization
-
-2. Try making a cross-origin request from this page
-3. Check the browser's Network tab to see if CORS headers are applied
-
-Note: Response header modification has limitations due to browser security.
-                </div>
-            `;
-        addToSummary("CORS Test", true, "Instructions provided");
-      }
-
-      function testSecurityHeaders() {
-        const results = document.getElementById("responseHeaderResults");
-        results.innerHTML = `
-                <div class="status pending">Security Headers Test</div>
-                <div class="code">
-Common security headers to test:
-
-Request Headers (modify outgoing requests):
-- X-Forwarded-For: 192.168.1.1
-- X-Real-IP: 192.168.1.1
-- Authorization: Bearer your-token-here
-
-Response Headers (limited by browser security):
-- X-Frame-Options: DENY
-- X-Content-Type-Options: nosniff
-- X-XSS-Protection: 1; mode=block
-- Strict-Transport-Security: max-age=31536000
-
-Use browser DevTools Network tab to verify header injection.
-                </div>
-            `;
-        addToSummary("Security Headers Test", true, "Instructions provided");
-      }
 
 
       function clearResults() {
@@ -1280,8 +1145,6 @@ Use browser DevTools Network tab to verify header injection.
             '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">Results cleared</div></div>',
           rawResults:
             '<div class="empty-state"><div class="empty-state-icon">🔧</div><div class="empty-state-text">Results cleared</div></div>',
-          responseHeaderResults:
-            '<div class="empty-state"><div class="empty-state-icon">📡</div><div class="empty-state-text">Results cleared</div></div>',
         };
 
         Object.entries(emptyStates).forEach(([id, html]) => {
