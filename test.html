@@ -1154,6 +1154,14 @@
             data = await response.text();
           }
 
+          // Show the headers we sent for custom URL test
+          const sentHeaders = {
+            "X-Custom-Test": "custom-url-test",
+            "X-Timestamp": Date.now().toString(),
+            "User-Agent": navigator.userAgent,
+          };
+
+          displayRequestHeaders(sentHeaders, "Custom URL Test (Sent Headers)");
           displayResponseData(data, "Custom URL Response");
           displayRawResponse(response, "Custom URL Raw");
 
