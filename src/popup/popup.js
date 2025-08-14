@@ -28,7 +28,6 @@ class HeaderEditorPopup {
             name: 'Default',
             description: 'Click to edit description',
             requestHeaders: [],
-            responseHeaders: [],
             backgroundColor: '#4caf50',
             textColor: '#ffffff'
           }
@@ -67,8 +66,7 @@ class HeaderEditorPopup {
         default: {
           name: 'Default',
           description: 'Click to edit description',
-          requestHeaders: [],
-          responseHeaders: []
+          requestHeaders: []
         }
       };
       this.currentProfile = 'default';
@@ -81,7 +79,7 @@ class HeaderEditorPopup {
 
   migrateHeaderFormat() {
     Object.values(this.profiles).forEach(profile => {
-      ['requestHeaders', 'responseHeaders'].forEach(headerType => {
+      ['requestHeaders'].forEach(headerType => {
         if (profile[headerType]) {
           profile[headerType] = profile[headerType].map(header => ({
             name: header.name || '',
@@ -280,9 +278,6 @@ class HeaderEditorPopup {
       this.addHeader('request');
     });
 
-    document.getElementById('add-response-header').addEventListener('click', () => {
-      this.addHeader('response');
-    });
 
   }
 
@@ -342,7 +337,6 @@ class HeaderEditorPopup {
 
   renderHeaders() {
     this.renderHeadersList('request');
-    this.renderHeadersList('response');
   }
 
   renderHeadersList(type) {
@@ -524,7 +518,6 @@ class HeaderEditorPopup {
       name: `Profile ${this.profileCounter}`,
       description: 'Click to edit description',
       requestHeaders: [],
-      responseHeaders: [],
       backgroundColor: '#4caf50',
       textColor: '#ffffff'
     };
@@ -783,8 +776,7 @@ class HeaderEditorPopup {
         exportData.profiles[key] = {
           name: profile.name,
           description: profile.description,
-          requestHeaders: profile.requestHeaders || [],
-          responseHeaders: profile.responseHeaders || []
+          requestHeaders: profile.requestHeaders || []
         };
       });
     }
@@ -795,7 +787,7 @@ class HeaderEditorPopup {
     const headerCount = exportScope === 'current' 
       ? exportData.length 
       : Object.values(this.profiles).reduce((count, profile) => 
-          count + (profile.requestHeaders?.length || 0) + (profile.responseHeaders?.length || 0), 0);
+          count + (profile.requestHeaders?.length || 0), 0);
       
     document.getElementById('validation-message').innerHTML = 
       `<span class="success">✓ Ready to copy (${exportScope === 'current' ? 'current profile' : Object.keys(this.profiles).length + ' profiles'})</span>`;
@@ -879,7 +871,6 @@ class HeaderEditorPopup {
       // ModHeader format - array of headers
       const headers = this.extractHeadersFromArray(importData);
       this.profiles[this.currentProfile].requestHeaders = headers;
-      this.profiles[this.currentProfile].responseHeaders = [];
     } else if (importData.profiles) {
       // Full export format - multiple profiles
       if (Object.keys(importData.profiles).length === 1) {
@@ -887,7 +878,6 @@ class HeaderEditorPopup {
         const profileKey = Object.keys(importData.profiles)[0];
         const profileData = importData.profiles[profileKey];
         this.profiles[this.currentProfile].requestHeaders = profileData.requestHeaders || [];
-        this.profiles[this.currentProfile].responseHeaders = profileData.responseHeaders || [];
       } else {
         throw new Error('Cannot replace current profile with multiple profiles. Use "Create new profile" mode instead.');
       }
@@ -996,8 +986,7 @@ class HeaderEditorPopup {
     this.profiles[key] = {
       name: `Imported Profile ${this.profileCounter}`,
       description: 'Imported from JSON - click to edit',
-      requestHeaders: headers,
-      responseHeaders: []
+      requestHeaders: headers
     };
 
     this.currentProfile = key;
@@ -1015,8 +1004,7 @@ class HeaderEditorPopup {
       this.profiles[newKey] = {
         name: profileData.name || `Imported Profile ${this.profileCounter}`,
         description: profileData.description || 'Imported from JSON - click to edit',
-        requestHeaders: profileData.requestHeaders || [],
-        responseHeaders: profileData.responseHeaders || []
+        requestHeaders: profileData.requestHeaders || []
       };
       
       importedCount++;
@@ -1068,7 +1056,6 @@ class HeaderEditorPopup {
       });
     }
 
-    // Add response headers (if needed in the future)
     // Response headers would need different handling in ModHeader format
     
     return headers;

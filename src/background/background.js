@@ -42,8 +42,7 @@ class HeaderEditorBackground {
         profiles: {
           default: { 
             name: 'Default',
-            requestHeaders: [], 
-            responseHeaders: [] 
+            requestHeaders: []
           }
         },
         currentProfile: 'default',
@@ -103,16 +102,6 @@ class HeaderEditorBackground {
       }
     }
 
-    // Process response headers - only enabled ones
-    if (currentProfile.responseHeaders && currentProfile.responseHeaders.length > 0) {
-      const enabledResponseHeaders = currentProfile.responseHeaders.filter(h => h.enabled !== false);
-      if (enabledResponseHeaders.length > 0) {
-        const responseHeaderRule = this.createResponseHeaderRule(enabledResponseHeaders);
-        if (responseHeaderRule) {
-          rules.push(responseHeaderRule);
-        }
-      }
-    }
 
     console.log('HeaderEditor: Rules to apply:', rules.length);
     
@@ -158,32 +147,6 @@ class HeaderEditorBackground {
     };
   }
 
-  createResponseHeaderRule(headers) {
-    const validHeaders = headers.filter(h => h.name && h.name.trim());
-    if (validHeaders.length === 0) return null;
-
-    const responseHeaders = validHeaders.map(header => ({
-      header: header.name.trim(),
-      operation: header.value ? 'set' : 'remove',
-      value: header.value || undefined
-    }));
-
-    return {
-      id: this.currentRuleId++,
-      priority: 1,
-      action: {
-        type: 'modifyHeaders',
-        responseHeaders: responseHeaders
-      },
-      condition: {
-        urlFilter: '*',
-        resourceTypes: [
-          'main_frame', 'sub_frame', 'stylesheet', 'script', 'image', 'font',
-          'object', 'xmlhttprequest', 'ping', 'csp_report', 'media', 'websocket', 'other'
-        ]
-      }
-    };
-  }
 
   async addRules(rules) {
     try {
