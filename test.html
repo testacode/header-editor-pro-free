@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header Editor Pro - Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #4caf50;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+
+        .section {
+            background: #2d2d2d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #404040;
+        }
+
+        .section h2 {
+            color: #4caf50;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #4caf50;
+            padding-bottom: 10px;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .test-button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin: 5px;
+        }
+
+        .test-button:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .test-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            background: #1a1a1a;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .header-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #404040;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .header-item:last-child {
+            border-bottom: none;
+        }
+
+        .header-name {
+            color: #2196f3;
+            font-weight: bold;
+            min-width: 200px;
+        }
+
+        .header-value {
+            color: #ff9800;
+            flex: 1;
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .injected {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 3px solid #4caf50;
+            padding-left: 10px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .status.pending {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+
+        .instruction {
+            background: rgba(33, 150, 243, 0.1);
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .warning {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .code {
+            background: #0d1117;
+            color: #f0f6fc;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #404040;
+            border-radius: 50%;
+            border-top-color: #4caf50;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #404040;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab:hover {
+            color: #ccc;
+        }
+
+        .tab.active {
+            color: #4caf50;
+            border-bottom-color: #4caf50;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Header Editor Pro - Test Lab</h1>
+
+        <div class="instruction">
+            <h3>📋 How to Test:</h3>
+            <ol>
+                <li>Make sure the Header Editor Pro extension is loaded and enabled</li>
+                <li>Configure some request and response headers in the extension</li>
+                <li>Use the tests below to verify headers are being injected correctly</li>
+                <li>Check the results to see if your headers appear in the responses</li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <h3>⚠️ Important:</h3>
+            <p>This page uses various APIs and services to test header injection. Make sure you have an internet connection and the extension has the necessary permissions.</p>
+        </div>
+
+        <div class="section">
+            <h2>🌐 Request Header Tests</h2>
+            <p>These tests will make HTTP requests and show you what headers were sent. Look for your custom headers in the results.</p>
+            
+            <div class="test-grid">
+                <div>
+                    <button class="test-button" onclick="testHttpBin()">Test with HTTPBin.org</button>
+                    <button class="test-button" onclick="testJSONPlaceholder()">Test with JSONPlaceholder</button>
+                    <button class="test-button" onclick="testCustomURL()">Test Custom URL</button>
+                </div>
+                <div>
+                    <input type="url" class="url-input" id="customUrl" placeholder="Enter custom URL (e.g., https://api.example.com)" value="https://httpbin.org/headers">
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('request-headers')">Request Headers Sent</button>
+                <button class="tab" onclick="switchTab('response-data')">Response Data</button>
+                <button class="tab" onclick="switchTab('raw-response')">Raw Response</button>
+            </div>
+
+            <div id="request-headers" class="tab-content active">
+                <div id="requestResults" class="results">
+                    <p style="color: #666; text-align: center; padding: 20px;">Click a test button above to see request headers</p>
+                </div>
+            </div>
+
+            <div id="response-data" class="tab-content">
+                <div id="responseResults" class="results">
+                    <p style="color: #666; text-align: center; padding: 20px;">Response data will appear here</p>
+                </div>
+            </div>
+
+            <div id="raw-response" class="tab-content">
+                <div id="rawResults" class="results">
+                    <p style="color: #666; text-align: center; padding: 20px;">Raw response will appear here</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📡 Response Header Tests</h2>
+            <p>These tests help verify if response headers are being modified correctly.</p>
+            
+            <div class="test-grid">
+                <div>
+                    <button class="test-button" onclick="testResponseHeaders()">Check Response Headers</button>
+                    <button class="test-button" onclick="testCORS()">Test CORS Headers</button>
+                    <button class="test-button" onclick="testSecurityHeaders()">Test Security Headers</button>
+                </div>
+                <div>
+                    <p style="color: #ccc; font-size: 13px;">Response header modification depends on the website's CORS policy and browser security.</p>
+                </div>
+            </div>
+
+            <div id="responseHeaderResults" class="results">
+                <p style="color: #666; text-align: center; padding: 20px;">Click a test button above to check response headers</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Developer Tools</h2>
+            <p>Additional tools for testing and debugging.</p>
+            
+            <div class="test-grid">
+                <div>
+                    <button class="test-button" onclick="openDevTools()">Open Network Tab Instructions</button>
+                    <button class="test-button" onclick="testLocalhost()">Test Localhost</button>
+                    <button class="test-button" onclick="clearResults()">Clear All Results</button>
+                </div>
+                <div>
+                    <button class="test-button" onclick="exportResults()">Export Test Results</button>
+                    <button class="test-button" onclick="testWebSocket()">Test WebSocket Headers</button>
+                    <button class="test-button" onclick="openExtension()">Open Extension Popup</button>
+                </div>
+            </div>
+
+            <div id="devToolsResults" class="results">
+                <p style="color: #666; text-align: center; padding: 20px;">Developer tools and utilities</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Test Summary</h2>
+            <div id="testSummary" class="results">
+                <p style="color: #666; text-align: center; padding: 20px;">Test summary will appear here after running tests</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+        
+        function addToSummary(testName, success, details) {
+            testResults.push({
+                name: testName,
+                success: success,
+                details: details,
+                timestamp: new Date().toISOString()
+            });
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('testSummary');
+            if (testResults.length === 0) return;
+
+            const successCount = testResults.filter(r => r.success).length;
+            const totalCount = testResults.length;
+
+            summary.innerHTML = `
+                <div class="status ${successCount === totalCount ? 'success' : 'error'}">
+                    Tests Passed: ${successCount}/${totalCount}
+                </div>
+                ${testResults.map(result => `
+                    <div class="header-item ${result.success ? '' : 'injected'}">
+                        <span class="header-name">${result.name}</span>
+                        <span class="header-value">${result.success ? '✅ PASS' : '❌ FAIL'}</span>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function switchTab(tabName) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding content
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        async function testHttpBin() {
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = '<div class="loading"></div> Testing...';
+            
+            try {
+                const response = await fetch('https://httpbin.org/headers', {
+                    method: 'GET',
+                    headers: {
+                        'X-Test-Header': 'test-value',
+                        'User-Agent': 'Header-Editor-Pro-Test'
+                    }
+                });
+                
+                const data = await response.json();
+                displayRequestHeaders(data.headers, 'HTTPBin Test');
+                displayResponseData(data, 'HTTPBin Response');
+                displayRawResponse(response, 'HTTPBin Raw');
+                
+                addToSummary('HTTPBin Request Test', true, 'Successfully retrieved headers');
+            } catch (error) {
+                document.getElementById('requestResults').innerHTML = `
+                    <div class="status error">Error: ${error.message}</div>
+                `;
+                addToSummary('HTTPBin Request Test', false, error.message);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Test with HTTPBin.org';
+            }
+        }
+
+        async function testJSONPlaceholder() {
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = '<div class="loading"></div> Testing...';
+            
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/posts/1', {
+                    headers: {
+                        'X-Custom-Header': 'jsonplaceholder-test',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                // Since JSONPlaceholder doesn't echo headers, we'll show what we sent
+                const sentHeaders = {
+                    'X-Custom-Header': 'jsonplaceholder-test',
+                    'Accept': 'application/json',
+                    'User-Agent': navigator.userAgent
+                };
+                
+                displayRequestHeaders(sentHeaders, 'JSONPlaceholder Test (Sent Headers)');
+                displayResponseData(data, 'JSONPlaceholder Response');
+                displayRawResponse(response, 'JSONPlaceholder Raw');
+                
+                addToSummary('JSONPlaceholder Test', response.ok, `Status: ${response.status}`);
+            } catch (error) {
+                document.getElementById('requestResults').innerHTML = `
+                    <div class="status error">Error: ${error.message}</div>
+                `;
+                addToSummary('JSONPlaceholder Test', false, error.message);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Test with JSONPlaceholder';
+            }
+        }
+
+        async function testCustomURL() {
+            const url = document.getElementById('customUrl').value;
+            if (!url) {
+                alert('Please enter a custom URL');
+                return;
+            }
+
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = '<div class="loading"></div> Testing...';
+            
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'X-Custom-Test': 'custom-url-test',
+                        'X-Timestamp': Date.now().toString()
+                    }
+                });
+                
+                let data;
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+                
+                displayResponseData(data, 'Custom URL Response');
+                displayRawResponse(response, 'Custom URL Raw');
+                
+                addToSummary('Custom URL Test', response.ok, `Status: ${response.status} - ${url}`);
+            } catch (error) {
+                document.getElementById('requestResults').innerHTML = `
+                    <div class="status error">Error: ${error.message}</div>
+                `;
+                addToSummary('Custom URL Test', false, error.message);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Test Custom URL';
+            }
+        }
+
+        function displayRequestHeaders(headers, testName) {
+            const results = document.getElementById('requestResults');
+            
+            results.innerHTML = `
+                <div class="status success">${testName} - Headers Retrieved</div>
+                ${Object.entries(headers).map(([name, value]) => `
+                    <div class="header-item ${name.toLowerCase().startsWith('x-') || name.toLowerCase().includes('custom') ? 'injected' : ''}">
+                        <span class="header-name">${name}</span>
+                        <span class="header-value">${value}</span>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function displayResponseData(data, testName) {
+            const results = document.getElementById('responseResults');
+            
+            results.innerHTML = `
+                <div class="status success">${testName}</div>
+                <div class="code">${JSON.stringify(data, null, 2)}</div>
+            `;
+        }
+
+        function displayRawResponse(response, testName) {
+            const results = document.getElementById('rawResults');
+            
+            const headers = [];
+            response.headers.forEach((value, name) => {
+                headers.push(`${name}: ${value}`);
+            });
+            
+            results.innerHTML = `
+                <div class="status success">${testName}</div>
+                <div class="code">
+Status: ${response.status} ${response.statusText}
+URL: ${response.url}
+
+Response Headers:
+${headers.join('\n')}
+                </div>
+            `;
+        }
+
+        async function testResponseHeaders() {
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = '<div class="loading"></div> Testing...';
+            
+            try {
+                const response = await fetch('https://httpbin.org/response-headers?X-Custom-Response=test-value');
+                
+                const headers = {};
+                response.headers.forEach((value, name) => {
+                    headers[name] = value;
+                });
+                
+                const results = document.getElementById('responseHeaderResults');
+                results.innerHTML = `
+                    <div class="status success">Response Headers Retrieved</div>
+                    ${Object.entries(headers).map(([name, value]) => `
+                        <div class="header-item ${name.toLowerCase().startsWith('x-') ? 'injected' : ''}">
+                            <span class="header-name">${name}</span>
+                            <span class="header-value">${value}</span>
+                        </div>
+                    `).join('')}
+                `;
+                
+                addToSummary('Response Headers Test', true, `Found ${Object.keys(headers).length} headers`);
+            } catch (error) {
+                document.getElementById('responseHeaderResults').innerHTML = `
+                    <div class="status error">Error: ${error.message}</div>
+                `;
+                addToSummary('Response Headers Test', false, error.message);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Check Response Headers';
+            }
+        }
+
+        function testCORS() {
+            const results = document.getElementById('responseHeaderResults');
+            results.innerHTML = `
+                <div class="status pending">CORS Test Instructions</div>
+                <div class="code">
+To test CORS headers:
+
+1. Add these response headers in Header Editor Pro:
+   - Access-Control-Allow-Origin: *
+   - Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+   - Access-Control-Allow-Headers: Content-Type, Authorization
+
+2. Try making a cross-origin request from this page
+3. Check the browser's Network tab to see if CORS headers are applied
+
+Note: Response header modification has limitations due to browser security.
+                </div>
+            `;
+            addToSummary('CORS Test', true, 'Instructions provided');
+        }
+
+        function testSecurityHeaders() {
+            const results = document.getElementById('responseHeaderResults');
+            results.innerHTML = `
+                <div class="status pending">Security Headers Test</div>
+                <div class="code">
+Common security headers to test:
+
+Request Headers (modify outgoing requests):
+- X-Forwarded-For: 192.168.1.1
+- X-Real-IP: 192.168.1.1
+- Authorization: Bearer your-token-here
+
+Response Headers (limited by browser security):
+- X-Frame-Options: DENY
+- X-Content-Type-Options: nosniff
+- X-XSS-Protection: 1; mode=block
+- Strict-Transport-Security: max-age=31536000
+
+Use browser DevTools Network tab to verify header injection.
+                </div>
+            `;
+            addToSummary('Security Headers Test', true, 'Instructions provided');
+        }
+
+        function openDevTools() {
+            const results = document.getElementById('devToolsResults');
+            results.innerHTML = `
+                <div class="status pending">Developer Tools Instructions</div>
+                <div class="code">
+To see all headers in Chrome DevTools:
+
+1. Press F12 or Ctrl+Shift+I (Cmd+Opt+I on Mac)
+2. Go to the "Network" tab
+3. Reload this page or trigger a new request
+4. Click on any request in the list
+5. Check the "Request Headers" and "Response Headers" sections
+
+This will show you ALL headers, including those injected by Header Editor Pro.
+                </div>
+            `;
+            addToSummary('DevTools Instructions', true, 'Instructions provided');
+        }
+
+        function testLocalhost() {
+            const results = document.getElementById('devToolsResults');
+            results.innerHTML = `
+                <div class="status pending">Localhost Testing</div>
+                <div class="code">
+To test with localhost:
+
+1. Make sure Header Editor Pro has permission to access localhost
+   - Go to chrome://extensions/
+   - Find Header Editor Pro
+   - Click "Details"
+   - Enable "Allow access to file URLs" if testing file:// URLs
+
+2. Try these localhost URLs:
+   - http://localhost:3000
+   - http://localhost:8080
+   - http://127.0.0.1:3000
+
+3. Check headers using your local server's logging or browser DevTools
+                </div>
+            `;
+            addToSummary('Localhost Test', true, 'Instructions provided');
+        }
+
+        function clearResults() {
+            document.getElementById('requestResults').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Results cleared</p>';
+            document.getElementById('responseResults').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Results cleared</p>';
+            document.getElementById('rawResults').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Results cleared</p>';
+            document.getElementById('responseHeaderResults').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Results cleared</p>';
+            document.getElementById('devToolsResults').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Results cleared</p>';
+            document.getElementById('testSummary').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Test summary cleared</p>';
+            testResults = [];
+        }
+
+        function exportResults() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                testResults: testResults
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `header-test-results-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            addToSummary('Export Results', true, 'Test results exported');
+        }
+
+        function testWebSocket() {
+            const results = document.getElementById('devToolsResults');
+            results.innerHTML = `
+                <div class="status pending">WebSocket Header Testing</div>
+                <div class="code">
+WebSocket header testing:
+
+Note: WebSocket connections have limited header modification capabilities.
+
+1. WebSocket upgrade requests can have custom headers added
+2. Use browser DevTools to inspect WebSocket handshake
+3. Check the "WS" tab in Network panel for WebSocket traffic
+
+Example WebSocket test (if you have a WebSocket server):
+- ws://localhost:8080
+- wss://echo.websocket.org
+
+Headers are primarily applied during the initial HTTP upgrade request.
+                </div>
+            `;
+            addToSummary('WebSocket Test', true, 'Instructions provided');
+        }
+
+        function openExtension() {
+            // Try to open the extension popup in a new tab
+            const extensionUrl = 'chrome-extension://[extension-id]/popup.html';
+            const results = document.getElementById('devToolsResults');
+            results.innerHTML = `
+                <div class="status pending">Extension Access</div>
+                <div class="code">
+To open Header Editor Pro:
+
+1. Click the extension icon in your browser toolbar
+2. Or right-click the extension icon and select "Options" if available
+3. Or go to chrome://extensions/ and find Header Editor Pro
+
+You can also open the extension in fullscreen mode using the fullscreen button in the popup.
+                </div>
+            `;
+            addToSummary('Extension Access', true, 'Instructions provided');
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 Header Editor Pro Test Page Loaded');
+            console.log('Ready to test header injection...');
+        });
+    </script>
+</body>
+</html>
