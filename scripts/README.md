@@ -18,7 +18,7 @@ node scripts/release.js
 
 1. **Version Validation** - Checks current version and suggests next version
 2. **Safety Checks** - Ensures clean git state and correct branch
-3. **Version Bumping** - Updates `manifest.json` with new version
+3. **Version Bumping** - Updates `src/manifest.json` with new version
 4. **Git Operations** - Creates commit and tag automatically
 5. **GitHub Integration** - Pushes tag to trigger GitHub Actions
 6. **User Guidance** - Provides next steps and useful links
@@ -91,7 +91,7 @@ These scripts work perfectly with the automated workflows:
 - Use `git status` to see what needs to be committed
 
 ### Version update failed
-- Check that `manifest.json` exists and has proper format
+- Check that `src/manifest.json` exists and has proper format
 - Verify you have write permissions in the directory
 
 ## 💡 Tips

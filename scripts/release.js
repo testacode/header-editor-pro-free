@@ -134,7 +134,7 @@ async function main() {
 
         // Confirmation
         console.log('\n' + colors.yellow + '[WARNING]' + colors.reset + ' This will:');
-        console.log(`  • Update manifest.json version to ${newVersion}`);
+        console.log(`  • Update src/manifest.json version to ${newVersion}`);
         console.log(`  • Create a commit: 'release: bump version to ${newVersion}'`);
         console.log(`  • Create and push tag: v${newVersion}`);
         console.log('  • Trigger GitHub Action to create release with ZIP file');

@@ -112,7 +112,7 @@ fi
 # Confirmation
 echo ""
 print_warning "This will:"
-echo "  • Update manifest.json version to $new_version"
+echo "  • Update src/manifest.json version to $new_version"
 echo "  • Create a commit: 'release: bump version to $new_version'"
 echo "  • Create and push tag: v$new_version" 
 echo "  • Trigger GitHub Action to create release with ZIP file"
@@ -138,11 +138,11 @@ fi
 # Verify the change
 updated_version=$(grep '"version"' src/manifest.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
 if [[ "$updated_version" != "$new_version" ]]; then
-    print_error "Failed to update version in manifest.json"
+    print_error "Failed to update version in src/manifest.json"
     exit 1
 fi
 
-print_success "Updated manifest.json version to $new_version"
+print_success "Updated src/manifest.json version to $new_version"
 
 # Create commit
 print_step "Creating commit..."
