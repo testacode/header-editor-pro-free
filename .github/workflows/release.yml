@@ -16,37 +16,44 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Create extension ZIP
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build extensions
       run: |
-        # Create a clean directory for the extension files
-        mkdir -p extension-build
+        # Build both Chrome and Firefox extensions
+        npm run build
         
-        # Copy only the files needed for the Chrome extension
-        cp manifest.json extension-build/
-        cp popup.html extension-build/
-        cp popup.css extension-build/
-        cp popup.js extension-build/
-        cp background.js extension-build/
-        cp privacy.html extension-build/
+        # Create source package for Firefox AMO
+        npm run create-source-package
         
-        # Copy icons directory if it exists
-        if [ -d "icons" ]; then
-          cp -r icons extension-build/
-        fi
+        # Create Chrome extension ZIP
+        cd dist/chrome
+        zip -r ../../chrome-store.zip .
+        cd ../..
         
-        # Create the ZIP file
-        cd extension-build
-        zip -r ../header-editor-pro-free-extension.zip .
-        cd ..
+        # Create Firefox addon ZIP  
+        cd dist/firefox
+        zip -r ../../firefox-addon.zip .
+        cd ../..
         
-        # Verify the ZIP contents
-        echo "ZIP file contents:"
-        unzip -l header-editor-pro-free-extension.zip
+        # Verify ZIP contents
+        echo "Chrome extension contents:"
+        unzip -l chrome-store.zip
+        echo ""
+        echo "Firefox addon contents:"  
+        unzip -l firefox-addon.zip
         
     - name: Get version from manifest
       id: get_version
       run: |
-        VERSION=$(cat manifest.json | grep '"version"' | cut -d'"' -f4)
+        VERSION=$(cat src/manifest/manifest.chrome.json | grep '"version"' | cut -d'"' -f4)
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Extension version: $VERSION"
         
@@ -56,8 +63,11 @@ jobs:
         cat > release_notes.md << 'EOF'
         ## 🚀 Header Editor Pro - Free v${{ steps.get_version.outputs.version }}
         
-        ### 📦 Chrome Extension Package
-        Download the `header-editor-pro-free-extension.zip` file below and install it in Chrome:
+        ### 📦 Extension Packages
+        Choose the appropriate package for your browser:
+        
+        **Chrome Extension:** Download `chrome-store.zip`
+        **Firefox Add-on:** Download `firefox-addon.zip` + `source-code.zip` (for AMO submission)
         
         **Installation Steps:**
         1. Download the ZIP file
@@ -85,7 +95,9 @@ jobs:
         gh release create ${{ github.ref_name }} \
           --title "Header Editor Pro - Free v${{ steps.get_version.outputs.version }}" \
           --notes-file release_notes.md \
-          header-editor-pro-free-extension.zip
+          chrome-store.zip \
+          firefox-addon.zip \
+          source-code.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         

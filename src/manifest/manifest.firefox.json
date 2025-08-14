@@ -1,0 +1,28 @@
+{
+  "name": "Header Editor Pro - Free",
+  "description": "Professional HTTP header editor for web developers, API testing, and debugging - completely free with unlimited profiles",
+  "version": "1.4.1",
+  "manifest_version": 3,
+  "permissions": ["declarativeNetRequest", "storage", "activeTab", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "js/background.js",
+    "scripts": ["js/background.js"]
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icons/icon128.jpeg"
+  },
+  "icons": {
+    "16": "icons/icon16.jpeg",
+    "32": "icons/icon32.jpeg",
+    "48": "icons/icon48.jpeg",
+    "128": "icons/icon128.jpeg"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "header-editor-pro@testacode.com",
+      "strict_min_version": "101.0"
+    }
+  }
+}
