@@ -73,8 +73,8 @@ node scripts/release.js
 These scripts work perfectly with the automated workflows:
 
 1. **Script runs locally** → Updates version, creates tag, pushes
-2. **GitHub Actions detects tag** → Builds ZIP, creates release
-3. **You download ZIP** → Test and submit to Chrome Web Store
+2. **GitHub Actions detects tag** → Builds versioned ZIPs, creates release
+3. **You download ZIP** → `header-editor-pro-free-extension-vX.X.X.zip` ready for stores
 
 ## 🐛 Troubleshooting
 
@@ -100,9 +100,11 @@ These scripts work perfectly with the automated workflows:
 2. **Branch management** - Run releases from `main` or `master` branch
 3. **Backup** - Scripts create git commits, so your changes are safe
 4. **Monitor** - Watch GitHub Actions after running the script
+5. **Versioned files** - ZIP files automatically include version numbers for easy identification
 
 ## 🔗 Related
 
-- **GitHub Actions** - `.github/workflows/` - Automated ZIP building
-- **Manual Process** - `.github/README.md` - Non-script alternatives
-- **Chrome Web Store** - Use generated ZIP files for submissions
+- **GitHub Actions** - `.github/workflows/` - Automated versioned ZIP building
+- **Manual Process** - `.github/README.md` - Non-script alternatives  
+- **Chrome Web Store** - Use `header-editor-pro-free-extension-vX.X.X.zip` for submissions
+- **Firefox Add-ons** - Use both extension ZIP + source ZIP for AMO submission

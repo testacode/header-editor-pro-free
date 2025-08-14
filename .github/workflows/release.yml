@@ -30,17 +30,24 @@ jobs:
         # Build extension for both browsers
         npm run build
         
-        # Create source package for Firefox AMO
+        # Get version from manifest
+        VERSION=$(npm run get-version --silent)
+        echo "Building version: $VERSION"
+        
+        # Create packages with version in filename
         npm run create-source-package
         
         # Create extension ZIP (works for both Chrome and Firefox)
         cd dist
-        zip -r ../extension.zip .
+        zip -r "../header-editor-pro-free-extension-v${VERSION}.zip" .
         cd ..
         
         # Verify ZIP contents
-        echo "Extension contents:"
-        unzip -l extension.zip
+        echo "Extension package contents:"
+        unzip -l "header-editor-pro-free-extension-v${VERSION}.zip"
+        echo ""
+        echo "Source package contents:"
+        unzip -l "header-editor-pro-free-source-v${VERSION}.zip"
         
     - name: Get version from manifest
       id: get_version
@@ -55,9 +62,9 @@ jobs:
         cat > release_notes.md << 'EOF'
         ## 🚀 Header Editor Pro - Free v${{ steps.get_version.outputs.version }}
         
-        ### 📦 Extension Package
-        **Universal Extension:** Download `extension.zip` - works for both Chrome and Firefox
-        **For Firefox AMO:** Also download `source-code.zip` for reviewer submission
+        ### 📦 Extension Packages
+        **Universal Extension:** Download `header-editor-pro-free-extension-v${{ steps.get_version.outputs.version }}.zip` - works for both Chrome and Firefox
+        **For Firefox AMO:** Also download `header-editor-pro-free-source-v${{ steps.get_version.outputs.version }}.zip` for reviewer submission
         
         **Installation Steps:**
         1. Download the ZIP file
@@ -85,8 +92,8 @@ jobs:
         gh release create ${{ github.ref_name }} \
           --title "Header Editor Pro - Free v${{ steps.get_version.outputs.version }}" \
           --notes-file release_notes.md \
-          extension.zip \
-          source-code.zip
+          "header-editor-pro-free-extension-v${{ steps.get_version.outputs.version }}.zip" \
+          "header-editor-pro-free-source-v${{ steps.get_version.outputs.version }}.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         

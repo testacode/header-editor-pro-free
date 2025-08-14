@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "rspack build --mode development --watch",
     "build": "rspack build --mode production",
-    "create-source-package": "zip -r source-code.zip src/ package*.json rspack.config.js BUILD_INSTRUCTIONS.md README.md",
-    "package": "npm run build && npm run create-source-package && cd dist && zip -r ../extension.zip .",
+    "get-version": "node -p \"JSON.parse(require('fs').readFileSync('src/manifest.json', 'utf8')).version\"",
+    "create-source-package": "VERSION=$(npm run get-version --silent) && zip -r \"header-editor-pro-free-source-v${VERSION}.zip\" src/ package*.json rspack.config.js BUILD_INSTRUCTIONS.md README.md",
+    "package": "npm run build && npm run create-source-package && VERSION=$(npm run get-version --silent) && cd dist && zip -r \"../header-editor-pro-free-extension-v${VERSION}.zip\" .",
     "clean": "rm -rf dist/ && rm -f *.zip",
     "release": "bash scripts/release.sh"
   },
