@@ -105,6 +105,6 @@ These scripts work perfectly with the automated workflows:
 ## 🔗 Related
 
 - **GitHub Actions** - `.github/workflows/` - Automated versioned ZIP building
-- **Manual Process** - `.github/README.md` - Non-script alternatives  
+- **Manual Process** - `.github/WORKFLOWS.md` - Non-script alternatives  
 - **Chrome Web Store** - Use `header-editor-pro-free-extension-vX.X.X.zip` for submissions
 - **Firefox Add-ons** - Use both extension ZIP + source ZIP for AMO submission
