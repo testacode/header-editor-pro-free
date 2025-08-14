@@ -743,21 +743,29 @@ body {
   position: relative;
   border-radius: 6px;
   cursor: crosshair;
-  background: linear-gradient(to right, #ffffff, hsl(180, 100%, 50%));
-  background-image: linear-gradient(to top, #000000, transparent);
+  background: linear-gradient(to right, #ffffff, hsl(180, 100%, 50%)),
+              linear-gradient(to top, #000000, transparent);
+  border: 1px solid #404040;
 }
 
 .color-selector {
   position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 2px solid #ffffff;
+  width: 14px;
+  height: 14px;
+  border: 3px solid #ffffff;
   border-radius: 50%;
   pointer-events: none;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 
+              0 2px 4px rgba(0, 0, 0, 0.3);
   transform: translate(-50%, -50%);
   top: 50%;
   left: 50%;
+  z-index: 10;
+  transition: none;
+}
+
+.color-selector.smooth {
+  transition: left 0.1s ease-out, top 0.1s ease-out;
 }
 
 .hue-slider-container {
@@ -779,10 +787,12 @@ body {
     #ff00ff 83.33%, 
     #ff0000 100%);
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .hue-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -814,11 +824,18 @@ body {
   height: 32px;
   border-radius: 6px;
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 2px solid #404040;
   transition: all 0.2s;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.preset-color[data-color="#ffffff"] {
+  border-color: #666;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
 
 .preset-color:hover {
   border-color: #ffffff;
   transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }

@@ -5,6 +5,7 @@ class HeaderEditorPopup {
     this.isEnabled = true;
     this.isPaused = false;
     this.isPinned = false;
+    this.colorPickerInteractionsSetup = false;
     this.profileCounter = 1;
     this.init();
   }
@@ -1129,6 +1130,7 @@ class HeaderEditorPopup {
     
     this.updateGradientBackground(currentColor);
     this.setupColorPickerInteractions();
+    this.updateColorSelector(currentColor, false); // No smooth transition on initial load
   }
 
   updateGradientBackground(color) {
@@ -1138,15 +1140,41 @@ class HeaderEditorPopup {
     const gradient = document.getElementById('color-gradient');
     const hueSlider = document.getElementById('hue-slider');
     
-    // Update gradient background
-    gradient.style.background = `linear-gradient(to right, #ffffff, hsl(${this.colorPickerState.hue}, 100%, 50%))`;
-    gradient.style.backgroundImage = 'linear-gradient(to top, #000000, transparent)';
+    // Update gradient background - combine both gradients properly
+    gradient.style.background = `linear-gradient(to right, #ffffff, hsl(${this.colorPickerState.hue}, 100%, 50%)), linear-gradient(to top, #000000, transparent)`;
     
     // Update hue slider
     hueSlider.value = this.colorPickerState.hue;
   }
 
+  updateColorSelector(color, smooth = true) {
+    const hslColor = this.hexToHsl(color);
+    const selector = document.getElementById('color-selector');
+    
+    // Position the selector based on current color
+    const saturation = hslColor.s;
+    const lightness = hslColor.l;
+    
+    // Store in state for hue slider to use
+    this.colorPickerState.saturation = saturation;
+    this.colorPickerState.lightness = lightness;
+    
+    // Add smooth transition for non-dragging updates
+    if (smooth) {
+      selector.classList.add('smooth');
+    } else {
+      selector.classList.remove('smooth');
+    }
+    
+    selector.style.left = `${saturation * 100}%`;
+    selector.style.top = `${(1 - lightness) * 100}%`;
+  }
+
   setupColorPickerInteractions() {
+    // Only set up interactions once
+    if (this.colorPickerInteractionsSetup) return;
+    this.colorPickerInteractionsSetup = true;
+    
     // Tab switching
     document.getElementById('background-tab').onclick = () => {
       this.colorPickerState.currentTab = 'background';
@@ -1162,13 +1190,19 @@ class HeaderEditorPopup {
     const gradient = document.getElementById('color-gradient');
     const selector = document.getElementById('color-selector');
     
-    gradient.onclick = (e) => {
+    let isDragging = false;
+    
+    const updateColorFromPosition = (e) => {
       const rect = gradient.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       
-      const saturation = x / rect.width;
-      const lightness = 1 - (y / rect.height);
+      const saturation = Math.max(0, Math.min(1, x / rect.width));
+      const lightness = Math.max(0, Math.min(1, 1 - (y / rect.height)));
+      
+      // Store saturation and lightness in state
+      this.colorPickerState.saturation = saturation;
+      this.colorPickerState.lightness = lightness;
       
       const color = this.hslToHex(this.colorPickerState.hue, saturation, lightness);
       
@@ -1178,31 +1212,80 @@ class HeaderEditorPopup {
         this.colorPickerState.tempTextColor = color;
       }
       
-      // Update selector position
+      // Update selector position (no smooth transition during drag)
+      selector.classList.remove('smooth');
       selector.style.left = `${saturation * 100}%`;
       selector.style.top = `${(1 - lightness) * 100}%`;
       
       this.updateColorPickerUI();
     };
     
+    // Mouse events for gradient
+    gradient.onmousedown = (e) => {
+      isDragging = true;
+      updateColorFromPosition(e);
+      e.preventDefault();
+    };
+    
+    // Global mouse events to handle dragging outside the gradient
+    document.onmousemove = (e) => {
+      if (isDragging) {
+        updateColorFromPosition(e);
+      }
+    };
+    
+    document.onmouseup = () => {
+      if (isDragging) {
+        isDragging = false;
+        // Re-enable smooth transitions after dragging
+        selector.classList.add('smooth');
+      }
+    };
+    
+    // Also keep the click handler for single clicks
+    gradient.onclick = updateColorFromPosition;
+    
     // Hue slider
     const hueSlider = document.getElementById('hue-slider');
     hueSlider.oninput = () => {
       this.colorPickerState.hue = parseInt(hueSlider.value);
-      this.updateGradientBackground(this.colorPickerState.currentTab === 'background' 
-        ? this.colorPickerState.tempBackgroundColor 
-        : this.colorPickerState.tempTextColor);
+      
+      // Use stored saturation and lightness values
+      const saturation = this.colorPickerState.saturation;
+      const lightness = this.colorPickerState.lightness;
+      
+      // Generate new color with updated hue
+      const newColor = this.hslToHex(this.colorPickerState.hue, saturation, lightness);
+      
+      // Update the appropriate color value
+      if (this.colorPickerState.currentTab === 'background') {
+        this.colorPickerState.tempBackgroundColor = newColor;
+      } else {
+        this.colorPickerState.tempTextColor = newColor;
+      }
+      
+      // Update the entire UI
+      this.updateColorPickerUI();
     };
     
     // Preset colors
     document.querySelectorAll('.preset-color').forEach(preset => {
       preset.onclick = () => {
         const color = preset.getAttribute('data-color');
+        
+        // Update the appropriate temp color
         if (this.colorPickerState.currentTab === 'background') {
           this.colorPickerState.tempBackgroundColor = color;
         } else {
           this.colorPickerState.tempTextColor = color;
         }
+        
+        // Update HSL values and selector position
+        const hslColor = this.hexToHsl(color);
+        this.colorPickerState.hue = hslColor.h;
+        this.colorPickerState.saturation = hslColor.s;
+        this.colorPickerState.lightness = hslColor.l;
+        
         this.updateColorPickerUI();
       };
     });
