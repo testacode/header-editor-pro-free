@@ -7,6 +7,12 @@ module.exports = {
     background: './src/background/background.js'
   },
   
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'js/[name].js',
+    clean: true
+  },
+  
   module: {
     rules: [
       {
@@ -49,15 +55,25 @@ module.exports = {
       template: './src/pages/privacy.html',
       filename: 'privacy.html',
       chunks: []
+    }),
+    
+    new rspack.CopyRspackPlugin({
+      patterns: [
+        {
+          from: 'src/manifest.json',
+          to: 'manifest.json'
+        },
+        {
+          from: 'src/assets/icons',
+          to: 'icons'
+        }
+      ]
     })
   ],
   
   optimization: {
     minimize: true,
-    splitChunks: false, // Chrome extensions don't support code splitting well
-    minimizer: [
-      // Rspack's built-in SWC minifier
-    ]
+    splitChunks: false // Chrome extensions don't support code splitting well
   },
   
   resolve: {
