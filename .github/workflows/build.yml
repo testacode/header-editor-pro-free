@@ -14,25 +14,22 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Create extension ZIP
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build and create extension ZIP
       run: |
-        # Create a clean directory for the extension files
-        mkdir -p extension-build
+        # Build extension using Rspack
+        npm run build
         
-        # Copy only the files needed for the Chrome extension
-        cp manifest.json extension-build/
-        cp popup.html extension-build/
-        cp popup.js extension-build/
-        cp background.js extension-build/
-        cp privacy.html extension-build/
-        
-        # Copy icons directory if it exists
-        if [ -d "icons" ]; then
-          cp -r icons extension-build/
-        fi
-        
-        # Create the ZIP file
-        cd extension-build
+        # Create ZIP from built extension
+        cd dist
         zip -r ../header-editor-pro-free-extension.zip .
         cd ..
         
