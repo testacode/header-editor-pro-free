@@ -73,12 +73,12 @@ async function main() {
         }
 
         // Get current version
-        if (!fs.existsSync('manifest.json')) {
-            print('red', 'manifest.json not found. Are you in the correct directory?');
+        if (!fs.existsSync('src/manifest.json')) {
+            print('red', 'src/manifest.json not found. Are you in the correct directory?');
             process.exit(1);
         }
 
-        const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+        const manifest = JSON.parse(fs.readFileSync('src/manifest.json', 'utf8'));
         const currentVersion = manifest.version;
         print('blue', `Current version: ${currentVersion}`);
 
@@ -147,15 +147,15 @@ async function main() {
 
         print('blue', 'Starting release process...');
 
-        // Update manifest.json
-        print('blue', 'Updating manifest.json version...');
+        // Update src/manifest.json
+        print('blue', 'Updating src/manifest.json version...');
         manifest.version = newVersion;
-        fs.writeFileSync('manifest.json', JSON.stringify(manifest, null, 2) + '\n');
-        print('green', `Updated manifest.json version to ${newVersion}`);
+        fs.writeFileSync('src/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
+        print('green', `Updated src/manifest.json version to ${newVersion}`);
 
         // Create commit
         print('blue', 'Creating commit...');
-        execCommand('git add manifest.json');
+        execCommand('git add src/manifest.json');
         execCommand(`git commit -m "release: bump version to ${newVersion}
 
 ${releaseNotes}"`);

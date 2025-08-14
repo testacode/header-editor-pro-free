@@ -52,13 +52,13 @@ if [[ -n $(git status --porcelain) ]]; then
     exit 1
 fi
 
-# Get current version from manifest.json
-if [[ ! -f "manifest.json" ]]; then
-    print_error "manifest.json not found. Are you in the correct directory?"
+# Get current version from src/manifest.json
+if [[ ! -f "src/manifest.json" ]]; then
+    print_error "src/manifest.json not found. Are you in the correct directory?"
     exit 1
 fi
 
-current_version=$(grep '"version"' manifest.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+current_version=$(grep '"version"' src/manifest.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
 print_step "Current version: $current_version"
 
 # Ask for new version
@@ -125,18 +125,18 @@ fi
 
 print_step "Starting release process..."
 
-# Update version in manifest.json
-print_step "Updating manifest.json version..."
+# Update version in src/manifest.json
+print_step "Updating src/manifest.json version..."
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS
-    sed -i '' "s/\"version\": *\"[^\"]*\"/\"version\": \"$new_version\"/" manifest.json
+    sed -i '' "s/\"version\": *\"[^\"]*\"/\"version\": \"$new_version\"/" src/manifest.json
 else
     # Linux
-    sed -i "s/\"version\": *\"[^\"]*\"/\"version\": \"$new_version\"/" manifest.json
+    sed -i "s/\"version\": *\"[^\"]*\"/\"version\": \"$new_version\"/" src/manifest.json
 fi
 
 # Verify the change
-updated_version=$(grep '"version"' manifest.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+updated_version=$(grep '"version"' src/manifest.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
 if [[ "$updated_version" != "$new_version" ]]; then
     print_error "Failed to update version in manifest.json"
     exit 1
@@ -146,7 +146,7 @@ print_success "Updated manifest.json version to $new_version"
 
 # Create commit
 print_step "Creating commit..."
-git add manifest.json
+git add src/manifest.json
 git commit -m "release: bump version to $new_version
 
 $release_notes"
