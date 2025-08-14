@@ -1059,24 +1059,52 @@
       function displayRequestHeaders(headers, testName) {
         const results = document.getElementById("requestResults");
 
-        results.innerHTML = `
-                <div class="status success">${testName} - Headers Retrieved</div>
-                ${Object.entries(headers)
-                  .map(
-                    ([name, value]) => `
-                    <div class="header-item ${
-                      name.toLowerCase().startsWith("x-") ||
-                      name.toLowerCase().includes("custom")
-                        ? "injected"
-                        : ""
-                    } animate-slide-in">
-                        <span class="header-name">${name}</span>
-                        <span class="header-value">${value}</span>
-                    </div>
-                `
-                  )
-                  .join("")}
-            `;
+        // Standard browser headers that should be filtered out
+        const browserHeaders = [
+          'host', 'user-agent', 'accept', 'accept-language', 'accept-encoding',
+          'connection', 'upgrade-insecure-requests', 'sec-fetch-dest', 
+          'sec-fetch-mode', 'sec-fetch-site', 'sec-ch-ua', 'sec-ch-ua-mobile',
+          'sec-ch-ua-platform', 'cache-control', 'pragma', 'x-amzn-trace-id',
+          'x-test-header', 'dnt', 'origin', 'priority', 'referer', 'cookie',
+          'authorization'
+        ];
+
+        // Only show headers that are likely from header modification extensions
+        // These are typically custom headers that don't start with standard prefixes
+        const extensionHeaders = Object.entries(headers).filter(([name]) => {
+          const lowerName = name.toLowerCase();
+          return !browserHeaders.includes(lowerName) && 
+                 !lowerName.startsWith('sec-') &&
+                 !lowerName.startsWith(':') &&
+                 // Only show truly custom headers
+                 (lowerName.length < 20 && !lowerName.includes('mozilla') && !lowerName.includes('chrome'));
+        });
+
+        if (extensionHeaders.length === 0) {
+          results.innerHTML = `
+            <div class="status error">No extension headers detected</div>
+            <div class="empty-state">
+              <div class="empty-state-icon">⚠️</div>
+              <div class="empty-state-text">
+                Make sure your extension is enabled and has headers configured
+              </div>
+            </div>
+          `;
+        } else {
+          results.innerHTML = `
+                  <div class="status success">${extensionHeaders.length} Extension Headers Detected</div>
+                  ${extensionHeaders
+                    .map(
+                      ([name, value]) => `
+                      <div class="header-item injected animate-slide-in">
+                          <span class="header-name">${name}</span>
+                          <span class="header-value">${value}</span>
+                      </div>
+                  `
+                    )
+                    .join("")}
+              `;
+        }
         results.classList.add("animate-fade-in");
       }
 
