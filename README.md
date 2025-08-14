@@ -6,10 +6,10 @@
 
 *Completely free alternative to paid header modification tools*
 
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-brightgreen?logo=googlechrome&logoColor=white)]()
-[![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--ons-orange?logo=firefox&logoColor=white)]()
+![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-brightgreen?logo=googlechrome&logoColor=white)
+![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--ons-orange?logo=firefox&logoColor=white)
 [![GitHub](https://img.shields.io/badge/GitHub-Open%20Source-blue?logo=github&logoColor=white)](https://github.com/testacode/header-editor-pro-free)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)]()
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 </div>
 
@@ -128,13 +128,15 @@
 
 ### Project Structure
 ```
-├── manifest.json          # Extension configuration
-├── popup.html             # Clean HTML structure (191 lines)
-├── popup.css              # Professional dark theme styling (652 lines)
-├── popup.js              # Frontend logic and profile management (1041 lines)
-├── background.js         # Service worker for header modification
-├── privacy.html          # Privacy policy page
-├── icons/               # Extension icons (16px, 32px, 48px, 128px)
+├── src/                  # Source code (Rspack bundling)
+│   ├── manifest.json    # Unified config for Chrome & Firefox
+│   ├── popup/           # UI components (HTML, CSS, JS)
+│   ├── background/      # Service worker logic
+│   ├── pages/           # Privacy policy and other pages
+│   └── assets/icons/    # Extension icons (16px-128px)
+├── dist/                # Built extension (gitignored)
+├── rspack.config.js     # Rspack bundler configuration
+├── package.json         # Dependencies and build scripts
 ├── scripts/             # Release automation scripts
 ├── .github/workflows/   # GitHub Actions for automated builds
 └── screenshots/         # Extension screenshots
@@ -142,10 +144,19 @@
 
 ### Local Development
 1. Clone the repository
-2. Make changes to the code
-3. Go to `chrome://extensions`
-4. Click "Reload" on the extension card
-5. Test your changes
+2. Install dependencies: `npm install`
+3. Start development server: `npm run dev`
+4. Make changes to files in `src/`
+5. Go to `chrome://extensions`
+6. Click "Reload" on the extension card
+7. Test your changes
+
+### Build Process
+The extension uses **Rspack** (23x faster than Webpack) for bundling:
+- **Minification**: Code optimized for performance
+- **Cross-browser**: Single build works for Chrome & Firefox  
+- **No obfuscation**: Store-compliant minification only
+- **Source maps**: Available in development mode
 
 ### 🚀 Creating Releases
 
@@ -162,6 +173,7 @@ node scripts/release.js
 - Update version in manifest.json
 - Create proper git commit and tag
 - Push to GitHub (triggers automated ZIP build)
+- Generate versioned files: `header-editor-pro-free-extension-vX.X.X.zip`
 - Guide you through the entire process
 
 #### Option 2: Manual Process
@@ -174,6 +186,24 @@ git push origin main --tags
 ```
 
 Both methods trigger **GitHub Actions** to automatically build the extension ZIP and create a GitHub release.
+
+## 📦 Distribution & Stores
+
+### Download Options
+- **GitHub Releases**: Get the latest versioned ZIP files directly
+- **Chrome Web Store**: Coming soon - official store listing
+- **Firefox Add-ons**: Coming soon - official AMO listing
+
+### Package Files
+When you download from GitHub releases, you'll get:
+- `header-editor-pro-free-extension-vX.X.X.zip` - Ready for both Chrome & Firefox
+- `header-editor-pro-free-source-vX.X.X.zip` - Source code for Firefox reviewers
+
+### Store Compliance
+- ✅ **Minified code only** - No obfuscation (store policies compliant)
+- ✅ **Single manifest** - Works for both Chrome and Firefox  
+- ✅ **Privacy focused** - No tracking, local storage only
+- ✅ **Open source** - Full transparency for reviewers
 
 ### Contributing
 Contributions are welcome! Please:

@@ -33,7 +33,8 @@ This directory contains automated workflows for building and releasing the Heade
 
 **What it does:**
 - Creates a professional GitHub release
-- Generates ZIP file for Chrome Web Store submission
+- Generates versioned ZIP files: `header-editor-pro-free-extension-vX.X.X.zip`
+- Creates source package: `header-editor-pro-free-source-vX.X.X.zip` (for Firefox AMO)
 - Extracts version number from `manifest.json`
 - Includes detailed release notes with installation instructions
 
@@ -75,39 +76,46 @@ git push origin main --tags
 
 **📝 Note:** All methods trigger the same GitHub Actions workflow to build the ZIP and create the release.
 
-## 📦 Files Included in ZIP Package
+## 📦 Generated Files
 
-The workflows automatically include only the essential extension files:
-
+### Extension Package (`header-editor-pro-free-extension-vX.X.X.zip`)
 ✅ **Included:**
-- `manifest.json` - Extension configuration
-- `popup.html` - Main UI interface
-- `popup.js` - Frontend logic
-- `background.js` - Service worker
+- `manifest.json` - Unified configuration for Chrome & Firefox
+- `popup.html` - Main UI interface (processed by Rspack)
+- `css/popup.css` - Minified dark theme styling  
+- `js/popup.js` - Minified frontend logic
+- `js/background.js` - Minified service worker
 - `privacy.html` - Privacy policy page
-- `icons/` - Extension icons (if folder exists)
+- `icons/` - Extension icons (16px, 32px, 48px, 128px)
 
-❌ **Excluded:**
-- `README.md` - Documentation
-- `screenshots/` - Screenshots for documentation
+### Source Package (`header-editor-pro-free-source-vX.X.X.zip`)
+✅ **Included for Firefox AMO reviewers:**
+- `src/` - Original source code
+- `package.json` & `package-lock.json` - Dependencies
+- `rspack.config.js` - Build configuration  
+- `BUILD_INSTRUCTIONS.md` - Step-by-step build guide
+- `README.md` - Project documentation
+
+❌ **Excluded from both:**
 - `.github/` - Workflow files
-- `.git/` - Git repository files
-- `CLAUDE.md` - Development notes
-- `index.html` - GitHub Pages landing page
+- `.git/` - Git repository files  
+- `dist/` - Build output folder
+- `node_modules/` - Development dependencies
 
 ## 🚀 Using the ZIP for Extension Stores
 
 ### Chrome Web Store
-1. **Download** the ZIP file from GitHub release
+1. **Download** `header-editor-pro-free-extension-vX.X.X.zip` from GitHub release
 2. **Extract** to verify contents
 3. **Upload** directly to Chrome Web Store Developer Dashboard
 4. **Submit** for review
 
 ### Firefox Add-ons (AMO)
-1. **Download** the same ZIP file from GitHub release
-2. **Extract** to verify contents (same files work for both browsers)
-3. **Upload** directly to Firefox Add-ons Developer Hub
-4. **Submit** for review (free, no payment required)
+1. **Download** `header-editor-pro-free-extension-vX.X.X.zip` from GitHub release
+2. **Download** `header-editor-pro-free-source-vX.X.X.zip` (required for review)
+3. **Upload extension ZIP** to Firefox Add-ons Developer Hub
+4. **Upload source ZIP** in the "Source code" field
+5. **Submit** for review (free, no payment required)
 
 ## 🛠️ Workflow Customization
 
