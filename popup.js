@@ -1133,15 +1133,19 @@ class HeaderEditorPopup {
     this.updateColorSelector(currentColor, false); // No smooth transition on initial load
   }
 
-  updateGradientBackground(color) {
+  updateGradientBackground(color, preserveHue = false) {
     const hslColor = this.hexToHsl(color);
-    this.colorPickerState.hue = hslColor.h;
+    
+    // Only update hue if not preserving it (e.g., when saturation > 0.1)
+    if (!preserveHue && hslColor.s > 0.1) {
+      this.colorPickerState.hue = hslColor.h;
+    }
     
     const gradient = document.getElementById('color-gradient');
     const hueSlider = document.getElementById('hue-slider');
     
     // Update gradient background - combine both gradients properly
-    gradient.style.background = `linear-gradient(to right, #ffffff, hsl(${this.colorPickerState.hue}, 100%, 50%)), linear-gradient(to top, #000000, transparent)`;
+    gradient.style.background = `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%), linear-gradient(to right, rgba(255,255,255,1) 0%, hsl(${this.colorPickerState.hue}, 100%, 50%) 100%)`;
     
     // Update hue slider
     hueSlider.value = this.colorPickerState.hue;
@@ -1168,6 +1172,17 @@ class HeaderEditorPopup {
     
     selector.style.left = `${saturation * 100}%`;
     selector.style.top = `${(1 - lightness) * 100}%`;
+  }
+
+  updateColorPreview() {
+    const profile = this.profiles[this.currentProfile];
+    const previewCircle = document.getElementById('color-preview-circle');
+    const previewText = document.getElementById('color-preview-text');
+    
+    // Update preview circle
+    previewCircle.style.backgroundColor = this.colorPickerState.tempBackgroundColor;
+    previewText.style.color = this.colorPickerState.tempTextColor;
+    previewText.textContent = profile.name.charAt(0).toUpperCase();
   }
 
   setupColorPickerInteractions() {
@@ -1204,6 +1219,8 @@ class HeaderEditorPopup {
       this.colorPickerState.saturation = saturation;
       this.colorPickerState.lightness = lightness;
       
+      // Preserve the current hue when saturation is 0 (white/grey area)
+      // Don't let hexToHsl change the hue when color becomes achromatic
       const color = this.hslToHex(this.colorPickerState.hue, saturation, lightness);
       
       if (this.colorPickerState.currentTab === 'background') {
@@ -1217,7 +1234,8 @@ class HeaderEditorPopup {
       selector.style.left = `${saturation * 100}%`;
       selector.style.top = `${(1 - lightness) * 100}%`;
       
-      this.updateColorPickerUI();
+      // Update UI but don't call updateColorPickerUI which might recalculate hue
+      this.updateColorPreview();
     };
     
     // Mouse events for gradient
@@ -1225,12 +1243,15 @@ class HeaderEditorPopup {
       isDragging = true;
       updateColorFromPosition(e);
       e.preventDefault();
+      e.stopPropagation();
     };
     
     // Global mouse events to handle dragging outside the gradient
     document.onmousemove = (e) => {
       if (isDragging) {
         updateColorFromPosition(e);
+        e.preventDefault();
+        e.stopPropagation();
       }
     };
     
@@ -1243,7 +1264,13 @@ class HeaderEditorPopup {
     };
     
     // Also keep the click handler for single clicks
-    gradient.onclick = updateColorFromPosition;
+    gradient.onclick = (e) => {
+      if (!isDragging) {
+        updateColorFromPosition(e);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
     
     // Hue slider
     const hueSlider = document.getElementById('hue-slider');
