@@ -5,6 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Header Editor Pro - Test Page</title>
     <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-card: #1c2128;
+            --bg-elevated: #262c36;
+            --border-primary: #30363d;
+            --border-secondary: #21262d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #656d76;
+            --accent-primary: #238636;
+            --accent-secondary: #2f81f7;
+            --accent-warning: #f85149;
+            --accent-success: #56d364;
+            --accent-info: #58a6ff;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,224 +37,657 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #1a1a1a;
-            color: #ffffff;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100vh;
+            background: radial-gradient(ellipse at top, rgba(35, 134, 54, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at bottom right, rgba(47, 129, 247, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 2px;
         }
 
         h1 {
-            color: #4caf50;
-            margin-bottom: 30px;
-            text-align: center;
-            font-size: 2.5em;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-success), var(--accent-info));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            font-weight: 400;
+            margin-top: 0.5rem;
         }
 
         .section {
-            background: #2d2d2d;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #404040;
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-primary));
+            opacity: 0.6;
+        }
+
+        .section:hover {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-secondary);
+        }
+
+        .section-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .section h2 {
-            color: #4caf50;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-            border-bottom: 2px solid #4caf50;
-            padding-bottom: 10px;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
         }
 
         .test-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            align-items: start;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-secondary);
+        }
+
+        .input-label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .test-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
         }
 
         @media (max-width: 768px) {
-            .test-grid {
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button-grid {
                 grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .container {
+                padding: 1rem 0.75rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
             }
         }
 
         .test-button {
-            background: #4caf50;
-            color: white;
+            background: linear-gradient(135deg, var(--accent-primary), #2ea043);
+            color: var(--text-primary);
             border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-            margin: 5px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            min-width: 140px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .test-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
         }
 
         .test-button:hover {
-            background: #45a049;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, #2ea043, var(--accent-primary));
+        }
+
+        .test-button:hover::before {
+            left: 100%;
+        }
+
+        .test-button:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-sm);
         }
 
         .test-button:disabled {
-            background: #666;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
+        }
+
+        .test-button:disabled::before {
+            display: none;
+        }
+
+        .test-button.secondary {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-primary);
+            color: var(--text-secondary);
+        }
+
+        .test-button.secondary:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-secondary);
+            color: var(--text-primary);
+        }
+
+        .test-button.danger {
+            background: linear-gradient(135deg, var(--accent-warning), #da3633);
+        }
+
+        .test-button.danger:hover {
+            background: linear-gradient(135deg, #da3633, var(--accent-warning));
         }
 
         .results {
-            background: #1a1a1a;
-            border: 1px solid #404040;
-            border-radius: 6px;
-            padding: 15px;
-            margin-top: 15px;
-            max-height: 400px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-secondary);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            max-height: 500px;
             overflow-y: auto;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .results::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .results::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        .results::-webkit-scrollbar-thumb {
+            background: var(--border-primary);
+            border-radius: 4px;
+        }
+
+        .results::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
         }
 
         .header-item {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #404040;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-secondary);
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.25rem;
         }
 
         .header-item:last-child {
             border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .header-item:hover {
+            background: var(--bg-elevated);
         }
 
         .header-name {
-            color: #2196f3;
-            font-weight: bold;
+            color: var(--accent-info);
+            font-weight: 600;
             min-width: 200px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-name::before {
+            content: '🏷️';
+            font-size: 0.75rem;
+            opacity: 0.7;
         }
 
         .header-value {
-            color: #ff9800;
+            color: var(--accent-warning);
             flex: 1;
             text-align: right;
             word-break: break-all;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-secondary);
         }
 
         .injected {
-            background: rgba(76, 175, 80, 0.2);
-            border-left: 3px solid #4caf50;
-            padding-left: 10px;
+            background: rgba(86, 211, 100, 0.1);
+            border: 1px solid rgba(86, 211, 100, 0.3);
+            border-radius: var(--radius-sm);
+            position: relative;
+        }
+
+        .injected::before {
+            content: '✨';
+            position: absolute;
+            left: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+        }
+
+        .injected .header-name {
+            padding-left: 1.5rem;
+            color: var(--accent-success);
         }
 
         .status {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: currentColor;
+            opacity: 0.6;
         }
 
         .status.success {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4caf50;
+            background: rgba(86, 211, 100, 0.15);
+            color: var(--accent-success);
+            border: 1px solid rgba(86, 211, 100, 0.3);
+        }
+
+        .status.success::after {
+            content: '✅';
         }
 
         .status.error {
-            background: rgba(244, 67, 54, 0.2);
-            color: #f44336;
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--accent-warning);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+        }
+
+        .status.error::after {
+            content: '❌';
         }
 
         .status.pending {
-            background: rgba(255, 152, 0, 0.2);
-            color: #ff9800;
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--accent-info);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+        }
+
+        .status.pending::after {
+            content: '⏳';
         }
 
         .url-input {
             width: 100%;
-            padding: 10px;
-            background: #1a1a1a;
-            border: 1px solid #404040;
-            border-radius: 6px;
-            color: #ffffff;
-            font-size: 14px;
-            margin-bottom: 10px;
+            padding: 0.875rem 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
+            transition: var(--transition);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .url-input:focus {
             outline: none;
-            border-color: #4caf50;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(35, 134, 54, 0.1), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            background: var(--bg-secondary);
+        }
+
+        .url-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .callout {
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            border: 1px solid transparent;
+            backdrop-filter: blur(10px);
+        }
+
+        .callout::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            border-radius: 2px 0 0 2px;
+        }
+
+        .callout-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .callout h3 {
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .callout ol {
+            padding-left: 1.25rem;
+        }
+
+        .callout li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
         }
 
         .instruction {
-            background: rgba(33, 150, 243, 0.1);
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 0 6px 6px 0;
+            background: rgba(88, 166, 255, 0.08);
+            border-color: rgba(88, 166, 255, 0.2);
+            color: var(--text-primary);
+        }
+
+        .instruction::before {
+            background: var(--accent-info);
+        }
+
+        .instruction h3 {
+            color: var(--accent-info);
         }
 
         .warning {
-            background: rgba(255, 152, 0, 0.1);
-            border-left: 4px solid #ff9800;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 0 6px 6px 0;
+            background: rgba(248, 81, 73, 0.08);
+            border-color: rgba(248, 81, 73, 0.2);
+            color: var(--text-primary);
+        }
+
+        .warning::before {
+            background: var(--accent-warning);
+        }
+
+        .warning h3 {
+            color: var(--accent-warning);
         }
 
         .code {
-            background: #0d1117;
-            color: #f0f6fc;
-            padding: 10px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
+            font-size: 0.8rem;
             overflow-x: auto;
-            margin: 10px 0;
+            margin: 1rem 0;
+            border: 1px solid var(--border-primary);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .code::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+
+        .code::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .code::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        .code::-webkit-scrollbar-thumb {
+            background: var(--border-primary);
+            border-radius: 4px;
         }
 
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #404040;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-primary);
             border-radius: 50%;
-            border-top-color: #4caf50;
-            animation: spin 1s ease-in-out infinite;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
         .tabs {
             display: flex;
-            border-bottom: 1px solid #404040;
-            margin-bottom: 15px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 0.25rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-secondary);
         }
 
         .tab {
-            padding: 10px 20px;
+            flex: 1;
+            padding: 0.75rem 1rem;
             background: none;
             border: none;
-            color: #666;
+            color: var(--text-secondary);
             cursor: pointer;
-            font-size: 14px;
-            border-bottom: 2px solid transparent;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            position: relative;
         }
 
         .tab:hover {
-            color: #ccc;
+            color: var(--text-primary);
+            background: var(--bg-elevated);
         }
 
         .tab.active {
-            color: #4caf50;
-            border-bottom-color: #4caf50;
+            color: var(--text-primary);
+            background: var(--accent-primary);
+            box-shadow: var(--shadow-sm);
         }
 
         .tab-content {
@@ -238,15 +696,36 @@
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .tab-indicator {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-primary);
+            border-radius: 1px;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tab.active .tab-indicator {
+            transform: scaleX(1);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧪 Header Editor Pro - Test Lab</h1>
+        <div class="header">
+            <h1>Header Editor Pro - Test Lab</h1>
+            <p class="subtitle">Professional header modification testing suite for developers</p>
+        </div>
 
-        <div class="instruction">
-            <h3>📋 How to Test:</h3>
+        <div class="callout instruction">
+            <span class="callout-icon">📋</span>
+            <h3>How to Test:</h3>
             <ol>
                 <li>Make sure the Header Editor Pro extension is loaded and enabled</li>
                 <li>Configure some request and response headers in the extension</li>
@@ -255,23 +734,30 @@
             </ol>
         </div>
 
-        <div class="warning">
-            <h3>⚠️ Important:</h3>
+        <div class="callout warning">
+            <span class="callout-icon">⚠️</span>
+            <h3>Important:</h3>
             <p>This page uses various APIs and services to test header injection. Make sure you have an internet connection and the extension has the necessary permissions.</p>
         </div>
 
         <div class="section">
-            <h2>🌐 Request Header Tests</h2>
-            <p>These tests will make HTTP requests and show you what headers were sent. Look for your custom headers in the results.</p>
+            <div class="section-header">
+                <div class="section-icon">🌐</div>
+                <div>
+                    <h2>Request Header Tests</h2>
+                </div>
+            </div>
+            <p class="section-description">These tests will make HTTP requests and show you what headers were sent. Look for your custom headers in the results.</p>
             
             <div class="test-grid">
-                <div>
-                    <button class="test-button" onclick="testHttpBin()">Test with HTTPBin.org</button>
-                    <button class="test-button" onclick="testJSONPlaceholder()">Test with JSONPlaceholder</button>
-                    <button class="test-button" onclick="testCustomURL()">Test Custom URL</button>
+                <div class="button-group">
+                    <button class="test-button" onclick="testHttpBin()">🔍 Test with HTTPBin.org</button>
+                    <button class="test-button" onclick="testJSONPlaceholder()">📡 Test with JSONPlaceholder</button>
+                    <button class="test-button" onclick="testCustomURL()">🎯 Test Custom URL</button>
                 </div>
-                <div>
-                    <input type="url" class="url-input" id="customUrl" placeholder="Enter custom URL (e.g., https://api.example.com)" value="https://httpbin.org/headers">
+                <div class="input-group">
+                    <label class="input-label" for="customUrl">Custom Test URL</label>
+                    <input type="url" class="url-input" id="customUrl" placeholder="https://api.example.com/endpoint" value="https://httpbin.org/headers">
                 </div>
             </div>
 
@@ -283,69 +769,99 @@
 
             <div id="request-headers" class="tab-content active">
                 <div id="requestResults" class="results">
-                    <p style="color: #666; text-align: center; padding: 20px;">Click a test button above to see request headers</p>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">Click a test button above to see request headers</div>
+                    </div>
                 </div>
             </div>
 
             <div id="response-data" class="tab-content">
                 <div id="responseResults" class="results">
-                    <p style="color: #666; text-align: center; padding: 20px;">Response data will appear here</p>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <div class="empty-state-text">Response data will appear here</div>
+                    </div>
                 </div>
             </div>
 
             <div id="raw-response" class="tab-content">
                 <div id="rawResults" class="results">
-                    <p style="color: #666; text-align: center; padding: 20px;">Raw response will appear here</p>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔧</div>
+                        <div class="empty-state-text">Raw response will appear here</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="section">
-            <h2>📡 Response Header Tests</h2>
-            <p>These tests help verify if response headers are being modified correctly.</p>
+            <div class="section-header">
+                <div class="section-icon">📡</div>
+                <div>
+                    <h2>Response Header Tests</h2>
+                </div>
+            </div>
+            <p class="section-description">These tests help verify if response headers are being modified correctly.</p>
             
             <div class="test-grid">
-                <div>
-                    <button class="test-button" onclick="testResponseHeaders()">Check Response Headers</button>
-                    <button class="test-button" onclick="testCORS()">Test CORS Headers</button>
-                    <button class="test-button" onclick="testSecurityHeaders()">Test Security Headers</button>
+                <div class="button-group">
+                    <button class="test-button" onclick="testResponseHeaders()">🔍 Check Response Headers</button>
+                    <button class="test-button secondary" onclick="testCORS()">🌍 Test CORS Headers</button>
+                    <button class="test-button secondary" onclick="testSecurityHeaders()">🔒 Test Security Headers</button>
                 </div>
-                <div>
-                    <p style="color: #ccc; font-size: 13px;">Response header modification depends on the website's CORS policy and browser security.</p>
+                <div class="input-group">
+                    <label class="input-label">Important Note</label>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5;">Response header modification depends on the website's CORS policy and browser security.</p>
                 </div>
             </div>
 
             <div id="responseHeaderResults" class="results">
-                <p style="color: #666; text-align: center; padding: 20px;">Click a test button above to check response headers</p>
+                <div class="empty-state">
+                    <div class="empty-state-icon">📡</div>
+                    <div class="empty-state-text">Click a test button above to check response headers</div>
+                </div>
             </div>
         </div>
 
         <div class="section">
-            <h2>🔧 Developer Tools</h2>
-            <p>Additional tools for testing and debugging.</p>
+            <div class="section-header">
+                <div class="section-icon">🔧</div>
+                <div>
+                    <h2>Developer Tools</h2>
+                </div>
+            </div>
+            <p class="section-description">Additional tools for testing and debugging.</p>
             
-            <div class="test-grid">
-                <div>
-                    <button class="test-button" onclick="openDevTools()">Open Network Tab Instructions</button>
-                    <button class="test-button" onclick="testLocalhost()">Test Localhost</button>
-                    <button class="test-button" onclick="clearResults()">Clear All Results</button>
-                </div>
-                <div>
-                    <button class="test-button" onclick="exportResults()">Export Test Results</button>
-                    <button class="test-button" onclick="testWebSocket()">Test WebSocket Headers</button>
-                    <button class="test-button" onclick="openExtension()">Open Extension Popup</button>
-                </div>
+            <div class="button-grid">
+                <button class="test-button secondary" onclick="openDevTools()">🔍 Network Tab Instructions</button>
+                <button class="test-button secondary" onclick="testLocalhost()">🏠 Test Localhost</button>
+                <button class="test-button danger" onclick="clearResults()">🗑️ Clear All Results</button>
+                <button class="test-button secondary" onclick="exportResults()">💾 Export Test Results</button>
+                <button class="test-button secondary" onclick="testWebSocket()">🔌 Test WebSocket Headers</button>
+                <button class="test-button" onclick="openExtension()">🧩 Open Extension Popup</button>
             </div>
 
             <div id="devToolsResults" class="results">
-                <p style="color: #666; text-align: center; padding: 20px;">Developer tools and utilities</p>
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔧</div>
+                    <div class="empty-state-text">Developer tools and utilities</div>
+                </div>
             </div>
         </div>
 
         <div class="section">
-            <h2>📊 Test Summary</h2>
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <div>
+                    <h2>Test Summary</h2>
+                </div>
+            </div>
             <div id="testSummary" class="results">
-                <p style="color: #666; text-align: center; padding: 20px;">Test summary will appear here after running tests</p>
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <div class="empty-state-text">Test summary will appear here after running tests</div>
+                </div>
             </div>
         </div>
     </div>
@@ -414,9 +930,11 @@
                 
                 addToSummary('HTTPBin Request Test', true, 'Successfully retrieved headers');
             } catch (error) {
-                document.getElementById('requestResults').innerHTML = `
+                const results = document.getElementById('requestResults');
+                results.innerHTML = `
                     <div class="status error">Error: ${error.message}</div>
                 `;
+                results.classList.add('animate-fade-in');
                 addToSummary('HTTPBin Request Test', false, error.message);
             } finally {
                 button.disabled = false;
@@ -452,9 +970,11 @@
                 
                 addToSummary('JSONPlaceholder Test', response.ok, `Status: ${response.status}`);
             } catch (error) {
-                document.getElementById('requestResults').innerHTML = `
+                const results = document.getElementById('requestResults');
+                results.innerHTML = `
                     <div class="status error">Error: ${error.message}</div>
                 `;
+                results.classList.add('animate-fade-in');
                 addToSummary('JSONPlaceholder Test', false, error.message);
             } finally {
                 button.disabled = false;
@@ -495,9 +1015,11 @@
                 
                 addToSummary('Custom URL Test', response.ok, `Status: ${response.status} - ${url}`);
             } catch (error) {
-                document.getElementById('requestResults').innerHTML = `
+                const results = document.getElementById('requestResults');
+                results.innerHTML = `
                     <div class="status error">Error: ${error.message}</div>
                 `;
+                results.classList.add('animate-fade-in');
                 addToSummary('Custom URL Test', false, error.message);
             } finally {
                 button.disabled = false;
@@ -511,12 +1033,13 @@
             results.innerHTML = `
                 <div class="status success">${testName} - Headers Retrieved</div>
                 ${Object.entries(headers).map(([name, value]) => `
-                    <div class="header-item ${name.toLowerCase().startsWith('x-') || name.toLowerCase().includes('custom') ? 'injected' : ''}">
+                    <div class="header-item ${name.toLowerCase().startsWith('x-') || name.toLowerCase().includes('custom') ? 'injected' : ''} animate-slide-in">
                         <span class="header-name">${name}</span>
                         <span class="header-value">${value}</span>
                     </div>
                 `).join('')}
             `;
+            results.classList.add('animate-fade-in');
         }
 
         function displayResponseData(data, testName) {
@@ -526,6 +1049,7 @@
                 <div class="status success">${testName}</div>
                 <div class="code">${JSON.stringify(data, null, 2)}</div>
             `;
+            results.classList.add('animate-fade-in');
         }
 
         function displayRawResponse(response, testName) {
@@ -546,6 +1070,7 @@ Response Headers:
 ${headers.join('\n')}
                 </div>
             `;
+            results.classList.add('animate-fade-in');
         }
 
         async function testResponseHeaders() {
@@ -565,18 +1090,21 @@ ${headers.join('\n')}
                 results.innerHTML = `
                     <div class="status success">Response Headers Retrieved</div>
                     ${Object.entries(headers).map(([name, value]) => `
-                        <div class="header-item ${name.toLowerCase().startsWith('x-') ? 'injected' : ''}">
+                        <div class="header-item ${name.toLowerCase().startsWith('x-') ? 'injected' : ''} animate-slide-in">
                             <span class="header-name">${name}</span>
                             <span class="header-value">${value}</span>
                         </div>
                     `).join('')}
                 `;
+                results.classList.add('animate-fade-in');
                 
                 addToSummary('Response Headers Test', true, `Found ${Object.keys(headers).length} headers`);
             } catch (error) {
-                document.getElementById('responseHeaderResults').innerHTML = `
+                const results = document.getElementById('responseHeaderResults');
+                results.innerHTML = `
                     <div class="status error">Error: ${error.message}</div>
                 `;
+                results.classList.add('animate-fade-in');
                 addToSummary('Response Headers Test', false, error.message);
             } finally {
                 button.disabled = false;
@@ -673,12 +1201,21 @@ To test with localhost:
         }
 
         function clearResults() {
-            document.getElementById('requestResults').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Results cleared</p>';
-            document.getElementById('responseResults').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Results cleared</p>';
-            document.getElementById('rawResults').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Results cleared</p>';
-            document.getElementById('responseHeaderResults').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Results cleared</p>';
-            document.getElementById('devToolsResults').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Results cleared</p>';
-            document.getElementById('testSummary').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Test summary cleared</p>';
+            const emptyStates = {
+                'requestResults': '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">Results cleared</div></div>',
+                'responseResults': '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">Results cleared</div></div>',
+                'rawResults': '<div class="empty-state"><div class="empty-state-icon">🔧</div><div class="empty-state-text">Results cleared</div></div>',
+                'responseHeaderResults': '<div class="empty-state"><div class="empty-state-icon">📡</div><div class="empty-state-text">Results cleared</div></div>',
+                'devToolsResults': '<div class="empty-state"><div class="empty-state-icon">🔧</div><div class="empty-state-text">Results cleared</div></div>',
+                'testSummary': '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">Test summary cleared</div></div>'
+            };
+            
+            Object.entries(emptyStates).forEach(([id, html]) => {
+                const element = document.getElementById(id);
+                element.innerHTML = html;
+                element.classList.add('animate-fade-in');
+            });
+            
             testResults = [];
         }
 
