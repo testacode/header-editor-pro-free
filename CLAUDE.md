@@ -4,17 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Header Editor Pro - Free is a professional Chrome extension for modifying HTTP request and response headers during testing and development. Features unlimited profiles, individual header controls, and a modern dark-themed interface. Completely free alternative to paid header modification tools.
+Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modification during development. Cross-browser compatibility with unified manifest.
 
 ## Architecture
 
-**Current Structure:**
-- `manifest.json` - Chrome extension manifest (v3) with declarativeNetRequest permissions
-- `popup.html` - Clean HTML structure referencing external CSS and JS files (191 lines)
-- `popup.css` - Professional dark theme styling with ModHeader-style interface (652 lines)
-- `popup.js` - Complete header and profile management system with unlimited profiles (1041 lines)
-- `background.js` - Service worker handling header modification via declarativeNetRequest API
-- `icon.png` - Extension icon from Chrome developer tutorial
+**Current Structure (Rspack bundled):**
+- `src/manifest.json` - Unified manifest v3 (Chrome + Firefox compatibility)
+- `src/popup/` - UI components (HTML, CSS, JS) 
+- `src/background/` - Service worker for header modification
+- `src/pages/` - Static pages (privacy policy)
+- `src/assets/icons/` - Extension icons (16-128px)
+- `dist/` - Build output (gitignored)
 
 **Extension Features:**
 - **Profile Management**: Unlimited profiles with numbered circle UI and active/inactive indicators
@@ -27,16 +27,19 @@ Header Editor Pro - Free is a professional Chrome extension for modifying HTTP r
 
 ## Development Workflow
 
-**Testing Extension:**
-1. Open `chrome://extensions`
-2. Enable "Developer mode" 
-3. Click "Load unpacked" and select project folder
-4. After changes, click reload button on extension card
+**Build System:**
+- `npm run dev` - Development with watch mode
+- `npm run build` - Production build to `dist/`
+- `npm run package` - Generate versioned ZIPs
 
-**Chrome Extension Development:**
-- All changes to `manifest.json` require extension reload
-- HTML/JS changes in popup require extension reload to see changes
-- Use Chrome DevTools to debug popup (right-click extension icon > Inspect popup)
+**Testing Extension:**
+1. `npm run build` to generate `dist/`
+2. Load `dist/` folder in `chrome://extensions` (developer mode)
+3. For changes: rebuild and reload extension
+
+**Cross-browser:**
+- Single `src/manifest.json` works for Chrome + Firefox
+- Chrome ignores `browser_specific_settings`, Firefox ignores unknown fields
 
 ## User Interface
 
@@ -72,8 +75,14 @@ Header Editor Pro - Free is a professional Chrome extension for modifying HTTP r
 }
 ```
 
-**Future Enhancements:**
-- URL filtering for targeted header modification
-- Import/Export functionality for sharing profiles
-- Header templates and presets for common use cases
-- Advanced context menus for profile and header management
+## Build & Release
+
+**Rspack Configuration:**
+- `rspack.config.js` - Production bundling with minification (no obfuscation)
+- Store-compliant: minified only, no code obfuscation
+- CSS extraction and JS bundling for performance
+
+**Release Process:**
+- `./scripts/release.sh` - Automated version bump, git tag, GitHub Actions trigger
+- GitHub Actions generates: `header-editor-pro-free-extension-vX.X.X.zip` + source package
+- Unified ZIP works for both Chrome Web Store and Firefox Add-ons

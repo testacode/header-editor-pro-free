@@ -1010,62 +1010,7 @@
         </div>
       </div>
 
-      <div class="section">
-        <div class="section-header">
-          <div class="section-icon">🔧</div>
-          <div>
-            <h2>Developer Tools</h2>
-          </div>
-        </div>
-        <p class="section-description">
-          Additional tools for testing and debugging.
-        </p>
 
-        <div class="button-grid">
-          <button class="test-button secondary" onclick="openDevTools()">
-            🔍 Network Tab Instructions
-          </button>
-          <button class="test-button secondary" onclick="testLocalhost()">
-            🏠 Test Localhost
-          </button>
-          <button class="test-button danger" onclick="clearResults()">
-            🗑️ Clear All Results
-          </button>
-          <button class="test-button secondary" onclick="exportResults()">
-            💾 Export Test Results
-          </button>
-          <button class="test-button secondary" onclick="testWebSocket()">
-            🔌 Test WebSocket Headers
-          </button>
-          <button class="test-button" onclick="openExtension()">
-            🧩 Open Extension Popup
-          </button>
-        </div>
-
-        <div id="devToolsResults" class="results">
-          <div class="empty-state">
-            <div class="empty-state-icon">🔧</div>
-            <div class="empty-state-text">Developer tools and utilities</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-header">
-          <div class="section-icon">📊</div>
-          <div>
-            <h2>Test Summary</h2>
-          </div>
-        </div>
-        <div id="testSummary" class="results">
-          <div class="empty-state">
-            <div class="empty-state-icon">📊</div>
-            <div class="empty-state-text">
-              Test summary will appear here after running tests
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <script>
@@ -1078,37 +1023,6 @@
           details: details,
           timestamp: new Date().toISOString(),
         });
-        updateSummary();
-      }
-
-      function updateSummary() {
-        const summary = document.getElementById("testSummary");
-        if (testResults.length === 0) return;
-
-        const successCount = testResults.filter((r) => r.success).length;
-        const totalCount = testResults.length;
-
-        summary.innerHTML = `
-                <div class="status ${
-                  successCount === totalCount ? "success" : "error"
-                }">
-                    Tests Passed: ${successCount}/${totalCount}
-                </div>
-                ${testResults
-                  .map(
-                    (result) => `
-                    <div class="header-item ${
-                      result.success ? "" : "injected"
-                    }">
-                        <span class="header-name">${result.name}</span>
-                        <span class="header-value">${
-                          result.success ? "✅ PASS" : "❌ FAIL"
-                        }</span>
-                    </div>
-                `
-                  )
-                  .join("")}
-            `;
       }
 
       function switchTab(tabName) {
@@ -1412,48 +1326,6 @@ Use browser DevTools Network tab to verify header injection.
         addToSummary("Security Headers Test", true, "Instructions provided");
       }
 
-      function openDevTools() {
-        const results = document.getElementById("devToolsResults");
-        results.innerHTML = `
-                <div class="status pending">Developer Tools Instructions</div>
-                <div class="code">
-To see all headers in Chrome DevTools:
-
-1. Press F12 or Ctrl+Shift+I (Cmd+Opt+I on Mac)
-2. Go to the "Network" tab
-3. Reload this page or trigger a new request
-4. Click on any request in the list
-5. Check the "Request Headers" and "Response Headers" sections
-
-This will show you ALL headers, including those injected by Header Editor Pro.
-                </div>
-            `;
-        addToSummary("DevTools Instructions", true, "Instructions provided");
-      }
-
-      function testLocalhost() {
-        const results = document.getElementById("devToolsResults");
-        results.innerHTML = `
-                <div class="status pending">Localhost Testing</div>
-                <div class="code">
-To test with localhost:
-
-1. Make sure Header Editor Pro has permission to access localhost
-   - Go to chrome://extensions/
-   - Find Header Editor Pro
-   - Click "Details"
-   - Enable "Allow access to file URLs" if testing file:// URLs
-
-2. Try these localhost URLs:
-   - http://localhost:3000
-   - http://localhost:8080
-   - http://127.0.0.1:3000
-
-3. Check headers using your local server's logging or browser DevTools
-                </div>
-            `;
-        addToSummary("Localhost Test", true, "Instructions provided");
-      }
 
       function clearResults() {
         const emptyStates = {
@@ -1465,10 +1337,6 @@ To test with localhost:
             '<div class="empty-state"><div class="empty-state-icon">🔧</div><div class="empty-state-text">Results cleared</div></div>',
           responseHeaderResults:
             '<div class="empty-state"><div class="empty-state-icon">📡</div><div class="empty-state-text">Results cleared</div></div>',
-          devToolsResults:
-            '<div class="empty-state"><div class="empty-state-icon">🔧</div><div class="empty-state-text">Results cleared</div></div>',
-          testSummary:
-            '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">Test summary cleared</div></div>',
         };
 
         Object.entries(emptyStates).forEach(([id, html]) => {
@@ -1500,47 +1368,6 @@ To test with localhost:
         addToSummary("Export Results", true, "Test results exported");
       }
 
-      function testWebSocket() {
-        const results = document.getElementById("devToolsResults");
-        results.innerHTML = `
-                <div class="status pending">WebSocket Header Testing</div>
-                <div class="code">
-WebSocket header testing:
-
-Note: WebSocket connections have limited header modification capabilities.
-
-1. WebSocket upgrade requests can have custom headers added
-2. Use browser DevTools to inspect WebSocket handshake
-3. Check the "WS" tab in Network panel for WebSocket traffic
-
-Example WebSocket test (if you have a WebSocket server):
-- ws://localhost:8080
-- wss://echo.websocket.org
-
-Headers are primarily applied during the initial HTTP upgrade request.
-                </div>
-            `;
-        addToSummary("WebSocket Test", true, "Instructions provided");
-      }
-
-      function openExtension() {
-        // Try to open the extension popup in a new tab
-        const extensionUrl = "chrome-extension://[extension-id]/popup.html";
-        const results = document.getElementById("devToolsResults");
-        results.innerHTML = `
-                <div class="status pending">Extension Access</div>
-                <div class="code">
-To open Header Editor Pro:
-
-1. Click the extension icon in your browser toolbar
-2. Or right-click the extension icon and select "Options" if available
-3. Or go to chrome://extensions/ and find Header Editor Pro
-
-You can also open the extension in fullscreen mode using the fullscreen button in the popup.
-                </div>
-            `;
-        addToSummary("Extension Access", true, "Instructions provided");
-      }
 
       // Initialize page
       document.addEventListener("DOMContentLoaded", function () {
