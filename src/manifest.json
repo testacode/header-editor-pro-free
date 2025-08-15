@@ -24,5 +24,8 @@
       "id": "header-editor-pro@testacode.com",
       "strict_min_version": "101.0"
     }
-  }
+  },
+  "homepage_url": "https://github.com/testacode/header-editor-pro-free",
+  "author": "testacode",
+  "privacy_policy": "https://testacode.github.io/header-editor-pro-free/privacy.html"
 }
