@@ -51,12 +51,6 @@ module.exports = {
       chunks: ['popup']
     }),
     
-    new rspack.HtmlRspackPlugin({
-      template: './src/pages/privacy.html',
-      filename: 'privacy.html',
-      chunks: []
-    }),
-    
     new rspack.CopyRspackPlugin({
       patterns: [
         {
