@@ -12,8 +12,8 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - `src/manifest.json` - Unified manifest v3 (Chrome + Firefox compatibility)
 - `src/popup/` - UI components (HTML, CSS, JS) 
 - `src/background/` - Service worker for header modification
-- `src/pages/` - Static pages (privacy policy)
 - `src/assets/icons/` - Extension icons (16-128px)
+- `privacy.html` - Privacy policy hosted via GitHub Pages for Chrome Web Store compliance
 - `dist/` - Build output (gitignored)
 
 **Extension Features:**
@@ -86,3 +86,11 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - `./scripts/release.sh` - Automated version bump, git tag, GitHub Actions trigger
 - GitHub Actions generates: `header-editor-pro-free-extension-vX.X.X.zip` + source package
 - Unified ZIP works for both Chrome Web Store and Firefox Add-ons
+
+## Chrome Web Store Compliance
+
+**Privacy Policy Setup:**
+- Privacy policy hosted at root `privacy.html` for GitHub Pages accessibility
+- URL: `https://testacode.github.io/header-editor-pro-free/privacy.html`
+- Referenced in `manifest.json` via `privacy_policy` field
+- Required for Chrome Web Store approval process
