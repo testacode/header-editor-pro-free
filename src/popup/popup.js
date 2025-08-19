@@ -563,9 +563,12 @@ class HeaderEditorPopup {
   }
 
   openFullscreen() {
-    // Open the extension in a new tab for fullscreen experience
-    chrome.tabs.create({
-      url: chrome.runtime.getURL('popup.html')
+    // Open the extension in a new window for fullscreen experience
+    chrome.windows.create({
+      url: chrome.runtime.getURL('popup.html'),
+      type: 'popup',
+      width: 800,
+      height: 600
     });
     
     // Close the popup
