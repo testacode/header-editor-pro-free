@@ -9,6 +9,7 @@ class HeaderEditorPopup {
     this.isPaused = false;
     this.isPinned = false;
     this.colorPickerInteractionsSetup = false;
+    this.infoLinksSetup = false;
     this.profileCounter = 1;
     this.init();
   }
@@ -539,12 +540,15 @@ class HeaderEditorPopup {
   }
 
   toggleInfoTooltip() {
+    console.log('toggleInfoTooltip called');
     const tooltip = document.getElementById('info-tooltip');
     const isVisible = tooltip.style.display !== 'none';
     
     if (isVisible) {
+      console.log('Hiding tooltip');
       this.hideInfoTooltip();
     } else {
+      console.log('Showing tooltip');
       this.showInfoTooltip();
     }
   }
@@ -553,12 +557,37 @@ class HeaderEditorPopup {
     const tooltip = document.getElementById('info-tooltip');
     tooltip.style.display = 'block';
     
-    // Handle link clicks to open in new tabs
+    // Only add event listeners once
+    if (!this.infoLinksSetup) {
+      this.setupInfoLinks();
+      this.infoLinksSetup = true;
+    }
+  }
+
+  setupInfoLinks() {
+    const tooltip = document.getElementById('info-tooltip');
     const links = tooltip.querySelectorAll('a');
+    
     links.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        chrome.tabs.create({ url: link.href });
+        e.stopPropagation();
+        
+        const url = link.href;
+        console.log('Attempting to open URL:', url);
+        
+        // Try chrome.tabs.create first
+        if (chrome && chrome.tabs && chrome.tabs.create) {
+          chrome.tabs.create({ url: url }).catch(error => {
+            console.error('chrome.tabs.create failed:', error);
+            // Fallback to window.open
+            window.open(url, '_blank');
+          });
+        } else {
+          console.log('chrome.tabs not available, using window.open fallback');
+          // Fallback to window.open
+          window.open(url, '_blank');
+        }
       });
     });
   }
