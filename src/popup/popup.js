@@ -273,6 +273,18 @@ class HeaderEditorPopup {
       this.createNewProfile();
     });
 
+    // Info circle tooltip
+    document.getElementById('info-circle').addEventListener('click', () => {
+      this.toggleInfoTooltip();
+    });
+
+    // Click outside to close tooltip
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#info-circle') && !e.target.closest('#info-tooltip')) {
+        this.hideInfoTooltip();
+      }
+    });
+
     // Header management
     document.getElementById('add-request-header').addEventListener('click', () => {
       this.addHeader('request');
@@ -524,6 +536,36 @@ class HeaderEditorPopup {
     this.currentProfile = key;
     this.saveData();
     this.renderUI();
+  }
+
+  toggleInfoTooltip() {
+    const tooltip = document.getElementById('info-tooltip');
+    const isVisible = tooltip.style.display !== 'none';
+    
+    if (isVisible) {
+      this.hideInfoTooltip();
+    } else {
+      this.showInfoTooltip();
+    }
+  }
+
+  showInfoTooltip() {
+    const tooltip = document.getElementById('info-tooltip');
+    tooltip.style.display = 'block';
+    
+    // Handle link clicks to open in new tabs
+    const links = tooltip.querySelectorAll('a');
+    links.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: link.href });
+      });
+    });
+  }
+
+  hideInfoTooltip() {
+    const tooltip = document.getElementById('info-tooltip');
+    tooltip.style.display = 'none';
   }
 
   async deleteCurrentProfile() {

@@ -8,11 +8,18 @@
   <body>
     <!-- Profile Sidebar -->
     <div class="sidebar">
-      <div id="profile-circles">
-        <!-- Profile circles will be added here dynamically -->
+      <div class="sidebar-top">
+        <div id="profile-circles">
+          <!-- Profile circles will be added here dynamically -->
+        </div>
+        <div class="add-profile-circle" id="add-profile" title="Add Profile">
+          <i class="fas fa-plus"></i>
+        </div>
       </div>
-      <div class="add-profile-circle" id="add-profile" title="Add Profile">
-        <i class="fas fa-plus"></i>
+      <div class="sidebar-bottom">
+        <div class="info-circle" id="info-circle" title="Extension Info">
+          <i class="fas fa-info"></i>
+        </div>
       </div>
     </div>
 
@@ -222,6 +229,25 @@
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Info tooltip -->
+    <div class="info-tooltip" id="info-tooltip" style="display: none">
+      <div class="tooltip-arrow"></div>
+      <div class="tooltip-content">
+        <div class="tooltip-item">
+          <i class="fab fa-github"></i>
+          <a href="https://github.com/testacode/header-editor-pro-free" target="_blank">GitHub</a>
+        </div>
+        <div class="tooltip-item">
+          <i class="fas fa-globe"></i>
+          <a href="https://testacode.github.io/header-editor-pro-free/" target="_blank">Website</a>
+        </div>
+        <div class="tooltip-item">
+          <i class="fas fa-user"></i>
+          <span>Author: CharlyBrown</span>
+        </div>
       </div>
     </div>
 
