@@ -540,15 +540,12 @@ class HeaderEditorPopup {
   }
 
   toggleInfoTooltip() {
-    console.log('toggleInfoTooltip called');
     const tooltip = document.getElementById('info-tooltip');
     const isVisible = tooltip.style.display !== 'none';
     
     if (isVisible) {
-      console.log('Hiding tooltip');
       this.hideInfoTooltip();
     } else {
-      console.log('Showing tooltip');
       this.showInfoTooltip();
     }
   }
@@ -574,18 +571,13 @@ class HeaderEditorPopup {
         e.stopPropagation();
         
         const url = link.href;
-        console.log('Attempting to open URL:', url);
         
-        // Try chrome.tabs.create first
+        // Try chrome.tabs.create first, fallback to window.open
         if (chrome && chrome.tabs && chrome.tabs.create) {
-          chrome.tabs.create({ url: url }).catch(error => {
-            console.error('chrome.tabs.create failed:', error);
-            // Fallback to window.open
+          chrome.tabs.create({ url: url }).catch(() => {
             window.open(url, '_blank');
           });
         } else {
-          console.log('chrome.tabs not available, using window.open fallback');
-          // Fallback to window.open
           window.open(url, '_blank');
         }
       });
