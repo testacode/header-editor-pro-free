@@ -8,7 +8,12 @@ class HeaderEditorBackground {
 
   detectFirefox() {
     const isFirefox = typeof browser !== 'undefined' || navigator.userAgent.includes('Firefox');
-    console.log('HeaderEditor: Browser detection - isFirefox:', isFirefox, 'userAgent:', navigator.userAgent);
+    console.log(
+      'HeaderEditor: Browser detection - isFirefox:',
+      isFirefox,
+      'userAgent:',
+      navigator.userAgent
+    );
     return isFirefox;
   }
 
@@ -23,42 +28,42 @@ class HeaderEditorBackground {
   }
 
   setupUpdateNotifications() {
-    chrome.runtime.onInstalled.addListener((details) => {
-      if (details.reason === "update") {
+    chrome.runtime.onInstalled.addListener(details => {
+      if (details.reason === 'update') {
         const currentVersion = chrome.runtime.getManifest().version;
-        
+
         // Show "NEW" badge on extension icon
-        chrome.action.setBadgeText({ text: "NEW" });
-        chrome.action.setBadgeBackgroundColor({ color: "#4caf50" });
-        
+        chrome.action.setBadgeText({ text: 'NEW' });
+        chrome.action.setBadgeBackgroundColor({ color: '#4caf50' });
+
         // Store update notification data
-        chrome.storage.local.set({ 
+        chrome.storage.local.set({
           updateNotification: {
             previousVersion: details.previousVersion,
             currentVersion: currentVersion,
             shown: false,
-            timestamp: Date.now()
-          }
+            timestamp: Date.now(),
+          },
         });
-      } else if (details.reason === "install") {
+      } else if (details.reason === 'install') {
         // Welcome message for first-time installation
-        chrome.storage.local.set({ 
+        chrome.storage.local.set({
           welcomeNotification: {
             version: chrome.runtime.getManifest().version,
             shown: false,
-            timestamp: Date.now()
-          }
+            timestamp: Date.now(),
+          },
         });
       }
     });
   }
 
   setupMessageHandlers() {
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
       if (message.action === 'updateHeaders') {
         this.handleUpdateHeaders(message.data);
       } else if (message.action === 'clearUpdateBadge') {
-        chrome.action.setBadgeText({ text: "" });
+        chrome.action.setBadgeText({ text: '' });
       }
     });
 
@@ -74,19 +79,19 @@ class HeaderEditorBackground {
       const result = await chrome.storage.local.get(['headerEditorData']);
       const data = result.headerEditorData || {
         profiles: {
-          default: { 
+          default: {
             name: 'Default',
-            requestHeaders: []
-          }
+            requestHeaders: [],
+          },
         },
         currentProfile: 'default',
         enabled: true,
         paused: false,
-        profileCounter: 1
+        profileCounter: 1,
       };
 
       await this.applyHeaderRules(data);
-    } catch (error) {
+    } catch (_error) {
       await this.clearAllRules();
     }
   }
@@ -96,11 +101,11 @@ class HeaderEditorBackground {
   }
 
   async applyHeaderRules(data) {
-    console.log('HeaderEditor: Applying header rules', { 
-      enabled: data.enabled, 
-      paused: data.paused, 
+    console.log('HeaderEditor: Applying header rules', {
+      enabled: data.enabled,
+      paused: data.paused,
       currentProfile: data.currentProfile,
-      isFirefox: this.isFirefox 
+      isFirefox: this.isFirefox,
     });
 
     // Clear existing rules first
@@ -136,16 +141,15 @@ class HeaderEditorBackground {
       }
     }
 
-
     console.log('HeaderEditor: Rules to apply:', rules.length);
-    
+
     if (rules.length > 0) {
       // Firefox needs extra time before adding new rules
       if (this.isFirefox) {
         console.log('HeaderEditor: Firefox - adding delay before applying rules');
         await this.delay(100);
       }
-      
+
       console.log('HeaderEditor: About to add rules:', rules);
       await this.addRules(rules);
       console.log('HeaderEditor: Rules added successfully');
@@ -156,12 +160,14 @@ class HeaderEditorBackground {
 
   createRequestHeaderRule(headers) {
     const validHeaders = headers.filter(h => h.name && h.name.trim());
-    if (validHeaders.length === 0) return null;
+    if (validHeaders.length === 0) {
+      return null;
+    }
 
     const requestHeaders = validHeaders.map(header => ({
       header: header.name.trim(),
       operation: header.value ? 'set' : 'remove',
-      value: header.value || undefined
+      value: header.value || undefined,
     }));
 
     return {
@@ -169,38 +175,47 @@ class HeaderEditorBackground {
       priority: 1,
       action: {
         type: 'modifyHeaders',
-        requestHeaders: requestHeaders
+        requestHeaders: requestHeaders,
       },
       condition: {
         urlFilter: '*',
         resourceTypes: [
-          'main_frame', 'sub_frame', 'stylesheet', 'script', 'image', 'font',
-          'object', 'xmlhttprequest', 'ping', 'csp_report', 'media', 'websocket', 'other'
-        ]
-      }
+          'main_frame',
+          'sub_frame',
+          'stylesheet',
+          'script',
+          'image',
+          'font',
+          'object',
+          'xmlhttprequest',
+          'ping',
+          'csp_report',
+          'media',
+          'websocket',
+          'other',
+        ],
+      },
     };
   }
-
 
   async addRules(rules) {
     try {
       await chrome.declarativeNetRequest.updateDynamicRules({
-        addRules: rules
+        addRules: rules,
       });
 
       rules.forEach(rule => {
         this.activeRules.add(rule.id);
       });
-
-    } catch (error) {
+    } catch (_error) {
       // Fallback for individual rule addition if batch fails
       for (const rule of rules) {
         try {
           await chrome.declarativeNetRequest.updateDynamicRules({
-            addRules: [rule]
+            addRules: [rule],
           });
           this.activeRules.add(rule.id);
-        } catch (ruleError) {
+        } catch (_ruleError) {
           // Skip invalid rules
         }
       }
@@ -212,47 +227,46 @@ class HeaderEditorBackground {
       // Always get current dynamic rules to ensure we remove everything
       const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
       const allRuleIds = existingRules.map(rule => rule.id);
-      
+
       if (allRuleIds.length > 0) {
         await chrome.declarativeNetRequest.updateDynamicRules({
-          removeRuleIds: allRuleIds
+          removeRuleIds: allRuleIds,
         });
-        
+
         // Firefox needs extra time to process rule removal
         if (this.isFirefox) {
           await this.delay(50);
         }
       }
-      
+
       // Clear our tracking
       this.activeRules.clear();
-      
+
       // Firefox: Double-check and clear any remaining rules
       if (this.isFirefox) {
         await this.delay(50);
         const remainingRules = await chrome.declarativeNetRequest.getDynamicRules();
         if (remainingRules.length > 0) {
           await chrome.declarativeNetRequest.updateDynamicRules({
-            removeRuleIds: remainingRules.map(rule => rule.id)
+            removeRuleIds: remainingRules.map(rule => rule.id),
           });
           await this.delay(50);
         }
       }
-      
-    } catch (error) {
+    } catch (_error) {
       // Fallback: try to remove tracked rules
       try {
         if (this.activeRules.size > 0) {
           await chrome.declarativeNetRequest.updateDynamicRules({
-            removeRuleIds: Array.from(this.activeRules)
+            removeRuleIds: Array.from(this.activeRules),
           });
-          
+
           if (this.isFirefox) {
             await this.delay(50);
           }
         }
         this.activeRules.clear();
-      } catch (fallbackError) {
+      } catch (_fallbackError) {
         // Reset rule tracking if all else fails
         this.activeRules.clear();
       }

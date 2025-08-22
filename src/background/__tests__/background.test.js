@@ -11,7 +11,7 @@ let HeaderEditorBackground;
 // Mock the class before importing
 beforeEach(() => {
   jest.resetModules();
-  
+
   // Create a mock version of the HeaderEditorBackground class
   HeaderEditorBackground = class {
     constructor() {
@@ -29,37 +29,37 @@ beforeEach(() => {
     }
 
     setupUpdateNotifications() {
-      chrome.runtime.onInstalled.addListener((details) => {
-        if (details.reason === "update") {
+      chrome.runtime.onInstalled.addListener(details => {
+        if (details.reason === 'update') {
           const currentVersion = chrome.runtime.getManifest().version;
-          chrome.action.setBadgeText({ text: "NEW" });
-          chrome.action.setBadgeBackgroundColor({ color: "#4caf50" });
-          chrome.storage.local.set({ 
+          chrome.action.setBadgeText({ text: 'NEW' });
+          chrome.action.setBadgeBackgroundColor({ color: '#4caf50' });
+          chrome.storage.local.set({
             updateNotification: {
               previousVersion: details.previousVersion,
               currentVersion: currentVersion,
               shown: false,
-              timestamp: Date.now()
-            }
+              timestamp: Date.now(),
+            },
           });
-        } else if (details.reason === "install") {
-          chrome.storage.local.set({ 
+        } else if (details.reason === 'install') {
+          chrome.storage.local.set({
             welcomeNotification: {
               version: chrome.runtime.getManifest().version,
               shown: false,
-              timestamp: Date.now()
-            }
+              timestamp: Date.now(),
+            },
           });
         }
       });
     }
 
     setupMessageHandlers() {
-      chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
         if (message.action === 'updateHeaders') {
           this.handleUpdateHeaders(message.data);
         } else if (message.action === 'clearUpdateBadge') {
-          chrome.action.setBadgeText({ text: "" });
+          chrome.action.setBadgeText({ text: '' });
         }
       });
 
@@ -75,19 +75,19 @@ beforeEach(() => {
         const result = await chrome.storage.local.get(['headerEditorData']);
         const data = result.headerEditorData || {
           profiles: {
-            default: { 
+            default: {
               name: 'Default',
-              requestHeaders: []
-            }
+              requestHeaders: [],
+            },
           },
           currentProfile: 'default',
           enabled: true,
           paused: false,
-          profileCounter: 1
+          profileCounter: 1,
         };
 
         await this.applyHeaderRules(data);
-      } catch (error) {
+      } catch (_error) {
         await this.clearAllRules();
       }
     }
@@ -115,7 +115,9 @@ beforeEach(() => {
       const rules = [];
 
       if (currentProfile.requestHeaders && currentProfile.requestHeaders.length > 0) {
-        const enabledRequestHeaders = currentProfile.requestHeaders.filter(h => h.enabled !== false);
+        const enabledRequestHeaders = currentProfile.requestHeaders.filter(
+          h => h.enabled !== false
+        );
         if (enabledRequestHeaders.length > 0) {
           const requestHeaderRule = this.createRequestHeaderRule(enabledRequestHeaders);
           if (requestHeaderRule) {
@@ -123,7 +125,7 @@ beforeEach(() => {
           }
         }
       }
-      
+
       if (rules.length > 0) {
         if (this.isFirefox) {
           await this.delay(100);
@@ -134,12 +136,14 @@ beforeEach(() => {
 
     createRequestHeaderRule(headers) {
       const validHeaders = headers.filter(h => h.name && h.name.trim());
-      if (validHeaders.length === 0) return null;
+      if (validHeaders.length === 0) {
+        return null;
+      }
 
       const requestHeaders = validHeaders.map(header => ({
         header: header.name.trim(),
         operation: header.value ? 'set' : 'remove',
-        value: header.value || undefined
+        value: header.value || undefined,
       }));
 
       return {
@@ -147,35 +151,46 @@ beforeEach(() => {
         priority: 1,
         action: {
           type: 'modifyHeaders',
-          requestHeaders: requestHeaders
+          requestHeaders: requestHeaders,
         },
         condition: {
           urlFilter: '*',
           resourceTypes: [
-            'main_frame', 'sub_frame', 'stylesheet', 'script', 'image', 'font',
-            'object', 'xmlhttprequest', 'ping', 'csp_report', 'media', 'websocket', 'other'
-          ]
-        }
+            'main_frame',
+            'sub_frame',
+            'stylesheet',
+            'script',
+            'image',
+            'font',
+            'object',
+            'xmlhttprequest',
+            'ping',
+            'csp_report',
+            'media',
+            'websocket',
+            'other',
+          ],
+        },
       };
     }
 
     async addRules(rules) {
       try {
         await chrome.declarativeNetRequest.updateDynamicRules({
-          addRules: rules
+          addRules: rules,
         });
 
         rules.forEach(rule => {
           this.activeRules.add(rule.id);
         });
-      } catch (error) {
+      } catch (_error) {
         for (const rule of rules) {
           try {
             await chrome.declarativeNetRequest.updateDynamicRules({
-              addRules: [rule]
+              addRules: [rule],
             });
             this.activeRules.add(rule.id);
-          } catch (ruleError) {
+          } catch (_ruleError) {
             // Skip invalid rules
           }
         }
@@ -186,42 +201,42 @@ beforeEach(() => {
       try {
         const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
         const allRuleIds = existingRules.map(rule => rule.id);
-        
+
         if (allRuleIds.length > 0) {
           await chrome.declarativeNetRequest.updateDynamicRules({
-            removeRuleIds: allRuleIds
+            removeRuleIds: allRuleIds,
           });
-          
+
           if (this.isFirefox) {
             await this.delay(50);
           }
         }
-        
+
         this.activeRules.clear();
-        
+
         if (this.isFirefox) {
           await this.delay(50);
           const remainingRules = await chrome.declarativeNetRequest.getDynamicRules();
           if (remainingRules.length > 0) {
             await chrome.declarativeNetRequest.updateDynamicRules({
-              removeRuleIds: remainingRules.map(rule => rule.id)
+              removeRuleIds: remainingRules.map(rule => rule.id),
             });
             await this.delay(50);
           }
         }
-      } catch (error) {
+      } catch (_error) {
         try {
           if (this.activeRules.size > 0) {
             await chrome.declarativeNetRequest.updateDynamicRules({
-              removeRuleIds: Array.from(this.activeRules)
+              removeRuleIds: Array.from(this.activeRules),
             });
-            
+
             if (this.isFirefox) {
               await this.delay(50);
             }
           }
           this.activeRules.clear();
-        } catch (fallbackError) {
+        } catch (_fallbackError) {
           this.activeRules.clear();
         }
       }
@@ -264,14 +279,14 @@ describe('HeaderEditorBackground', () => {
 
     test('should handle update event correctly', () => {
       background.setupUpdateNotifications();
-      
+
       // Get the listener function that was registered
       const listenerCall = chrome.runtime.onInstalled.addListener.mock.calls[0];
       const listener = listenerCall[0];
-      
+
       // Simulate update event
       listener({ reason: 'update', previousVersion: '2.0.0' });
-      
+
       expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: 'NEW' });
       expect(chrome.action.setBadgeBackgroundColor).toHaveBeenCalledWith({ color: '#4caf50' });
       expect(chrome.storage.local.set).toHaveBeenCalledWith({
@@ -279,26 +294,26 @@ describe('HeaderEditorBackground', () => {
           previousVersion: '2.0.0',
           currentVersion: '2.1.1',
           shown: false,
-          timestamp: expect.any(Number)
-        }
+          timestamp: expect.any(Number),
+        },
       });
     });
 
     test('should handle install event correctly', () => {
       background.setupUpdateNotifications();
-      
+
       const listenerCall = chrome.runtime.onInstalled.addListener.mock.calls[0];
       const listener = listenerCall[0];
-      
+
       // Simulate install event
       listener({ reason: 'install' });
-      
+
       expect(chrome.storage.local.set).toHaveBeenCalledWith({
         welcomeNotification: {
           version: '2.1.1',
           shown: false,
-          timestamp: expect.any(Number)
-        }
+          timestamp: expect.any(Number),
+        },
       });
     });
   });
@@ -312,12 +327,12 @@ describe('HeaderEditorBackground', () => {
 
     test('should handle clearUpdateBadge message', () => {
       background.setupMessageHandlers();
-      
+
       const listenerCall = chrome.runtime.onMessage.addListener.mock.calls[0];
       const listener = listenerCall[0];
-      
+
       listener({ action: 'clearUpdateBadge' }, {}, jest.fn());
-      
+
       expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
     });
   });
@@ -326,7 +341,7 @@ describe('HeaderEditorBackground', () => {
     test('should create valid rule for headers', () => {
       const headers = [
         { name: 'Authorization', value: 'Bearer token123', enabled: true },
-        { name: 'Custom-Header', value: 'test-value', enabled: true }
+        { name: 'Custom-Header', value: 'test-value', enabled: true },
       ];
 
       const rule = background.createRequestHeaderRule(headers);
@@ -338,16 +353,27 @@ describe('HeaderEditorBackground', () => {
           type: 'modifyHeaders',
           requestHeaders: [
             { header: 'Authorization', operation: 'set', value: 'Bearer token123' },
-            { header: 'Custom-Header', operation: 'set', value: 'test-value' }
-          ]
+            { header: 'Custom-Header', operation: 'set', value: 'test-value' },
+          ],
         },
         condition: {
           urlFilter: '*',
           resourceTypes: [
-            'main_frame', 'sub_frame', 'stylesheet', 'script', 'image', 'font',
-            'object', 'xmlhttprequest', 'ping', 'csp_report', 'media', 'websocket', 'other'
-          ]
-        }
+            'main_frame',
+            'sub_frame',
+            'stylesheet',
+            'script',
+            'image',
+            'font',
+            'object',
+            'xmlhttprequest',
+            'ping',
+            'csp_report',
+            'media',
+            'websocket',
+            'other',
+          ],
+        },
       });
     });
 
@@ -359,7 +385,7 @@ describe('HeaderEditorBackground', () => {
     test('should filter out headers without names', () => {
       const headers = [
         { name: '', value: 'test', enabled: true },
-        { name: 'Valid-Header', value: 'test-value', enabled: true }
+        { name: 'Valid-Header', value: 'test-value', enabled: true },
       ];
 
       const rule = background.createRequestHeaderRule(headers);
@@ -369,16 +395,14 @@ describe('HeaderEditorBackground', () => {
     });
 
     test('should handle remove operation for empty values', () => {
-      const headers = [
-        { name: 'Remove-Header', value: '', enabled: true }
-      ];
+      const headers = [{ name: 'Remove-Header', value: '', enabled: true }];
 
       const rule = background.createRequestHeaderRule(headers);
 
       expect(rule.action.requestHeaders[0]).toEqual({
         header: 'Remove-Header',
         operation: 'remove',
-        value: undefined
+        value: undefined,
       });
     });
   });
@@ -386,11 +410,11 @@ describe('HeaderEditorBackground', () => {
   describe('addRules', () => {
     test('should add rules to declarativeNetRequest', async () => {
       const rules = [{ id: 1, priority: 1 }];
-      
+
       await background.addRules(rules);
-      
+
       expect(chrome.declarativeNetRequest.updateDynamicRules).toHaveBeenCalledWith({
-        addRules: rules
+        addRules: rules,
       });
       expect(background.activeRules.has(1)).toBe(true);
     });
@@ -401,9 +425,9 @@ describe('HeaderEditorBackground', () => {
         .mockResolvedValueOnce();
 
       const rules = [{ id: 1, priority: 1 }];
-      
+
       await background.addRules(rules);
-      
+
       expect(chrome.declarativeNetRequest.updateDynamicRules).toHaveBeenCalledTimes(2);
     });
   });
@@ -416,7 +440,7 @@ describe('HeaderEditorBackground', () => {
       await background.clearAllRules();
 
       expect(chrome.declarativeNetRequest.updateDynamicRules).toHaveBeenCalledWith({
-        removeRuleIds: [1, 2]
+        removeRuleIds: [1, 2],
       });
       expect(background.activeRules.size).toBe(0);
     });
@@ -437,7 +461,7 @@ describe('HeaderEditorBackground', () => {
         enabled: true,
         paused: true,
         profiles: { default: { requestHeaders: [] } },
-        currentProfile: 'default'
+        currentProfile: 'default',
       };
 
       const clearSpy = jest.spyOn(background, 'clearAllRules').mockResolvedValue();
@@ -454,7 +478,7 @@ describe('HeaderEditorBackground', () => {
         enabled: false,
         paused: false,
         profiles: { default: { requestHeaders: [] } },
-        currentProfile: 'default'
+        currentProfile: 'default',
       };
 
       const clearSpy = jest.spyOn(background, 'clearAllRules').mockResolvedValue();
@@ -472,12 +496,10 @@ describe('HeaderEditorBackground', () => {
         paused: false,
         profiles: {
           default: {
-            requestHeaders: [
-              { name: 'Test-Header', value: 'test-value', enabled: true }
-            ]
-          }
+            requestHeaders: [{ name: 'Test-Header', value: 'test-value', enabled: true }],
+          },
         },
-        currentProfile: 'default'
+        currentProfile: 'default',
       };
 
       const clearSpy = jest.spyOn(background, 'clearAllRules').mockResolvedValue();
@@ -486,14 +508,16 @@ describe('HeaderEditorBackground', () => {
       await background.applyHeaderRules(data);
 
       expect(clearSpy).toHaveBeenCalled();
-      expect(addSpy).toHaveBeenCalledWith(expect.arrayContaining([
-        expect.objectContaining({
-          id: expect.any(Number),
-          action: expect.objectContaining({
-            type: 'modifyHeaders'
-          })
-        })
-      ]));
+      expect(addSpy).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: expect.any(Number),
+            action: expect.objectContaining({
+              type: 'modifyHeaders',
+            }),
+          }),
+        ])
+      );
     });
   });
 });

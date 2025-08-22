@@ -10,7 +10,7 @@ describe('HeaderEditorPopup', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    
+
     // Create a mock version of the HeaderEditorPopup class
     HeaderEditorPopup = class {
       constructor() {
@@ -34,41 +34,41 @@ describe('HeaderEditorPopup', () => {
                 description: 'Click to edit description',
                 requestHeaders: [],
                 backgroundColor: '#4caf50',
-                textColor: '#ffffff'
-              }
+                textColor: '#ffffff',
+              },
             },
             currentProfile: 'default',
             enabled: true,
             paused: false,
             pinned: false,
-            profileCounter: 1
+            profileCounter: 1,
           };
-          
+
           this.profiles = data.profiles;
           this.currentProfile = data.currentProfile;
           this.isEnabled = data.enabled;
           this.isPaused = data.paused || false;
           this.isPinned = data.pinned || false;
           this.profileCounter = data.profileCounter || 1;
-          
+
           this.migrateHeaderFormat();
           this.migrateProfileFormat();
-          
+
           this.colorPickerState = {
             currentTab: 'background',
             tempBackgroundColor: '#4caf50',
             tempTextColor: '#ffffff',
             hue: 180,
             saturation: 1,
-            lightness: 0.5
+            lightness: 0.5,
           };
-        } catch (error) {
+        } catch (_error) {
           this.profiles = {
             default: {
               name: 'Default',
               description: 'Click to edit description',
-              requestHeaders: []
-            }
+              requestHeaders: [],
+            },
           };
           this.currentProfile = 'default';
           this.isEnabled = true;
@@ -85,7 +85,7 @@ describe('HeaderEditorPopup', () => {
               profile[headerType] = profile[headerType].map(header => ({
                 name: header.name || '',
                 value: header.value || '',
-                enabled: header.enabled !== undefined ? header.enabled : true
+                enabled: header.enabled !== undefined ? header.enabled : true,
               }));
             }
           });
@@ -104,24 +104,27 @@ describe('HeaderEditorPopup', () => {
 
       async checkForUpdateNotification() {
         try {
-          const result = await chrome.storage.local.get(['updateNotification', 'welcomeNotification']);
-          
+          const result = await chrome.storage.local.get([
+            'updateNotification',
+            'welcomeNotification',
+          ]);
+
           if (result.updateNotification && !result.updateNotification.shown) {
             this.showUpdateTooltip(result.updateNotification);
-            
-            chrome.storage.local.set({ 
-              updateNotification: { ...result.updateNotification, shown: true }
+
+            chrome.storage.local.set({
+              updateNotification: { ...result.updateNotification, shown: true },
             });
-            
+
             chrome.runtime.sendMessage({ action: 'clearUpdateBadge' });
           } else if (result.welcomeNotification && !result.welcomeNotification.shown) {
             this.showWelcomeTooltip(result.welcomeNotification);
-            
-            chrome.storage.local.set({ 
-              welcomeNotification: { ...result.welcomeNotification, shown: true }
+
+            chrome.storage.local.set({
+              welcomeNotification: { ...result.welcomeNotification, shown: true },
             });
           }
-        } catch (error) {
+        } catch (_error) {
           // Silently handle errors
         }
       }
@@ -140,15 +143,15 @@ describe('HeaderEditorPopup', () => {
             <div class="update-subtitle">Check latest features and improvements</div>
           </div>
         `;
-        
+
         document.body.appendChild(tooltip);
-        
+
         const closeBtn = tooltip.querySelector('.update-close');
         closeBtn.addEventListener('click', () => {
           tooltip.classList.add('update-notification-slide-out');
           setTimeout(() => tooltip.remove(), 300);
         });
-        
+
         setTimeout(() => {
           if (tooltip.parentNode) {
             tooltip.classList.add('update-notification-slide-out');
@@ -171,15 +174,15 @@ describe('HeaderEditorPopup', () => {
             <div class="update-subtitle">Create unlimited profiles and modify HTTP headers easily</div>
           </div>
         `;
-        
+
         document.body.appendChild(tooltip);
-        
+
         const closeBtn = tooltip.querySelector('.update-close');
         closeBtn.addEventListener('click', () => {
           tooltip.classList.add('update-notification-slide-out');
           setTimeout(() => tooltip.remove(), 300);
         });
-        
+
         setTimeout(() => {
           if (tooltip.parentNode) {
             tooltip.classList.add('update-notification-slide-out');
@@ -195,14 +198,14 @@ describe('HeaderEditorPopup', () => {
           enabled: this.isEnabled,
           paused: this.isPaused,
           pinned: this.isPinned,
-          profileCounter: this.profileCounter
+          profileCounter: this.profileCounter,
         };
 
         try {
           await chrome.storage.local.set({ headerEditorData: data });
           chrome.runtime.sendMessage({ action: 'updateHeaders', data });
-        } catch (error) {
-          console.error('Error saving data:', error);
+        } catch (_error) {
+          console.error('Error saving data:', _error);
         }
       }
 
@@ -211,13 +214,13 @@ describe('HeaderEditorPopup', () => {
         if (!currentProfile[type]) {
           currentProfile[type] = [];
         }
-        
+
         currentProfile[type].push({
           name: '',
           value: '',
-          enabled: true
+          enabled: true,
         });
-        
+
         this.saveData();
       }
 
@@ -248,18 +251,18 @@ describe('HeaderEditorPopup', () => {
       createNewProfile() {
         this.profileCounter++;
         const newProfileId = `profile_${Date.now()}`;
-        
+
         this.profiles[newProfileId] = {
           name: `Profile ${this.profileCounter}`,
           description: '',
           requestHeaders: [],
           backgroundColor: '#4caf50',
-          textColor: '#ffffff'
+          textColor: '#ffffff',
         };
-        
+
         this.currentProfile = newProfileId;
         this.saveData();
-        
+
         return newProfileId;
       }
 
@@ -267,13 +270,13 @@ describe('HeaderEditorPopup', () => {
         if (profileId === 'default' || !this.profiles[profileId]) {
           return false;
         }
-        
+
         delete this.profiles[profileId];
-        
+
         if (this.currentProfile === profileId) {
           this.currentProfile = 'default';
         }
-        
+
         this.saveData();
         return true;
       }
@@ -309,7 +312,8 @@ describe('HeaderEditorPopup', () => {
 
         const max = Math.max(r, g, b);
         const min = Math.min(r, g, b);
-        let h, s, l = (max + min) / 2;
+        let h, s;
+        const l = (max + min) / 2;
 
         if (max === min) {
           h = s = 0;
@@ -317,9 +321,15 @@ describe('HeaderEditorPopup', () => {
           const d = max - min;
           s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
           switch (max) {
-            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-            case g: h = (b - r) / d + 2; break;
-            case b: h = (r - g) / d + 4; break;
+            case r:
+              h = (g - b) / d + (g < b ? 6 : 0);
+              break;
+            case g:
+              h = (b - r) / d + 2;
+              break;
+            case b:
+              h = (r - g) / d + 4;
+              break;
           }
           h /= 6;
         }
@@ -331,9 +341,11 @@ describe('HeaderEditorPopup', () => {
         h /= 360;
         const a = s * Math.min(l, 1 - l);
         const f = n => {
-          const k = (n + h / (1/12)) % 12;
+          const k = (n + h / (1 / 12)) % 12;
           const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-          return Math.round(255 * color).toString(16).padStart(2, '0');
+          return Math.round(255 * color)
+            .toString(16)
+            .padStart(2, '0');
         };
         return `#${f(0)}${f(8)}${f(4)}`;
       }
@@ -364,13 +376,13 @@ describe('HeaderEditorPopup', () => {
         profiles: {
           default: {
             name: 'Test Profile',
-            requestHeaders: []
-          }
+            requestHeaders: [],
+          },
         },
         currentProfile: 'default',
         enabled: true,
         paused: false,
-        profileCounter: 2
+        profileCounter: 2,
       };
 
       chrome.storage.local.get.mockResolvedValue({ headerEditorData: mockData });
@@ -409,10 +421,8 @@ describe('HeaderEditorPopup', () => {
     test('should migrate headers without enabled property', () => {
       popup.profiles = {
         test: {
-          requestHeaders: [
-            { name: 'Test-Header', value: 'test-value' }
-          ]
-        }
+          requestHeaders: [{ name: 'Test-Header', value: 'test-value' }],
+        },
       };
 
       popup.migrateHeaderFormat();
@@ -423,10 +433,8 @@ describe('HeaderEditorPopup', () => {
     test('should preserve existing enabled values', () => {
       popup.profiles = {
         test: {
-          requestHeaders: [
-            { name: 'Test-Header', value: 'test-value', enabled: false }
-          ]
-        }
+          requestHeaders: [{ name: 'Test-Header', value: 'test-value', enabled: false }],
+        },
       };
 
       popup.migrateHeaderFormat();
@@ -440,7 +448,7 @@ describe('HeaderEditorPopup', () => {
       const updateNotification = {
         previousVersion: '2.0.0',
         currentVersion: '2.1.0',
-        shown: false
+        shown: false,
       };
 
       chrome.storage.local.get.mockResolvedValue({ updateNotification });
@@ -450,7 +458,7 @@ describe('HeaderEditorPopup', () => {
 
       expect(showUpdateSpy).toHaveBeenCalledWith(updateNotification);
       expect(chrome.storage.local.set).toHaveBeenCalledWith({
-        updateNotification: { ...updateNotification, shown: true }
+        updateNotification: { ...updateNotification, shown: true },
       });
       expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ action: 'clearUpdateBadge' });
     });
@@ -458,7 +466,7 @@ describe('HeaderEditorPopup', () => {
     test('should show welcome notification for new installs', async () => {
       const welcomeNotification = {
         version: '2.1.0',
-        shown: false
+        shown: false,
       };
 
       chrome.storage.local.get.mockResolvedValue({ welcomeNotification });
@@ -468,13 +476,13 @@ describe('HeaderEditorPopup', () => {
 
       expect(showWelcomeSpy).toHaveBeenCalledWith(welcomeNotification);
       expect(chrome.storage.local.set).toHaveBeenCalledWith({
-        welcomeNotification: { ...welcomeNotification, shown: true }
+        welcomeNotification: { ...welcomeNotification, shown: true },
       });
     });
 
     test('should not show notifications if already shown', async () => {
       chrome.storage.local.get.mockResolvedValue({
-        updateNotification: { shown: true }
+        updateNotification: { shown: true },
       });
 
       const showUpdateSpy = jest.spyOn(popup, 'showUpdateTooltip').mockImplementation();
@@ -489,13 +497,13 @@ describe('HeaderEditorPopup', () => {
     test('should create and display update tooltip', () => {
       const updateInfo = {
         previousVersion: '2.0.0',
-        currentVersion: '2.1.0'
+        currentVersion: '2.1.0',
       };
 
       // Test that the method includes expected content
       const spy = jest.spyOn(popup, 'showUpdateTooltip');
       popup.showUpdateTooltip(updateInfo);
-      
+
       expect(spy).toHaveBeenCalledWith(updateInfo);
     });
   });
@@ -506,25 +514,25 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should add new header to current profile', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       popup.addHeader('requestHeaders');
-      
+
       expect(popup.profiles[popup.currentProfile].requestHeaders).toHaveLength(1);
       expect(popup.profiles[popup.currentProfile].requestHeaders[0]).toEqual({
         name: '',
         value: '',
-        enabled: true
+        enabled: true,
       });
-      expect(saveSpy).toHaveBeenCalled();
+      expect(_saveSpy).toHaveBeenCalled();
     });
 
     test('should create headers array if it does not exist', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
       delete popup.profiles[popup.currentProfile].requestHeaders;
-      
+
       popup.addHeader('requestHeaders');
-      
+
       expect(popup.profiles[popup.currentProfile].requestHeaders).toBeDefined();
       expect(popup.profiles[popup.currentProfile].requestHeaders).toHaveLength(1);
     });
@@ -535,27 +543,27 @@ describe('HeaderEditorPopup', () => {
       await popup.loadData();
       popup.profiles[popup.currentProfile].requestHeaders = [
         { name: 'Header1', value: 'value1', enabled: true },
-        { name: 'Header2', value: 'value2', enabled: true }
+        { name: 'Header2', value: 'value2', enabled: true },
       ];
     });
 
     test('should remove header at specified index', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       popup.removeHeader('requestHeaders', 0);
-      
+
       expect(popup.profiles[popup.currentProfile].requestHeaders).toHaveLength(1);
       expect(popup.profiles[popup.currentProfile].requestHeaders[0].name).toBe('Header2');
-      expect(saveSpy).toHaveBeenCalled();
+      expect(_saveSpy).toHaveBeenCalled();
     });
 
     test('should not remove if index is invalid', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       popup.removeHeader('requestHeaders', 10);
-      
+
       expect(popup.profiles[popup.currentProfile].requestHeaders).toHaveLength(2);
-      expect(saveSpy).not.toHaveBeenCalled();
+      expect(_saveSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -563,25 +571,25 @@ describe('HeaderEditorPopup', () => {
     beforeEach(async () => {
       await popup.loadData();
       popup.profiles[popup.currentProfile].requestHeaders = [
-        { name: 'Header1', value: 'value1', enabled: true }
+        { name: 'Header1', value: 'value1', enabled: true },
       ];
     });
 
     test('should update header field', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       popup.updateHeader('requestHeaders', 0, 'name', 'NewHeader');
-      
+
       expect(popup.profiles[popup.currentProfile].requestHeaders[0].name).toBe('NewHeader');
-      expect(saveSpy).toHaveBeenCalled();
+      expect(_saveSpy).toHaveBeenCalled();
     });
 
     test('should not update if index is invalid', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       popup.updateHeader('requestHeaders', 10, 'name', 'NewHeader');
-      
-      expect(saveSpy).not.toHaveBeenCalled();
+
+      expect(_saveSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -589,32 +597,32 @@ describe('HeaderEditorPopup', () => {
     beforeEach(async () => {
       await popup.loadData();
       popup.profiles[popup.currentProfile].requestHeaders = [
-        { name: 'Header1', value: 'value1', enabled: true }
+        { name: 'Header1', value: 'value1', enabled: true },
       ];
     });
 
     test('should toggle header enabled state', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       popup.toggleHeader('requestHeaders', 0);
-      
+
       expect(popup.profiles[popup.currentProfile].requestHeaders[0].enabled).toBe(false);
-      expect(saveSpy).toHaveBeenCalled();
+      expect(_saveSpy).toHaveBeenCalled();
     });
   });
 
   describe('createNewProfile', () => {
     test('should create new profile with unique ID', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       const profileId = popup.createNewProfile();
-      
+
       expect(profileId).toMatch(/^profile_\d+$/);
       expect(popup.profiles[profileId]).toBeDefined();
       expect(popup.profiles[profileId].name).toBe('Profile 2');
       expect(popup.currentProfile).toBe(profileId);
       expect(popup.profileCounter).toBe(2);
-      expect(saveSpy).toHaveBeenCalled();
+      expect(_saveSpy).toHaveBeenCalled();
     });
   });
 
@@ -622,36 +630,36 @@ describe('HeaderEditorPopup', () => {
     beforeEach(() => {
       popup.profiles = {
         default: { name: 'Default' },
-        test: { name: 'Test Profile' }
+        test: { name: 'Test Profile' },
       };
     });
 
     test('should delete non-default profile', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       const result = popup.deleteProfile('test');
-      
+
       expect(result).toBe(true);
       expect(popup.profiles.test).toBeUndefined();
-      expect(saveSpy).toHaveBeenCalled();
+      expect(_saveSpy).toHaveBeenCalled();
     });
 
     test('should not delete default profile', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       const result = popup.deleteProfile('default');
-      
+
       expect(result).toBe(false);
       expect(popup.profiles.default).toBeDefined();
-      expect(saveSpy).not.toHaveBeenCalled();
+      expect(_saveSpy).not.toHaveBeenCalled();
     });
 
     test('should switch to default if deleting current profile', () => {
       popup.currentProfile = 'test';
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       popup.deleteProfile('test');
-      
+
       expect(popup.currentProfile).toBe('default');
     });
   });
@@ -660,60 +668,60 @@ describe('HeaderEditorPopup', () => {
     beforeEach(() => {
       popup.profiles = {
         default: { name: 'Default' },
-        test: { name: 'Test Profile' }
+        test: { name: 'Test Profile' },
       };
     });
 
     test('should switch to existing profile', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       const result = popup.switchProfile('test');
-      
+
       expect(result).toBe(true);
       expect(popup.currentProfile).toBe('test');
-      expect(saveSpy).toHaveBeenCalled();
+      expect(_saveSpy).toHaveBeenCalled();
     });
 
     test('should not switch to non-existing profile', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
-      
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+
       const result = popup.switchProfile('nonexistent');
-      
+
       expect(result).toBe(false);
       expect(popup.currentProfile).toBe('default');
-      expect(saveSpy).not.toHaveBeenCalled();
+      expect(_saveSpy).not.toHaveBeenCalled();
     });
   });
 
   describe('toggle functions', () => {
     test('toggleEnabled should toggle enabled state', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
       const initialState = popup.isEnabled;
-      
+
       popup.toggleEnabled();
-      
+
       expect(popup.isEnabled).toBe(!initialState);
-      expect(saveSpy).toHaveBeenCalled();
+      expect(_saveSpy).toHaveBeenCalled();
     });
 
     test('togglePaused should toggle paused state', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
       const initialState = popup.isPaused;
-      
+
       popup.togglePaused();
-      
+
       expect(popup.isPaused).toBe(!initialState);
-      expect(saveSpy).toHaveBeenCalled();
+      expect(_saveSpy).toHaveBeenCalled();
     });
 
     test('togglePinned should toggle pinned state', () => {
-      const saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
       const initialState = popup.isPinned;
-      
+
       popup.togglePinned();
-      
+
       expect(popup.isPinned).toBe(!initialState);
-      expect(saveSpy).toHaveBeenCalled();
+      expect(_saveSpy).toHaveBeenCalled();
     });
   });
 
@@ -734,16 +742,16 @@ describe('HeaderEditorPopup', () => {
       const originalHex = '#4caf50';
       const hsl = popup.hexToHsl(originalHex);
       const convertedHex = popup.hslToHex(hsl.h, hsl.s, hsl.l);
-      
+
       // Due to floating point precision, we should check if colors are close enough
       const originalR = parseInt(originalHex.slice(1, 3), 16);
       const originalG = parseInt(originalHex.slice(3, 5), 16);
       const originalB = parseInt(originalHex.slice(5, 7), 16);
-      
+
       const convertedR = parseInt(convertedHex.slice(1, 3), 16);
       const convertedG = parseInt(convertedHex.slice(3, 5), 16);
       const convertedB = parseInt(convertedHex.slice(5, 7), 16);
-      
+
       // Allow for ±1 difference due to rounding
       expect(Math.abs(originalR - convertedR)).toBeLessThanOrEqual(1);
       expect(Math.abs(originalG - convertedG)).toBeLessThanOrEqual(1);
@@ -754,7 +762,7 @@ describe('HeaderEditorPopup', () => {
   describe('saveData', () => {
     test('should save data to chrome storage', async () => {
       await popup.saveData();
-      
+
       expect(chrome.storage.local.set).toHaveBeenCalledWith({
         headerEditorData: expect.objectContaining({
           profiles: popup.profiles,
@@ -762,13 +770,13 @@ describe('HeaderEditorPopup', () => {
           enabled: popup.isEnabled,
           paused: popup.isPaused,
           pinned: popup.isPinned,
-          profileCounter: popup.profileCounter
-        })
+          profileCounter: popup.profileCounter,
+        }),
       });
-      
+
       expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
         action: 'updateHeaders',
-        data: expect.any(Object)
+        data: expect.any(Object),
       });
     });
   });

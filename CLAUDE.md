@@ -87,6 +87,34 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - GitHub Actions generates: `header-editor-pro-free-extension-vX.X.X.zip` + source package
 - Unified ZIP works for both Chrome Web Store and Firefox Add-ons
 
+## Quality Assurance
+
+**Testing:**
+- Jest framework with jsdom environment
+- Chrome API mocking with jest-chrome
+- 48 comprehensive unit tests covering:
+  - Background service worker functionality (18 tests)
+  - Popup UI and logic (30 tests)
+- Test coverage reporting available via `npm run test:coverage`
+- Commands: `npm test`, `npm run test:watch`
+
+**Code Quality:**
+- ESLint configuration optimized for Chrome extension development
+- Prettier integration for consistent code formatting
+- Chrome extension globals configured (chrome, browser APIs)
+- Custom rules for:
+  - Unused variables with underscore prefix pattern
+  - Allow console.log in development
+  - Browser alert/confirm warnings (expected in extensions)
+- Commands: `npm run lint`, `npm run lint:fix`, `npm run format`
+
+**CI/CD:**
+- GitHub Actions workflow (`.github/workflows/ci.yml`)
+- Automated linting, testing, and building on push/PR
+- Multi-node version testing (Node 18.x, 20.x)
+- Build artifact generation and validation
+- Code coverage reporting integration
+
 ## Chrome Web Store Compliance
 
 **Privacy Policy Setup:**

@@ -31,29 +31,29 @@ class HeaderEditorPopup {
             description: 'Click to edit description',
             requestHeaders: [],
             backgroundColor: '#4caf50',
-            textColor: '#ffffff'
-          }
+            textColor: '#ffffff',
+          },
         },
         currentProfile: 'default',
         enabled: true,
         paused: false,
         pinned: false,
-        profileCounter: 1
+        profileCounter: 1,
       };
-      
+
       this.profiles = data.profiles;
       this.currentProfile = data.currentProfile;
       this.isEnabled = data.enabled;
       this.isPaused = data.paused || false;
       this.isPinned = data.pinned || false;
       this.profileCounter = data.profileCounter || 1;
-      
+
       // Migrate old header format to include 'enabled' property
       this.migrateHeaderFormat();
-      
+
       // Migrate profiles to include description field
       this.migrateProfileFormat();
-      
+
       // Initialize color picker state
       this.colorPickerState = {
         currentTab: 'background', // 'background' or 'text'
@@ -61,15 +61,15 @@ class HeaderEditorPopup {
         tempTextColor: '#ffffff',
         hue: 180,
         saturation: 1,
-        lightness: 0.5
+        lightness: 0.5,
       };
-    } catch (error) {
+    } catch (_error) {
       this.profiles = {
         default: {
           name: 'Default',
           description: 'Click to edit description',
-          requestHeaders: []
-        }
+          requestHeaders: [],
+        },
       };
       this.currentProfile = 'default';
       this.isEnabled = true;
@@ -86,7 +86,7 @@ class HeaderEditorPopup {
           profile[headerType] = profile[headerType].map(header => ({
             name: header.name || '',
             value: header.value || '',
-            enabled: header.enabled !== undefined ? header.enabled : true
+            enabled: header.enabled !== undefined ? header.enabled : true,
           }));
         }
       });
@@ -112,17 +112,17 @@ class HeaderEditorPopup {
       enabled: this.isEnabled,
       paused: this.isPaused,
       pinned: this.isPinned,
-      profileCounter: this.profileCounter
+      profileCounter: this.profileCounter,
     };
     await chrome.storage.local.set({ headerEditorData: data });
-    
+
     // Notify background script of changes
     try {
       await chrome.runtime.sendMessage({
         action: 'updateHeaders',
-        data: data
+        data: data,
       });
-    } catch (error) {
+    } catch (_error) {
       // Background script might not be ready, ignore error
     }
   }
@@ -160,27 +160,27 @@ class HeaderEditorPopup {
     });
 
     // Handle file input change
-    document.getElementById('import-file-input').addEventListener('change', (e) => {
+    document.getElementById('import-file-input').addEventListener('change', e => {
       this.handleImportFile(e);
     });
 
     // Profile name inline editing
-    document.getElementById('profile-name-input').addEventListener('blur', (e) => {
+    document.getElementById('profile-name-input').addEventListener('blur', e => {
       this.updateProfileName(e.target.value);
     });
 
-    document.getElementById('profile-name-input').addEventListener('keypress', (e) => {
+    document.getElementById('profile-name-input').addEventListener('keypress', e => {
       if (e.key === 'Enter') {
         e.target.blur();
       }
     });
 
     // Profile description inline editing
-    document.getElementById('description-input').addEventListener('blur', (e) => {
+    document.getElementById('description-input').addEventListener('blur', e => {
       this.updateProfileDescription(e.target.value);
     });
 
-    document.getElementById('description-input').addEventListener('keypress', (e) => {
+    document.getElementById('description-input').addEventListener('keypress', e => {
       if (e.key === 'Enter') {
         e.target.blur();
       }
@@ -192,12 +192,12 @@ class HeaderEditorPopup {
     });
 
     // Dropdown menu functionality
-    document.getElementById('menu-btn').addEventListener('click', (e) => {
+    document.getElementById('menu-btn').addEventListener('click', e => {
       e.stopPropagation();
       this.toggleDropdown();
     });
 
-    document.getElementById('delete-profile-item').addEventListener('click', (e) => {
+    document.getElementById('delete-profile-item').addEventListener('click', e => {
       if (e.target.closest('.dropdown-item').classList.contains('disabled')) {
         return; // Don't delete if disabled
       }
@@ -227,7 +227,7 @@ class HeaderEditorPopup {
       this.copyToClipboard();
     });
 
-    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    document.getElementById('modal-overlay').addEventListener('click', e => {
       if (e.target === e.currentTarget) {
         this.closeModal();
       }
@@ -246,7 +246,7 @@ class HeaderEditorPopup {
       this.saveProfileColor();
     });
 
-    document.getElementById('color-picker-overlay').addEventListener('click', (e) => {
+    document.getElementById('color-picker-overlay').addEventListener('click', e => {
       if (e.target === e.currentTarget) {
         this.closeColorPicker();
       }
@@ -262,10 +262,12 @@ class HeaderEditorPopup {
       // Only close if not pinned and no modal is open
       const modalOverlay = document.getElementById('modal-overlay');
       const dropdown = document.getElementById('profile-dropdown');
-      
-      if (!this.isPinned && 
-          modalOverlay.style.display === 'none' && 
-          dropdown.style.display === 'none') {
+
+      if (
+        !this.isPinned &&
+        modalOverlay.style.display === 'none' &&
+        dropdown.style.display === 'none'
+      ) {
         window.close();
       }
     });
@@ -281,7 +283,7 @@ class HeaderEditorPopup {
     });
 
     // Click outside to close tooltip
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', e => {
       if (!e.target.closest('#info-circle') && !e.target.closest('#info-tooltip')) {
         this.hideInfoTooltip();
       }
@@ -291,8 +293,6 @@ class HeaderEditorPopup {
     document.getElementById('add-request-header').addEventListener('click', () => {
       this.addHeader('request');
     });
-
-
   }
 
   renderUI() {
@@ -304,15 +304,15 @@ class HeaderEditorPopup {
   renderProfileCircles() {
     const container = document.getElementById('profile-circles');
     container.innerHTML = '';
-    
-    Object.entries(this.profiles).forEach(([key, profile], index) => {
+
+    Object.entries(this.profiles).forEach(([key, profile], _index) => {
       const circleDiv = document.createElement('div');
       circleDiv.className = `profile-circle ${key === this.currentProfile ? 'active' : ''}`;
-      
+
       // Use first letter of profile name
       const firstLetter = profile.name.charAt(0).toUpperCase();
       circleDiv.textContent = firstLetter;
-      
+
       // Apply custom colors
       if (profile.backgroundColor) {
         circleDiv.style.backgroundColor = profile.backgroundColor;
@@ -320,31 +320,34 @@ class HeaderEditorPopup {
       if (profile.textColor) {
         circleDiv.style.color = profile.textColor;
       }
-      
+
       // Use description as tooltip if available, otherwise just the name
       let tooltip = profile.name;
-      if (profile.description && profile.description.trim() && 
-          profile.description !== 'Click to edit description') {
+      if (
+        profile.description &&
+        profile.description.trim() &&
+        profile.description !== 'Click to edit description'
+      ) {
         tooltip = `${profile.name}\n${profile.description}`;
       }
       circleDiv.title = tooltip;
-      
+
       // Add indicator
       const indicator = document.createElement('div');
       indicator.className = `profile-indicator ${key === this.currentProfile ? 'active' : 'inactive'}`;
       circleDiv.appendChild(indicator);
-      
+
       // Click to activate profile
       circleDiv.addEventListener('click', () => {
         this.switchProfile(key);
       });
 
       // Context menu for profile management
-      circleDiv.addEventListener('contextmenu', (e) => {
+      circleDiv.addEventListener('contextmenu', e => {
         e.preventDefault();
         this.showProfileMenu(key, e.clientX, e.clientY);
       });
-      
+
       container.appendChild(circleDiv);
     });
   }
@@ -357,9 +360,9 @@ class HeaderEditorPopup {
     const listId = `${type}-headers-list`;
     const list = document.getElementById(listId);
     const headers = this.profiles[this.currentProfile][`${type}Headers`] || [];
-    
+
     list.innerHTML = '';
-    
+
     headers.forEach((header, index) => {
       const headerDiv = this.createHeaderElement(type, header, index);
       list.appendChild(headerDiv);
@@ -372,52 +375,52 @@ class HeaderEditorPopup {
     div.draggable = true;
     div.dataset.headerType = type;
     div.dataset.headerIndex = index;
-    
+
     // Drag handle
     const dragHandle = document.createElement('div');
     dragHandle.className = 'drag-handle';
     dragHandle.innerHTML = '<i class="fas fa-grip-vertical"></i>';
     dragHandle.title = 'Drag to reorder';
-    
+
     // Checkbox for enable/disable
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.className = 'header-checkbox';
     checkbox.checked = header.enabled !== false;
-    checkbox.addEventListener('change', (e) => {
+    checkbox.addEventListener('change', e => {
       this.updateHeader(type, index, 'enabled', e.target.checked);
     });
-    
+
     // Header name input
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.className = 'header-name';
     nameInput.placeholder = 'Header name';
     nameInput.value = header.name || '';
-    nameInput.addEventListener('input', (e) => {
+    nameInput.addEventListener('input', e => {
       this.updateHeader(type, index, 'name', e.target.value);
     });
     nameInput.addEventListener('blur', () => {
       this.saveData();
     });
-    
+
     // Header value input
     const valueInput = document.createElement('input');
     valueInput.type = 'text';
     valueInput.className = 'header-value';
     valueInput.placeholder = 'Header value';
     valueInput.value = header.value || '';
-    valueInput.addEventListener('input', (e) => {
+    valueInput.addEventListener('input', e => {
       this.updateHeader(type, index, 'value', e.target.value);
     });
     valueInput.addEventListener('blur', () => {
       this.saveData();
     });
-    
+
     // Actions
     const actions = document.createElement('div');
     actions.className = 'header-actions';
-    
+
     // Delete button
     const deleteButton = document.createElement('button');
     deleteButton.className = 'header-delete';
@@ -426,18 +429,18 @@ class HeaderEditorPopup {
     deleteButton.addEventListener('click', () => {
       this.removeHeader(type, index);
     });
-    
+
     actions.appendChild(deleteButton);
-    
+
     div.appendChild(dragHandle);
     div.appendChild(checkbox);
     div.appendChild(nameInput);
     div.appendChild(valueInput);
     div.appendChild(actions);
-    
+
     // Add drag and drop event listeners
     this.addDragListeners(div, type, index);
-    
+
     return div;
   }
 
@@ -445,12 +448,12 @@ class HeaderEditorPopup {
     // Update profile name input
     const profileNameInput = document.getElementById('profile-name-input');
     profileNameInput.value = this.profiles[this.currentProfile]?.name || 'Default';
-    
+
     // Update profile description
     const currentProfile = this.profiles[this.currentProfile];
     const descriptionDiv = document.getElementById('profile-description');
     const descriptionInput = document.getElementById('description-input');
-    
+
     // Always show description input, but adjust visibility based on content
     descriptionInput.value = currentProfile?.description || '';
     if (currentProfile?.description && currentProfile.description !== 'Click to edit description') {
@@ -459,7 +462,7 @@ class HeaderEditorPopup {
       // Show for new profiles with placeholder, hide for profiles without description
       descriptionDiv.style.display = currentProfile?.description ? 'block' : 'none';
     }
-    
+
     // Update pause button
     const pauseBtn = document.getElementById('pause-btn');
     if (this.isPaused) {
@@ -471,7 +474,7 @@ class HeaderEditorPopup {
       pauseBtn.title = 'Pause Extension';
       pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
     }
-    
+
     // Update pin button
     const pinBtn = document.getElementById('pin-btn');
     if (this.isPinned) {
@@ -527,13 +530,13 @@ class HeaderEditorPopup {
 
   createNewProfile() {
     this.profileCounter++;
-    const key = 'profile_' + Date.now();
+    const key = `profile_${Date.now()}`;
     this.profiles[key] = {
       name: `Profile ${this.profileCounter}`,
       description: 'Click to edit description',
       requestHeaders: [],
       backgroundColor: '#4caf50',
-      textColor: '#ffffff'
+      textColor: '#ffffff',
     };
     this.currentProfile = key;
     this.saveData();
@@ -543,7 +546,7 @@ class HeaderEditorPopup {
   toggleInfoTooltip() {
     const tooltip = document.getElementById('info-tooltip');
     const isVisible = tooltip.style.display !== 'none';
-    
+
     if (isVisible) {
       this.hideInfoTooltip();
     } else {
@@ -554,7 +557,7 @@ class HeaderEditorPopup {
   showInfoTooltip() {
     const tooltip = document.getElementById('info-tooltip');
     tooltip.style.display = 'block';
-    
+
     // Only add event listeners once
     if (!this.infoLinksSetup) {
       this.setupInfoLinks();
@@ -565,14 +568,14 @@ class HeaderEditorPopup {
   setupInfoLinks() {
     const tooltip = document.getElementById('info-tooltip');
     const links = tooltip.querySelectorAll('a');
-    
+
     links.forEach(link => {
-      link.addEventListener('click', (e) => {
+      link.addEventListener('click', e => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const url = link.href;
-        
+
         // Try chrome.tabs.create first, fallback to window.open
         if (chrome && chrome.tabs && chrome.tabs.create) {
           chrome.tabs.create({ url: url }).catch(() => {
@@ -593,14 +596,16 @@ class HeaderEditorPopup {
   async deleteCurrentProfile() {
     // Close dropdown first
     this.closeDropdown();
-    
+
     if (this.currentProfile === 'default') {
       return; // Should not happen due to UI logic, but safety check
     }
-    
+
     const profileName = this.profiles[this.currentProfile]?.name || 'this profile';
-    
-    if (confirm(`Are you sure you want to delete "${profileName}"? This action cannot be undone.`)) {
+
+    if (
+      confirm(`Are you sure you want to delete "${profileName}"? This action cannot be undone.`)
+    ) {
       delete this.profiles[this.currentProfile];
       this.currentProfile = 'default';
       await this.saveData();
@@ -608,7 +613,7 @@ class HeaderEditorPopup {
     }
   }
 
-  showProfileMenu(profileKey, x, y) {
+  showProfileMenu(profileKey, _x, _y) {
     // Simple context menu - could be enhanced
     if (profileKey !== 'default') {
       if (confirm(`Delete profile "${this.profiles[profileKey].name}"?`)) {
@@ -632,9 +637,9 @@ class HeaderEditorPopup {
       url: chrome.runtime.getURL('popup.html'),
       type: 'popup',
       width: 800,
-      height: 600
+      height: 600,
     });
-    
+
     // Close the popup
     window.close();
   }
@@ -653,7 +658,7 @@ class HeaderEditorPopup {
   async updateProfileDescription(newDescription) {
     this.profiles[this.currentProfile].description = newDescription.trim();
     await this.saveData();
-    
+
     // Hide description div if empty
     const descriptionDiv = document.getElementById('profile-description');
     if (!newDescription.trim()) {
@@ -664,17 +669,18 @@ class HeaderEditorPopup {
   toggleDropdown() {
     const dropdown = document.getElementById('profile-dropdown');
     const deleteItem = document.getElementById('delete-profile-item');
-    
+
     // Update delete item state based on current profile
     if (this.currentProfile === 'default') {
       deleteItem.classList.add('disabled');
-      deleteItem.innerHTML = '<i class="fas fa-trash-alt"></i><span>Cannot delete default profile</span>';
+      deleteItem.innerHTML =
+        '<i class="fas fa-trash-alt"></i><span>Cannot delete default profile</span>';
     } else {
       deleteItem.classList.remove('disabled');
       deleteItem.classList.add('danger');
       deleteItem.innerHTML = '<i class="fas fa-trash-alt"></i><span>Delete Profile</span>';
     }
-    
+
     // Toggle dropdown visibility
     dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
   }
@@ -684,31 +690,30 @@ class HeaderEditorPopup {
     dropdown.style.display = 'none';
   }
 
-
   addDragListeners(element, type, index) {
-    element.addEventListener('dragstart', (e) => {
+    element.addEventListener('dragstart', e => {
       this.handleDragStart(e, type, index);
     });
 
-    element.addEventListener('dragover', (e) => {
+    element.addEventListener('dragover', e => {
       this.handleDragOver(e);
     });
 
-    element.addEventListener('dragenter', (e) => {
+    element.addEventListener('dragenter', e => {
       e.preventDefault();
     });
 
-    element.addEventListener('dragleave', (e) => {
+    element.addEventListener('dragleave', e => {
       if (!e.currentTarget.contains(e.relatedTarget)) {
         e.currentTarget.classList.remove('drop-target');
       }
     });
 
-    element.addEventListener('drop', (e) => {
+    element.addEventListener('drop', e => {
       this.handleDrop(e, type, index);
     });
 
-    element.addEventListener('dragend', (e) => {
+    element.addEventListener('dragend', e => {
       this.handleDragEnd(e);
     });
   }
@@ -723,12 +728,12 @@ class HeaderEditorPopup {
   handleDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    
+
     // Clear all drop targets first
     document.querySelectorAll('.drop-target').forEach(item => {
       item.classList.remove('drop-target');
     });
-    
+
     const headerItem = e.target.closest('.header-item');
     if (headerItem && !headerItem.classList.contains('dragging')) {
       headerItem.classList.add('drop-target');
@@ -737,22 +742,26 @@ class HeaderEditorPopup {
 
   handleDrop(e, type, targetIndex) {
     e.preventDefault();
-    
-    if (!this.dragData) return;
-    
+
+    if (!this.dragData) {
+      return;
+    }
+
     const { type: sourceType, index: sourceIndex } = this.dragData;
-    
+
     // Only allow reordering within the same type (request/response)
-    if (sourceType !== type) return;
-    
+    if (sourceType !== type) {
+      return;
+    }
+
     if (sourceIndex !== targetIndex) {
       this.reorderHeaders(type, sourceIndex, targetIndex);
     }
-    
+
     this.clearDragStyles();
   }
 
-  handleDragEnd(e) {
+  handleDragEnd(_e) {
     this.clearDragStyles();
     this.dragData = null;
   }
@@ -767,7 +776,7 @@ class HeaderEditorPopup {
     const headers = this.profiles[this.currentProfile][`${type}Headers`];
     const movedHeader = headers.splice(fromIndex, 1)[0];
     headers.splice(toIndex, 0, movedHeader);
-    
+
     await this.saveData();
     this.renderHeadersList(type);
   }
@@ -781,13 +790,13 @@ class HeaderEditorPopup {
     document.getElementById('modal-action').style.display = 'block';
     document.getElementById('modal-copy').style.display = 'none';
     document.getElementById('validation-message').textContent = '';
-    
+
     // Show import options, hide export options
     document.getElementById('import-options').style.display = 'block';
     document.querySelector('.option-group:first-child').style.display = 'none'; // Hide export scope
-    
+
     document.getElementById('modal-overlay').style.display = 'flex';
-    
+
     // Focus on textarea
     setTimeout(() => {
       document.getElementById('json-textarea').focus();
@@ -796,28 +805,28 @@ class HeaderEditorPopup {
 
   showExportModal() {
     this.currentModalMode = 'export';
-    
+
     document.getElementById('modal-title').textContent = 'Export Configuration';
     document.getElementById('json-textarea').placeholder = '';
     document.getElementById('modal-action').style.display = 'none';
     document.getElementById('modal-copy').style.display = 'block';
-    
+
     // Show export options, hide import options
     document.querySelector('.option-group:first-child').style.display = 'block'; // Show export scope
     document.getElementById('import-options').style.display = 'none';
-    
+
     // Generate initial export based on current selection
     this.updateExportData();
-    
+
     // Add event listener for export scope changes
     document.querySelectorAll('input[name="export-scope"]').forEach(radio => {
       radio.addEventListener('change', () => {
         this.updateExportData();
       });
     });
-    
+
     document.getElementById('modal-overlay').style.display = 'flex';
-    
+
     // Select all text for easy copying
     setTimeout(() => {
       document.getElementById('json-textarea').select();
@@ -827,7 +836,7 @@ class HeaderEditorPopup {
   updateExportData() {
     const exportScope = document.querySelector('input[name="export-scope"]:checked').value;
     let exportData;
-    
+
     if (exportScope === 'current') {
       const currentProfile = this.profiles[this.currentProfile];
       exportData = this.convertToModHeaderFormat(currentProfile);
@@ -836,28 +845,31 @@ class HeaderEditorPopup {
       exportData = {
         profiles: {},
         currentProfile: this.currentProfile,
-        exportedAt: new Date().toISOString()
+        exportedAt: new Date().toISOString(),
       };
-      
+
       Object.entries(this.profiles).forEach(([key, profile]) => {
         exportData.profiles[key] = {
           name: profile.name,
           description: profile.description,
-          requestHeaders: profile.requestHeaders || []
+          requestHeaders: profile.requestHeaders || [],
         };
       });
     }
-    
+
     const jsonString = JSON.stringify(exportData, null, 2);
     document.getElementById('json-textarea').value = jsonString;
-    
-    const headerCount = exportScope === 'current' 
-      ? exportData.length 
-      : Object.values(this.profiles).reduce((count, profile) => 
-          count + (profile.requestHeaders?.length || 0), 0);
-      
-    document.getElementById('validation-message').innerHTML = 
-      `<span class="success">✓ Ready to copy (${exportScope === 'current' ? 'current profile' : Object.keys(this.profiles).length + ' profiles'})</span>`;
+
+    const _headerCount =
+      exportScope === 'current'
+        ? exportData.length
+        : Object.values(this.profiles).reduce(
+            (count, profile) => count + (profile.requestHeaders?.length || 0),
+            0
+          );
+
+    document.getElementById('validation-message').innerHTML =
+      `<span class="success">✓ Ready to copy (${exportScope === 'current' ? 'current profile' : `${Object.keys(this.profiles).length} profiles`})</span>`;
   }
 
   closeModal() {
@@ -869,22 +881,22 @@ class HeaderEditorPopup {
     const textarea = document.getElementById('json-textarea');
     const message = document.getElementById('validation-message');
     const actionBtn = document.getElementById('modal-action');
-    
+
     if (!textarea.value.trim()) {
       message.textContent = '';
       actionBtn.disabled = true;
       return;
     }
-    
+
     try {
       const parsed = JSON.parse(textarea.value);
-      
+
       // Validate structure for import
       if (this.currentModalMode === 'import') {
         if (!Array.isArray(parsed)) {
           throw new Error('JSON must be an array of headers');
         }
-        
+
         // Check if headers have required structure
         for (let i = 0; i < parsed.length; i++) {
           const header = parsed[i];
@@ -892,15 +904,15 @@ class HeaderEditorPopup {
             throw new Error(`Header ${i + 1}: missing or invalid 'name' field`);
           }
         }
-        
+
         message.innerHTML = `<span class="success">✓ Valid JSON (${parsed.length} headers)</span>`;
       } else {
         message.innerHTML = '<span class="success">✓ Valid JSON</span>';
       }
-      
+
       actionBtn.disabled = false;
-    } catch (error) {
-      message.innerHTML = `<span class="error">✗ ${error.message}</span>`;
+    } catch (_error) {
+      message.innerHTML = `<span class="error">✗ ${_error.message}</span>`;
       actionBtn.disabled = true;
     }
   }
@@ -914,21 +926,21 @@ class HeaderEditorPopup {
   async handleImportFromModal() {
     const textarea = document.getElementById('json-textarea');
     const importMode = document.querySelector('input[name="import-mode"]:checked').value;
-    
+
     try {
       const importData = JSON.parse(textarea.value);
-      
+
       if (importMode === 'new') {
         await this.importProfileFromData(importData);
       } else {
         // Replace current profile
         await this.replaceCurrentProfile(importData);
       }
-      
+
       this.closeModal();
-    } catch (error) {
+    } catch (_error) {
       const message = document.getElementById('validation-message');
-      message.innerHTML = `<span class="error">✗ Import failed: ${error.message}</span>`;
+      message.innerHTML = `<span class="error">✗ Import failed: ${_error.message}</span>`;
     }
   }
 
@@ -946,12 +958,14 @@ class HeaderEditorPopup {
         const profileData = importData.profiles[profileKey];
         this.profiles[this.currentProfile].requestHeaders = profileData.requestHeaders || [];
       } else {
-        throw new Error('Cannot replace current profile with multiple profiles. Use "Create new profile" mode instead.');
+        throw new Error(
+          'Cannot replace current profile with multiple profiles. Use "Create new profile" mode instead.'
+        );
       }
     } else {
       throw new Error('Invalid import format');
     }
-    
+
     await this.saveData();
     this.renderUI();
   }
@@ -963,7 +977,7 @@ class HeaderEditorPopup {
         headers.push({
           name: header.name,
           value: header.value || '',
-          enabled: header.enabled !== false
+          enabled: header.enabled !== false,
         });
       }
     });
@@ -973,18 +987,18 @@ class HeaderEditorPopup {
   async copyToClipboard() {
     const textarea = document.getElementById('json-textarea');
     const copyBtn = document.getElementById('modal-copy');
-    
+
     try {
       await navigator.clipboard.writeText(textarea.value);
       const originalText = copyBtn.textContent;
       copyBtn.textContent = '✓ Copied!';
       copyBtn.style.background = '#4CAF50';
-      
+
       setTimeout(() => {
         copyBtn.textContent = originalText;
         copyBtn.style.background = '#2196F3';
       }, 2000);
-    } catch (error) {
+    } catch (_error) {
       // Fallback for older browsers
       textarea.select();
       document.execCommand('copy');
@@ -999,7 +1013,9 @@ class HeaderEditorPopup {
 
   async handleImportFile(event) {
     const file = event.target.files[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     if (!file.name.endsWith('.json')) {
       alert('Please select a JSON file');
@@ -1010,11 +1026,11 @@ class HeaderEditorPopup {
       const text = await this.readFileAsText(file);
       const importData = JSON.parse(text);
       await this.importProfile(importData);
-      
+
       // Clear the file input
       event.target.value = '';
-    } catch (error) {
-      alert('Error importing file: ' + error.message);
+    } catch (_error) {
+      alert(`Error importing file: ${_error.message}`);
       event.target.value = '';
     }
   }
@@ -1022,7 +1038,7 @@ class HeaderEditorPopup {
   readFileAsText(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
+      reader.onload = e => resolve(e.target.result);
       reader.onerror = () => reject(new Error('Failed to read file'));
       reader.readAsText(file);
     });
@@ -1047,13 +1063,13 @@ class HeaderEditorPopup {
 
   createProfileFromHeaders(headersArray) {
     const headers = this.extractHeadersFromArray(headersArray);
-    
+
     this.profileCounter++;
-    const key = 'profile_' + Date.now();
+    const key = `profile_${Date.now()}`;
     this.profiles[key] = {
       name: `Imported Profile ${this.profileCounter}`,
       description: 'Imported from JSON - click to edit',
-      requestHeaders: headers
+      requestHeaders: headers,
     };
 
     this.currentProfile = key;
@@ -1063,26 +1079,26 @@ class HeaderEditorPopup {
 
   async importMultipleProfiles(exportData) {
     let importedCount = 0;
-    
-    for (const [originalKey, profileData] of Object.entries(exportData.profiles)) {
+
+    for (const [_originalKey, profileData] of Object.entries(exportData.profiles)) {
       this.profileCounter++;
-      const newKey = 'profile_' + Date.now() + '_' + importedCount;
-      
+      const newKey = `profile_${Date.now()}_${importedCount}`;
+
       this.profiles[newKey] = {
         name: profileData.name || `Imported Profile ${this.profileCounter}`,
         description: profileData.description || 'Imported from JSON - click to edit',
-        requestHeaders: profileData.requestHeaders || []
+        requestHeaders: profileData.requestHeaders || [],
       };
-      
+
       importedCount++;
-      
+
       // Small delay to ensure unique timestamps
       await new Promise(resolve => setTimeout(resolve, 1));
     }
 
     // Switch to first imported profile
-    const firstImportedKey = Object.keys(this.profiles).find(key => 
-      key.includes('profile_' + Date.now().toString().slice(0, -3))
+    const firstImportedKey = Object.keys(this.profiles).find(key =>
+      key.includes(`profile_${Date.now().toString().slice(0, -3)}`)
     );
     if (firstImportedKey) {
       this.currentProfile = firstImportedKey;
@@ -1101,14 +1117,17 @@ class HeaderEditorPopup {
 
     // Convert to ModHeader format
     const exportData = this.convertToModHeaderFormat(currentProfile);
-    
+
     // Create and download the file
-    this.downloadJSON(exportData, `${currentProfile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_headers.json`);
+    this.downloadJSON(
+      exportData,
+      `${currentProfile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_headers.json`
+    );
   }
 
   convertToModHeaderFormat(profile) {
     const headers = [];
-    
+
     // Add request headers
     if (profile.requestHeaders) {
       profile.requestHeaders.forEach(header => {
@@ -1117,14 +1136,14 @@ class HeaderEditorPopup {
             appendMode: false,
             enabled: header.enabled !== false,
             name: header.name,
-            value: header.value || ''
+            value: header.value || '',
           });
         }
       });
     }
 
     // Response headers would need different handling in ModHeader format
-    
+
     return headers;
   }
 
@@ -1132,16 +1151,16 @@ class HeaderEditorPopup {
     const jsonStr = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     link.style.display = 'none';
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Clean up the URL object
     URL.revokeObjectURL(url);
   }
@@ -1149,15 +1168,15 @@ class HeaderEditorPopup {
   // Color Picker Methods
   showColorPicker() {
     const profile = this.profiles[this.currentProfile];
-    
+
     // Set initial colors from current profile
     this.colorPickerState.tempBackgroundColor = profile.backgroundColor || '#4caf50';
     this.colorPickerState.tempTextColor = profile.textColor || '#ffffff';
     this.colorPickerState.currentTab = 'background';
-    
+
     // Update UI
     this.updateColorPickerUI();
-    
+
     // Show modal
     document.getElementById('color-picker-overlay').style.display = 'flex';
   }
@@ -1170,21 +1189,26 @@ class HeaderEditorPopup {
     const profile = this.profiles[this.currentProfile];
     const previewCircle = document.getElementById('color-preview-circle');
     const previewText = document.getElementById('color-preview-text');
-    
+
     // Update preview circle
     previewCircle.style.backgroundColor = this.colorPickerState.tempBackgroundColor;
     previewText.style.color = this.colorPickerState.tempTextColor;
     previewText.textContent = profile.name.charAt(0).toUpperCase();
-    
+
     // Update tab states
-    document.getElementById('background-tab').classList.toggle('active', this.colorPickerState.currentTab === 'background');
-    document.getElementById('text-tab').classList.toggle('active', this.colorPickerState.currentTab === 'text');
-    
+    document
+      .getElementById('background-tab')
+      .classList.toggle('active', this.colorPickerState.currentTab === 'background');
+    document
+      .getElementById('text-tab')
+      .classList.toggle('active', this.colorPickerState.currentTab === 'text');
+
     // Update color gradient background based on current tab
-    const currentColor = this.colorPickerState.currentTab === 'background' 
-      ? this.colorPickerState.tempBackgroundColor 
-      : this.colorPickerState.tempTextColor;
-    
+    const currentColor =
+      this.colorPickerState.currentTab === 'background'
+        ? this.colorPickerState.tempBackgroundColor
+        : this.colorPickerState.tempTextColor;
+
     this.updateGradientBackground(currentColor);
     this.setupColorPickerInteractions();
     this.updateColorSelector(currentColor, false); // No smooth transition on initial load
@@ -1192,18 +1216,18 @@ class HeaderEditorPopup {
 
   updateGradientBackground(color, preserveHue = false) {
     const hslColor = this.hexToHsl(color);
-    
+
     // Only update hue if not preserving it (e.g., when saturation > 0.1)
     if (!preserveHue && hslColor.s > 0.1) {
       this.colorPickerState.hue = hslColor.h;
     }
-    
+
     const gradient = document.getElementById('color-gradient');
     const hueSlider = document.getElementById('hue-slider');
-    
+
     // Update gradient background - combine both gradients properly
     gradient.style.background = `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%), linear-gradient(to right, rgba(255,255,255,1) 0%, hsl(${this.colorPickerState.hue}, 100%, 50%) 100%)`;
-    
+
     // Update hue slider
     hueSlider.value = this.colorPickerState.hue;
   }
@@ -1211,22 +1235,22 @@ class HeaderEditorPopup {
   updateColorSelector(color, smooth = true) {
     const hslColor = this.hexToHsl(color);
     const selector = document.getElementById('color-selector');
-    
+
     // Position the selector based on current color
     const saturation = hslColor.s;
     const lightness = hslColor.l;
-    
+
     // Store in state for hue slider to use
     this.colorPickerState.saturation = saturation;
     this.colorPickerState.lightness = lightness;
-    
+
     // Add smooth transition for non-dragging updates
     if (smooth) {
       selector.classList.add('smooth');
     } else {
       selector.classList.remove('smooth');
     }
-    
+
     selector.style.left = `${saturation * 100}%`;
     selector.style.top = `${(1 - lightness) * 100}%`;
   }
@@ -1235,7 +1259,7 @@ class HeaderEditorPopup {
     const profile = this.profiles[this.currentProfile];
     const previewCircle = document.getElementById('color-preview-circle');
     const previewText = document.getElementById('color-preview-text');
-    
+
     // Update preview circle
     previewCircle.style.backgroundColor = this.colorPickerState.tempBackgroundColor;
     previewText.style.color = this.colorPickerState.tempTextColor;
@@ -1244,74 +1268,76 @@ class HeaderEditorPopup {
 
   setupColorPickerInteractions() {
     // Only set up interactions once
-    if (this.colorPickerInteractionsSetup) return;
+    if (this.colorPickerInteractionsSetup) {
+      return;
+    }
     this.colorPickerInteractionsSetup = true;
-    
+
     // Tab switching
     document.getElementById('background-tab').onclick = () => {
       this.colorPickerState.currentTab = 'background';
       this.updateColorPickerUI();
     };
-    
+
     document.getElementById('text-tab').onclick = () => {
       this.colorPickerState.currentTab = 'text';
       this.updateColorPickerUI();
     };
-    
+
     // Color gradient interaction
     const gradient = document.getElementById('color-gradient');
     const selector = document.getElementById('color-selector');
-    
+
     let isDragging = false;
-    
-    const updateColorFromPosition = (e) => {
+
+    const updateColorFromPosition = e => {
       const rect = gradient.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
+
       const saturation = Math.max(0, Math.min(1, x / rect.width));
-      const lightness = Math.max(0, Math.min(1, 1 - (y / rect.height)));
-      
+      const lightness = Math.max(0, Math.min(1, 1 - y / rect.height));
+
       // Store saturation and lightness in state
       this.colorPickerState.saturation = saturation;
       this.colorPickerState.lightness = lightness;
-      
+
       // Preserve the current hue when saturation is 0 (white/grey area)
       // Don't let hexToHsl change the hue when color becomes achromatic
       const color = this.hslToHex(this.colorPickerState.hue, saturation, lightness);
-      
+
       if (this.colorPickerState.currentTab === 'background') {
         this.colorPickerState.tempBackgroundColor = color;
       } else {
         this.colorPickerState.tempTextColor = color;
       }
-      
+
       // Update selector position (no smooth transition during drag)
       selector.classList.remove('smooth');
       selector.style.left = `${saturation * 100}%`;
       selector.style.top = `${(1 - lightness) * 100}%`;
-      
+
       // Update UI but don't call updateColorPickerUI which might recalculate hue
       this.updateColorPreview();
     };
-    
+
     // Mouse events for gradient
-    gradient.onmousedown = (e) => {
+    gradient.onmousedown = e => {
       isDragging = true;
       updateColorFromPosition(e);
       e.preventDefault();
       e.stopPropagation();
     };
-    
+
     // Global mouse events to handle dragging outside the gradient
-    document.onmousemove = (e) => {
+    document.onmousemove = e => {
       if (isDragging) {
         updateColorFromPosition(e);
         e.preventDefault();
         e.stopPropagation();
       }
     };
-    
+
     document.onmouseup = () => {
       if (isDragging) {
         isDragging = false;
@@ -1319,57 +1345,57 @@ class HeaderEditorPopup {
         selector.classList.add('smooth');
       }
     };
-    
+
     // Also keep the click handler for single clicks
-    gradient.onclick = (e) => {
+    gradient.onclick = e => {
       if (!isDragging) {
         updateColorFromPosition(e);
         e.preventDefault();
         e.stopPropagation();
       }
     };
-    
+
     // Hue slider
     const hueSlider = document.getElementById('hue-slider');
     hueSlider.oninput = () => {
       this.colorPickerState.hue = parseInt(hueSlider.value);
-      
+
       // Use stored saturation and lightness values
       const saturation = this.colorPickerState.saturation;
       const lightness = this.colorPickerState.lightness;
-      
+
       // Generate new color with updated hue
       const newColor = this.hslToHex(this.colorPickerState.hue, saturation, lightness);
-      
+
       // Update the appropriate color value
       if (this.colorPickerState.currentTab === 'background') {
         this.colorPickerState.tempBackgroundColor = newColor;
       } else {
         this.colorPickerState.tempTextColor = newColor;
       }
-      
+
       // Update the entire UI
       this.updateColorPickerUI();
     };
-    
+
     // Preset colors
     document.querySelectorAll('.preset-color').forEach(preset => {
       preset.onclick = () => {
         const color = preset.getAttribute('data-color');
-        
+
         // Update the appropriate temp color
         if (this.colorPickerState.currentTab === 'background') {
           this.colorPickerState.tempBackgroundColor = color;
         } else {
           this.colorPickerState.tempTextColor = color;
         }
-        
+
         // Update HSL values and selector position
         const hslColor = this.hexToHsl(color);
         this.colorPickerState.hue = hslColor.h;
         this.colorPickerState.saturation = hslColor.s;
         this.colorPickerState.lightness = hslColor.l;
-        
+
         this.updateColorPickerUI();
       };
     });
@@ -1379,7 +1405,7 @@ class HeaderEditorPopup {
     const profile = this.profiles[this.currentProfile];
     profile.backgroundColor = this.colorPickerState.tempBackgroundColor;
     profile.textColor = this.colorPickerState.tempTextColor;
-    
+
     this.saveData();
     this.renderProfileCircles();
     this.closeColorPicker();
@@ -1393,7 +1419,8 @@ class HeaderEditorPopup {
 
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
-    let h, s, l = (max + min) / 2;
+    let h, s;
+    const l = (max + min) / 2;
 
     if (max === min) {
       h = s = 0;
@@ -1401,9 +1428,15 @@ class HeaderEditorPopup {
       const d = max - min;
       s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
       switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        case b:
+          h = (r - g) / d + 4;
+          break;
       }
       h /= 6;
     }
@@ -1415,9 +1448,11 @@ class HeaderEditorPopup {
     h /= 360;
     const a = s * Math.min(l, 1 - l);
     const f = n => {
-      const k = (n + h / (1/12)) % 12;
+      const k = (n + h / (1 / 12)) % 12;
       const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return Math.round(255 * color).toString(16).padStart(2, '0');
+      return Math.round(255 * color)
+        .toString(16)
+        .padStart(2, '0');
     };
     return `#${f(0)}${f(8)}${f(4)}`;
   }
@@ -1425,26 +1460,26 @@ class HeaderEditorPopup {
   async checkForUpdateNotification() {
     try {
       const result = await chrome.storage.local.get(['updateNotification', 'welcomeNotification']);
-      
+
       if (result.updateNotification && !result.updateNotification.shown) {
         this.showUpdateTooltip(result.updateNotification);
-        
+
         // Mark as shown
-        chrome.storage.local.set({ 
-          updateNotification: { ...result.updateNotification, shown: true }
+        chrome.storage.local.set({
+          updateNotification: { ...result.updateNotification, shown: true },
         });
-        
+
         // Clear the badge
         chrome.runtime.sendMessage({ action: 'clearUpdateBadge' });
       } else if (result.welcomeNotification && !result.welcomeNotification.shown) {
         this.showWelcomeTooltip(result.welcomeNotification);
-        
+
         // Mark as shown
-        chrome.storage.local.set({ 
-          welcomeNotification: { ...result.welcomeNotification, shown: true }
+        chrome.storage.local.set({
+          welcomeNotification: { ...result.welcomeNotification, shown: true },
         });
       }
-    } catch (error) {
+    } catch (_error) {
       // Silently handle errors
     }
   }
@@ -1463,16 +1498,16 @@ class HeaderEditorPopup {
         <div class="update-subtitle">Check latest features and improvements</div>
       </div>
     `;
-    
+
     document.body.appendChild(tooltip);
-    
+
     // Setup close button
     const closeBtn = tooltip.querySelector('.update-close');
     closeBtn.addEventListener('click', () => {
       tooltip.classList.add('update-notification-slide-out');
       setTimeout(() => tooltip.remove(), 300);
     });
-    
+
     // Auto-close after 6 seconds
     setTimeout(() => {
       if (tooltip.parentNode) {
@@ -1496,16 +1531,16 @@ class HeaderEditorPopup {
         <div class="update-subtitle">Create unlimited profiles and modify HTTP headers easily</div>
       </div>
     `;
-    
+
     document.body.appendChild(tooltip);
-    
+
     // Setup close button
     const closeBtn = tooltip.querySelector('.update-close');
     closeBtn.addEventListener('click', () => {
       tooltip.classList.add('update-notification-slide-out');
       setTimeout(() => tooltip.remove(), 300);
     });
-    
+
     // Auto-close after 8 seconds for welcome message
     setTimeout(() => {
       if (tooltip.parentNode) {
