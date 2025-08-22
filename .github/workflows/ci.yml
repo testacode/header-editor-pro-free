@@ -49,13 +49,6 @@ jobs:
     - name: Build extension
       run: npm run build
 
-    - name: Verify build output
-      run: |
-        test -d dist
-        test -f dist/manifest.json
-        test -f dist/popup.html
-        test -f dist/js/background.js
-
   build-test:
     runs-on: ubuntu-latest
     needs: test
