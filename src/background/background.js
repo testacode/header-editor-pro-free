@@ -18,13 +18,47 @@ class HeaderEditorBackground {
 
   init() {
     this.setupMessageHandlers();
+    this.setupUpdateNotifications();
     this.loadAndApplyRules();
+  }
+
+  setupUpdateNotifications() {
+    chrome.runtime.onInstalled.addListener((details) => {
+      if (details.reason === "update") {
+        const currentVersion = chrome.runtime.getManifest().version;
+        
+        // Show "NEW" badge on extension icon
+        chrome.action.setBadgeText({ text: "NEW" });
+        chrome.action.setBadgeBackgroundColor({ color: "#4caf50" });
+        
+        // Store update notification data
+        chrome.storage.local.set({ 
+          updateNotification: {
+            previousVersion: details.previousVersion,
+            currentVersion: currentVersion,
+            shown: false,
+            timestamp: Date.now()
+          }
+        });
+      } else if (details.reason === "install") {
+        // Welcome message for first-time installation
+        chrome.storage.local.set({ 
+          welcomeNotification: {
+            version: chrome.runtime.getManifest().version,
+            shown: false,
+            timestamp: Date.now()
+          }
+        });
+      }
+    });
   }
 
   setupMessageHandlers() {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.action === 'updateHeaders') {
         this.handleUpdateHeaders(message.data);
+      } else if (message.action === 'clearUpdateBadge') {
+        chrome.action.setBadgeText({ text: "" });
       }
     });
 

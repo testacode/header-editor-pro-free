@@ -978,3 +978,130 @@ body {
 .sidebar-top::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* Update notification styles */
+.update-notification {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  max-width: 320px;
+  min-width: 280px;
+  font-size: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.welcome-notification {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+}
+
+.update-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.update-icon {
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.update-title {
+  font-weight: 600;
+  font-size: 14px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.update-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.update-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.update-content {
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+.update-subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+/* Animation classes */
+.update-notification-slide-in {
+  animation: slideInFromRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.update-notification-slide-out {
+  animation: slideOutToRight 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%) translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0) translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%) translateY(-10px);
+    opacity: 0;
+  }
+}
+
+/* Responsive design for smaller popups */
+@media (max-width: 650px) {
+  .update-notification {
+    top: 10px;
+    right: 10px;
+    max-width: 260px;
+    min-width: 240px;
+    padding: 12px 16px;
+  }
+  
+  .update-title {
+    font-size: 13px;
+  }
+  
+  .update-content {
+    font-size: 12px;
+  }
+  
+  .update-subtitle {
+    font-size: 11px;
+  }
+}
