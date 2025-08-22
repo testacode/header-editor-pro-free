@@ -1,15 +1,15 @@
-import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Mock console.log to suppress output during tests
 const originalLog = console.log;
-console.log = jest.fn();
+console.log = vi.fn();
 
 describe('HeaderEditorPopup', () => {
   let HeaderEditorPopup;
   let popup;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
 
     // Create a mock version of the HeaderEditorPopup class
     HeaderEditorPopup = class {
@@ -352,7 +352,7 @@ describe('HeaderEditorPopup', () => {
     };
 
     popup = new HeaderEditorPopup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -452,7 +452,7 @@ describe('HeaderEditorPopup', () => {
       };
 
       chrome.storage.local.get.mockResolvedValue({ updateNotification });
-      const showUpdateSpy = jest.spyOn(popup, 'showUpdateTooltip').mockImplementation();
+      const showUpdateSpy = vi.spyOn(popup, 'showUpdateTooltip').mockImplementation();
 
       await popup.checkForUpdateNotification();
 
@@ -470,7 +470,7 @@ describe('HeaderEditorPopup', () => {
       };
 
       chrome.storage.local.get.mockResolvedValue({ welcomeNotification });
-      const showWelcomeSpy = jest.spyOn(popup, 'showWelcomeTooltip').mockImplementation();
+      const showWelcomeSpy = vi.spyOn(popup, 'showWelcomeTooltip').mockImplementation();
 
       await popup.checkForUpdateNotification();
 
@@ -485,7 +485,7 @@ describe('HeaderEditorPopup', () => {
         updateNotification: { shown: true },
       });
 
-      const showUpdateSpy = jest.spyOn(popup, 'showUpdateTooltip').mockImplementation();
+      const showUpdateSpy = vi.spyOn(popup, 'showUpdateTooltip').mockImplementation();
 
       await popup.checkForUpdateNotification();
 
@@ -501,7 +501,7 @@ describe('HeaderEditorPopup', () => {
       };
 
       // Test that the method includes expected content
-      const spy = jest.spyOn(popup, 'showUpdateTooltip');
+      const spy = vi.spyOn(popup, 'showUpdateTooltip');
       popup.showUpdateTooltip(updateInfo);
 
       expect(spy).toHaveBeenCalledWith(updateInfo);
@@ -514,7 +514,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should add new header to current profile', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       popup.addHeader('requestHeaders');
 
@@ -528,7 +528,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should create headers array if it does not exist', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
       delete popup.profiles[popup.currentProfile].requestHeaders;
 
       popup.addHeader('requestHeaders');
@@ -548,7 +548,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should remove header at specified index', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       popup.removeHeader('requestHeaders', 0);
 
@@ -558,7 +558,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should not remove if index is invalid', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       popup.removeHeader('requestHeaders', 10);
 
@@ -576,7 +576,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should update header field', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       popup.updateHeader('requestHeaders', 0, 'name', 'NewHeader');
 
@@ -585,7 +585,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should not update if index is invalid', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       popup.updateHeader('requestHeaders', 10, 'name', 'NewHeader');
 
@@ -602,7 +602,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should toggle header enabled state', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       popup.toggleHeader('requestHeaders', 0);
 
@@ -613,7 +613,7 @@ describe('HeaderEditorPopup', () => {
 
   describe('createNewProfile', () => {
     test('should create new profile with unique ID', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       const profileId = popup.createNewProfile();
 
@@ -635,7 +635,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should delete non-default profile', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       const result = popup.deleteProfile('test');
 
@@ -645,7 +645,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should not delete default profile', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       const result = popup.deleteProfile('default');
 
@@ -656,7 +656,7 @@ describe('HeaderEditorPopup', () => {
 
     test('should switch to default if deleting current profile', () => {
       popup.currentProfile = 'test';
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       popup.deleteProfile('test');
 
@@ -673,7 +673,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should switch to existing profile', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       const result = popup.switchProfile('test');
 
@@ -683,7 +683,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('should not switch to non-existing profile', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
 
       const result = popup.switchProfile('nonexistent');
 
@@ -695,7 +695,7 @@ describe('HeaderEditorPopup', () => {
 
   describe('toggle functions', () => {
     test('toggleEnabled should toggle enabled state', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
       const initialState = popup.isEnabled;
 
       popup.toggleEnabled();
@@ -705,7 +705,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('togglePaused should toggle paused state', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
       const initialState = popup.isPaused;
 
       popup.togglePaused();
@@ -715,7 +715,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('togglePinned should toggle pinned state', () => {
-      const _saveSpy = jest.spyOn(popup, 'saveData').mockImplementation();
+      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
       const initialState = popup.isPinned;
 
       popup.togglePinned();

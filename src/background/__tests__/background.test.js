@@ -1,16 +1,16 @@
-import { jest, describe, test, expect, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 
 // Mock the background class by importing the file content
 // Since background.js creates an instance immediately, we need to prevent that
 const originalLog = console.log;
-console.log = jest.fn(); // Suppress console output during tests
+console.log = vi.fn(); // Suppress console output during tests
 
 // Import the background functionality
 let HeaderEditorBackground;
 
 // Mock the class before importing
 beforeEach(() => {
-  jest.resetModules();
+  vi.resetModules();
 
   // Create a mock version of the HeaderEditorBackground class
   HeaderEditorBackground = class {
@@ -249,7 +249,7 @@ describe('HeaderEditorBackground', () => {
 
   beforeEach(() => {
     background = new HeaderEditorBackground();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -331,7 +331,7 @@ describe('HeaderEditorBackground', () => {
       const listenerCall = chrome.runtime.onMessage.addListener.mock.calls[0];
       const listener = listenerCall[0];
 
-      listener({ action: 'clearUpdateBadge' }, {}, jest.fn());
+      listener({ action: 'clearUpdateBadge' }, {}, vi.fn());
 
       expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
     });
@@ -464,8 +464,8 @@ describe('HeaderEditorBackground', () => {
         currentProfile: 'default',
       };
 
-      const clearSpy = jest.spyOn(background, 'clearAllRules').mockResolvedValue();
-      const addSpy = jest.spyOn(background, 'addRules').mockResolvedValue();
+      const clearSpy = vi.spyOn(background, 'clearAllRules').mockResolvedValue();
+      const addSpy = vi.spyOn(background, 'addRules').mockResolvedValue();
 
       await background.applyHeaderRules(data);
 
@@ -481,8 +481,8 @@ describe('HeaderEditorBackground', () => {
         currentProfile: 'default',
       };
 
-      const clearSpy = jest.spyOn(background, 'clearAllRules').mockResolvedValue();
-      const addSpy = jest.spyOn(background, 'addRules').mockResolvedValue();
+      const clearSpy = vi.spyOn(background, 'clearAllRules').mockResolvedValue();
+      const addSpy = vi.spyOn(background, 'addRules').mockResolvedValue();
 
       await background.applyHeaderRules(data);
 
@@ -502,8 +502,8 @@ describe('HeaderEditorBackground', () => {
         currentProfile: 'default',
       };
 
-      const clearSpy = jest.spyOn(background, 'clearAllRules').mockResolvedValue();
-      const addSpy = jest.spyOn(background, 'addRules').mockResolvedValue();
+      const clearSpy = vi.spyOn(background, 'clearAllRules').mockResolvedValue();
+      const addSpy = vi.spyOn(background, 'addRules').mockResolvedValue();
 
       await background.applyHeaderRules(data);
 

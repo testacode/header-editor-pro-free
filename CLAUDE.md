@@ -90,13 +90,13 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 ## Quality Assurance
 
 **Testing:**
-- Jest framework with jsdom environment
-- Chrome API mocking with jest-chrome
+- Vitest framework with jsdom environment (modern Jest alternative)
+- Custom Chrome API mocking for Manifest V3 compatibility
 - 48 comprehensive unit tests covering:
   - Background service worker functionality (18 tests)
   - Popup UI and logic (30 tests)
 - Test coverage reporting available via `npm run test:coverage`
-- Commands: `npm test`, `npm run test:watch`
+- Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**
 - ESLint configuration optimized for Chrome extension development
@@ -111,9 +111,9 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **CI/CD:**
 - GitHub Actions workflow (`.github/workflows/ci.yml`)
 - Automated linting, testing, and building on push/PR
-- Multi-node version testing (Node 18.x, 20.x)
+- Node.js 22 requirement with engine strict enforcement
 - Build artifact generation and validation
-- Code coverage reporting integration
+- Code coverage reporting integration with Codecov
 
 ## Chrome Web Store Compliance
 

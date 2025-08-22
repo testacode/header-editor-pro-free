@@ -2,14 +2,18 @@
   "name": "header-editor-pro-free",
   "version": "1.4.1",
   "description": "Professional HTTP header editor for web developers, API testing, and debugging - completely free with unlimited profiles",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "engineStrict": true,
   "main": "src/popup/popup.js",
   "scripts": {
     "dev": "rspack build --mode development --watch",
     "build": "rspack build --mode production",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:ci": "jest --ci --coverage --watchAll=false",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -34,28 +38,22 @@
   "devDependencies": {
     "@babel/preset-env": "^7.28.3",
     "@eslint/js": "^9.33.0",
-    "@jest/globals": "^30.0.5",
     "@rspack/cli": "^1.0.14",
     "@rspack/core": "^1.0.14",
     "@types/chrome": "^0.1.4",
-    "@types/jest": "^30.0.0",
-    "babel-jest": "^30.0.5",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
     "css-loader": "^7.1.2",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
-    "jest": "^30.0.5",
-    "jest-chrome": "^0.8.0",
-    "jest-environment-jsdom": "^30.0.5",
+    "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
+    "vitest": "^3.2.4",
     "webpack-merge": "^6.0.1"
   },
   "browserslist": [
     "last 2 Chrome versions",
     "last 2 Firefox versions"
-  ],
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
-  }
+  ]
 }
