@@ -34,3 +34,29 @@ temp/
 # Assets that shouldn't be formatted
 raw-assets/
 screenshots/
+src/assets/
+
+# Extension files (preserve exact formatting)
+src/manifest.json
+
+# Config files (preserve structure)
+.prettierrc.json
+.claude/
+
+# CSS files (preserve styling structure)
+src/popup/popup.css
+
+# Documentation (preserve manual formatting)
+*.md
+privacy.html
+*.html
+index.html
+test.html
+
+# GitHub Actions and config files
+.github/
+*.yml
+*.yaml
+
+# Package files that should maintain structure
+package-lock.json
