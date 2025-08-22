@@ -53,8 +53,8 @@ jobs:
       run: |
         test -d dist
         test -f dist/manifest.json
-        test -f dist/popup/popup.html
-        test -f dist/background.js
+        test -f dist/popup.html
+        test -f dist/js/background.js
 
   build-test:
     runs-on: ubuntu-latest
