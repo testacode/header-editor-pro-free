@@ -44,7 +44,7 @@
 ## 🚀 Installation
 
 ### Chrome Web Store (Recommended)
-1. Visit the [Chrome Web Store](#) (link coming soon)
+1. Visit the [Chrome Web Store](https://chromewebstore.google.com/detail/cpdkigffbilaglfmddclhgfflimpaeim)
 2. Click "Add to Chrome"
 3. Click "Add Extension" in the popup
 
@@ -139,7 +139,13 @@
 ├── package.json         # Dependencies and build scripts
 ├── scripts/             # Release automation scripts
 ├── .github/workflows/   # GitHub Actions for automated builds
-└── screenshots/         # Extension screenshots
+├── screenshots/         # Extension screenshots
+├── index.html           # Landing page (GitHub Pages)
+├── privacy.html         # Privacy policy page
+├── 404.html             # Custom 404 page
+├── robots.txt           # SEO crawlers configuration
+├── sitemap.xml          # SEO sitemap
+└── og-image.png         # Open Graph image for social sharing
 ```
 
 ### Local Development
@@ -191,7 +197,7 @@ Both methods trigger **GitHub Actions** to automatically build the extension ZIP
 
 ### Download Options
 - **GitHub Releases**: Get the latest versioned ZIP files directly
-- **Chrome Web Store**: Coming soon - official store listing
+- **Chrome Web Store**: [Install from Chrome Web Store](https://chromewebstore.google.com/detail/cpdkigffbilaglfmddclhgfflimpaeim)
 - **Firefox Add-ons**: Coming soon - official AMO listing
 
 ### Package Files
@@ -219,6 +225,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🤝 Support
 
+- **Website**: [testacode.github.io/header-editor-pro-free](https://testacode.github.io/header-editor-pro-free/)
 - **Issues**: [GitHub Issues](https://github.com/testacode/header-editor-pro-free/issues)
 - **Privacy Policy**: [View Policy](https://testacode.github.io/header-editor-pro-free/privacy.html)
 - **Documentation**: This README and inline code comments
