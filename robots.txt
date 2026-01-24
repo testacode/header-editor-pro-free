@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://testacode.github.io/header-editor-pro-free/sitemap.xml
