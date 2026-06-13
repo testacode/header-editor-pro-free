@@ -91,7 +91,8 @@ export class HeaderEditorBackground {
       };
 
       await this.applyHeaderRules(data);
-    } catch (_error) {
+    } catch (error) {
+      console.error('Failed to apply header rules, clearing all rules:', error);
       await this.clearAllRules();
     }
   }
@@ -203,7 +204,8 @@ export class HeaderEditorBackground {
       rules.forEach(rule => {
         this.activeRules.add(rule.id);
       });
-    } catch (_error) {
+    } catch (error) {
+      console.error('Batch addRules failed, retrying rules individually:', error);
       // Fallback for individual rule addition if batch fails
       for (const rule of rules) {
         try {
