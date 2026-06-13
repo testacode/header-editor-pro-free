@@ -205,6 +205,7 @@ export class HeaderEditorBackground {
       // Fallback for individual rule addition if batch fails
       for (const rule of rules) {
         try {
+          // eslint-disable-next-line no-await-in-loop -- sequential is intentional: isolate which rule fails in the per-rule fallback
           await chrome.declarativeNetRequest.updateDynamicRules({
             addRules: [rule],
           });
