@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { HeaderEditorPopup } from '../popup.js';
@@ -990,6 +990,177 @@ describe('HeaderEditorPopup', () => {
     test('handles storage errors silently', async () => {
       chrome.storage.local.get.mockRejectedValue(new Error('fail'));
       await expect(popup.checkForUpdateNotification()).resolves.not.toThrow();
+    });
+  });
+
+  describe('openFullscreen', () => {
+    test('opens a popup window with popup.html and closes the current popup', () => {
+      chrome.windows = { create: vi.fn() };
+      const closeSpy = vi.spyOn(window, 'close').mockImplementation(() => {});
+
+      popup.openFullscreen();
+
+      expect(chrome.windows.create).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'popup', width: 800, height: 600 })
+      );
+      const arg = chrome.windows.create.mock.calls[0][0];
+      expect(arg.url).toContain('popup.html');
+      expect(closeSpy).toHaveBeenCalled();
+
+      closeSpy.mockRestore();
+    });
+  });
+
+  describe('color picker interactions', () => {
+    beforeEach(() => {
+      popup.showColorPicker(); // wires up the interaction handlers (once)
+      const gradient = document.getElementById('color-gradient');
+      gradient.getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 200,
+        height: 200,
+        right: 200,
+        bottom: 200,
+      });
+    });
+
+    test('mousedown on gradient sets saturation/lightness from position', () => {
+      const gradient = document.getElementById('color-gradient');
+      gradient.onmousedown({
+        clientX: 100, // x/width = 0.5 → saturation 0.5
+        clientY: 50, // 1 - y/height = 0.75 → lightness 0.75
+        preventDefault: () => {},
+        stopPropagation: () => {},
+      });
+      expect(popup.colorPickerState.saturation).toBeCloseTo(0.5, 5);
+      expect(popup.colorPickerState.lightness).toBeCloseTo(0.75, 5);
+    });
+
+    test('dragging (mousemove while down) keeps updating the color', () => {
+      const gradient = document.getElementById('color-gradient');
+      gradient.onmousedown({
+        clientX: 0,
+        clientY: 200,
+        preventDefault: () => {},
+        stopPropagation: () => {},
+      });
+      document.onmousemove({
+        clientX: 200, // saturation 1
+        clientY: 0, // lightness 1
+        preventDefault: () => {},
+        stopPropagation: () => {},
+      });
+      expect(popup.colorPickerState.saturation).toBeCloseTo(1, 5);
+      expect(popup.colorPickerState.lightness).toBeCloseTo(1, 5);
+      document.onmouseup();
+    });
+
+    test('hue slider input updates hue and the active temp color', () => {
+      const hueSlider = document.getElementById('hue-slider');
+      hueSlider.value = '200';
+      hueSlider.oninput();
+      expect(popup.colorPickerState.hue).toBe(200);
+    });
+
+    test('switching to the text tab updates currentTab', () => {
+      document.getElementById('text-tab').onclick();
+      expect(popup.colorPickerState.currentTab).toBe('text');
+    });
+  });
+
+  describe('export and downloadJSON', () => {
+    let clickSpy;
+
+    beforeEach(() => {
+      // setup.js mocks Blob as a non-constructable arrow fn; make it constructable here
+      global.Blob = class MockBlob {
+        constructor(content, options) {
+          this.content = content;
+          this.type = options?.type || '';
+        }
+      };
+      global.URL.createObjectURL = vi.fn(() => 'blob:fake-url');
+      global.URL.revokeObjectURL = vi.fn();
+      clickSpy = vi.spyOn(window.HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      clickSpy.mockRestore();
+    });
+
+    test('exportCurrentProfile alerts and returns when no profile is selected', () => {
+      popup.currentProfile = 'does-not-exist';
+      popup.importExport.exportCurrentProfile();
+      expect(alert).toHaveBeenCalledWith('No profile selected to export');
+      expect(clickSpy).not.toHaveBeenCalled();
+    });
+
+    test('exportCurrentProfile downloads the current profile as JSON', () => {
+      const downloadSpy = vi.spyOn(popup.importExport, 'downloadJSON');
+      popup.importExport.exportCurrentProfile();
+      expect(downloadSpy).toHaveBeenCalled();
+      // filename derived from profile name
+      expect(downloadSpy.mock.calls[0][1]).toMatch(/_headers\.json$/);
+    });
+
+    test('downloadJSON creates a blob URL, clicks the link, and revokes the URL', () => {
+      popup.importExport.downloadJSON({ foo: 'bar' }, 'test.json');
+      expect(URL.createObjectURL).toHaveBeenCalled();
+      expect(clickSpy).toHaveBeenCalled();
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:fake-url');
+    });
+  });
+
+  describe('clipboard and file import', () => {
+    function stubClipboard(writeText) {
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText },
+        configurable: true,
+      });
+    }
+
+    test('copyToClipboard writes the textarea value to the clipboard', async () => {
+      document.getElementById('json-textarea').value = '{"a":1}';
+      const writeText = vi.fn().mockResolvedValue();
+      stubClipboard(writeText);
+
+      await popup.importExport.copyToClipboard();
+
+      expect(writeText).toHaveBeenCalledWith('{"a":1}');
+    });
+
+    test('copyToClipboard falls back to execCommand when clipboard write fails', async () => {
+      stubClipboard(vi.fn().mockRejectedValue(new Error('denied')));
+      document.execCommand = vi.fn();
+
+      await popup.importExport.copyToClipboard();
+
+      expect(document.execCommand).toHaveBeenCalledWith('copy');
+    });
+
+    test('handleImportFile does nothing when no file is chosen', async () => {
+      await expect(
+        popup.importExport.handleImportFile({ target: { files: [] } })
+      ).resolves.toBeUndefined();
+    });
+
+    test('handleImportFile rejects a non-JSON file', async () => {
+      await popup.importExport.handleImportFile({ target: { files: [{ name: 'foo.txt' }] } });
+      expect(alert).toHaveBeenCalledWith('Please select a JSON file');
+    });
+
+    test('handleImportFile reads and imports a valid JSON file', async () => {
+      vi.spyOn(popup.importExport, 'readFileAsText').mockResolvedValue(
+        '[{"name":"H","value":"V"}]'
+      );
+      const importSpy = vi.spyOn(popup.importExport, 'importProfile').mockResolvedValue();
+      const event = { target: { files: [{ name: 'profiles.json' }], value: 'x' } };
+
+      await popup.importExport.handleImportFile(event);
+
+      expect(importSpy).toHaveBeenCalledWith([{ name: 'H', value: 'V' }]);
+      expect(event.target.value).toBe('');
     });
   });
 });

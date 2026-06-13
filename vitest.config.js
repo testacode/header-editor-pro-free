@@ -20,12 +20,13 @@ export default defineConfig({
       reportsDirectory: './coverage',
       thresholds: {
         // Vitest 4 uses AST-aware V8 remapping (more precise than v3).
-        // New measurements: stmts 67.96%, branches 63.69%, funcs 51.76%, lines 67.98%.
-        // Thresholds set to nearest multiple-of-5 at or below each new value.
-        statements: 65,
-        branches: 60,
-        functions: 50,
-        lines: 65,
+        // After plan 016 coverage uplift: stmts 77.97%, branches 68.78%,
+        // funcs 57.52%, lines 78.15%. Thresholds set to nearest multiple-of-5
+        // at or below each value, so a regression breaks CI.
+        statements: 75,
+        branches: 65,
+        functions: 55,
+        lines: 75,
       },
     },
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
