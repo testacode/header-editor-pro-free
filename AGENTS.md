@@ -8,7 +8,7 @@ Essential guidance for agentic coding agents working in this Chrome/Firefox exte
 - `npm run build` - Production build to `dist/`
 - `npm run package` - Create extension ZIP packages
 - `npm run clean` - Remove build artifacts
-- No tests currently configured - extension uses manual testing via browser developer mode
+- `npm test` - Vitest unit tests (jsdom). Also: `npm run test:watch`, `npm run test:coverage`. Tests live in `src/**/__tests__/`.
 
 ## Code Style & Standards
 

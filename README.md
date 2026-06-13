@@ -85,7 +85,7 @@
 - **Active indicator**: Green circle = active, red = inactive
 
 ### Header Controls
-- **Add headers**: Use "Add header" buttons for request/response sections
+- **Add headers**: Use "Add header" buttons in the request headers section
 - **Edit headers**: Type directly in name/value fields
 - **Enable/disable**: Use checkboxes next to each header
 - **Delete headers**: Click the "✕" button

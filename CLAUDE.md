@@ -18,7 +18,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 
 **Extension Features:**
 - **Profile Management**: Unlimited profiles with numbered circle UI and active/inactive indicators
-- **Header Modification**: Both request and response header support with individual enable/disable checkboxes
+- **Header Modification**: Request header support with individual enable/disable checkboxes (response headers not implemented)
 - **Professional UI**: Dark theme matching original ModHeader with left sidebar navigation
 - **Pause Functionality**: Global pause/resume without losing configurations
 - **Pin Functionality**: Toggle button to disable/enable auto-close on outside click
@@ -63,8 +63,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
   profiles: {
     'profile_id': {
       name: 'Profile Name',
-      requestHeaders: [{ name: 'header', value: 'value', enabled: true }],
-      responseHeaders: [{ name: 'header', value: 'value', enabled: true }]
+      requestHeaders: [{ name: 'header', value: 'value', enabled: true }]
     }
   },
   currentProfile: 'profile_id',
@@ -92,10 +91,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Testing:**
 - Vitest framework with jsdom environment (modern Jest alternative)
 - Custom Chrome API mocking for Manifest V3 compatibility
-- 48 comprehensive unit tests covering:
-  - Background service worker functionality (18 tests)
-  - Popup UI and logic (30 tests)
-- Test coverage reporting available via `npm run test:coverage`
+- Unit tests covering the background service worker (declarativeNetRequest rule building, pause/resume) and popup logic (profiles, headers CRUD, import/export). Run `npm test`; coverage via `npm run test:coverage`.
 - Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**

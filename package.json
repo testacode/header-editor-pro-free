@@ -6,7 +6,6 @@
     "node": ">=22.0.0"
   },
   "engineStrict": true,
-  "main": "src/popup/popup.js",
   "scripts": {
     "dev": "rspack build --mode development --watch",
     "build": "rspack build --mode production",
