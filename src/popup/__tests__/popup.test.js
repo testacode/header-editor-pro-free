@@ -6,7 +6,10 @@ import { HeaderEditorPopup } from '../popup.js';
 const popupHtml = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
 
 vi.stubGlobal('alert', vi.fn());
-vi.stubGlobal('confirm', vi.fn(() => true));
+vi.stubGlobal(
+  'confirm',
+  vi.fn(() => true)
+);
 
 // colorPickerState is set at the end of loadData() happy path — signals init finished.
 // In error path it is never set; use createPopupErrorPath() for those tests.
@@ -153,9 +156,7 @@ describe('HeaderEditorPopup', () => {
       expect(popup.profileCounter).toBe(initialCounter + 1);
       expect(popup.currentProfile).toMatch(/^profile_\d+$/);
       expect(popup.profiles[popup.currentProfile]).toBeDefined();
-      expect(popup.profiles[popup.currentProfile].name).toBe(
-        `Profile ${popup.profileCounter}`
-      );
+      expect(popup.profiles[popup.currentProfile].name).toBe(`Profile ${popup.profileCounter}`);
     });
 
     test('new profile has requestHeaders array', () => {
@@ -456,11 +457,288 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
+  // ─── migrateProfileFormat ────────────────────────────────────────────────────
+
+  describe('migrateProfileFormat', () => {
+    test('adds placeholder description to profile missing it', () => {
+      popup.profiles = { test: { name: 'Test' } };
+      popup.migrateProfileFormat();
+      expect(popup.profiles.test.description).toBe('');
+    });
+
+    test('default profile with no description gets placeholder', () => {
+      popup.profiles = { default: { name: 'Default' } };
+      popup.migrateProfileFormat();
+      expect(popup.profiles.default.description).toBe('Click to edit description');
+    });
+
+    test('default profile with empty string description gets placeholder', () => {
+      popup.profiles = { default: { name: 'Default', description: '' } };
+      popup.migrateProfileFormat();
+      expect(popup.profiles.default.description).toBe('Click to edit description');
+    });
+
+    test('existing non-empty description is preserved', () => {
+      popup.profiles = { test: { name: 'Test', description: 'My desc' } };
+      popup.migrateProfileFormat();
+      expect(popup.profiles.test.description).toBe('My desc');
+    });
+  });
+
+  // ─── updateToolbar / renderProfileCircles ────────────────────────────────────
+
+  describe('updateToolbar', () => {
+    test('sets profile name input value', () => {
+      popup.profiles[popup.currentProfile].name = 'My Profile';
+      popup.updateToolbar();
+      expect(document.getElementById('profile-name-input').value).toBe('My Profile');
+    });
+
+    test('pause button gets "paused" class when isPaused', () => {
+      popup.isPaused = true;
+      popup.updateToolbar();
+      expect(document.getElementById('pause-btn').classList.contains('paused')).toBe(true);
+    });
+
+    test('pause button does not have "paused" class when not paused', () => {
+      popup.isPaused = false;
+      popup.updateToolbar();
+      expect(document.getElementById('pause-btn').classList.contains('paused')).toBe(false);
+    });
+
+    test('pin button gets "pinned" class when isPinned', () => {
+      popup.isPinned = true;
+      popup.updateToolbar();
+      expect(document.getElementById('pin-btn').classList.contains('pinned')).toBe(true);
+    });
+  });
+
+  describe('renderProfileCircles', () => {
+    test('creates a circle element per profile', () => {
+      popup.profiles.extra = {
+        name: 'Extra',
+        requestHeaders: [],
+        backgroundColor: '#ff0000',
+        textColor: '#ffffff',
+      };
+      popup.renderProfileCircles();
+      const circles = document.querySelectorAll('.profile-circle');
+      expect(circles.length).toBe(2); // default + extra
+    });
+
+    test('active profile circle has "active" class', () => {
+      popup.renderProfileCircles();
+      const circles = document.querySelectorAll('.profile-circle');
+      const activeCircle = [...circles].find(c => c.classList.contains('active'));
+      expect(activeCircle).toBeDefined();
+    });
+  });
+
+  // ─── updateProfileName / updateProfileDescription ─────────────────────────────
+
+  describe('updateProfileName', () => {
+    test('updates profile name and saves', async () => {
+      chrome.storage.local.set.mockClear();
+      await popup.updateProfileName('New Name');
+      expect(popup.profiles[popup.currentProfile].name).toBe('New Name');
+      expect(chrome.storage.local.set).toHaveBeenCalled();
+    });
+
+    test('empty/whitespace name restores toolbar (no save)', async () => {
+      chrome.storage.local.set.mockClear();
+      const originalName = popup.profiles[popup.currentProfile].name;
+      await popup.updateProfileName('   ');
+      expect(popup.profiles[popup.currentProfile].name).toBe(originalName);
+      expect(chrome.storage.local.set).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateProfileDescription', () => {
+    test('updates profile description and saves', async () => {
+      chrome.storage.local.set.mockClear();
+      await popup.updateProfileDescription('my desc');
+      expect(popup.profiles[popup.currentProfile].description).toBe('my desc');
+      expect(chrome.storage.local.set).toHaveBeenCalled();
+    });
+
+    test('empty description hides the description div', async () => {
+      await popup.updateProfileDescription('');
+      expect(document.getElementById('profile-description').style.display).toBe('none');
+    });
+  });
+
+  // ─── Modal methods ────────────────────────────────────────────────────────────
+
+  describe('showImportModal', () => {
+    test('sets modal-title to "Import Configuration"', () => {
+      popup.showImportModal();
+      expect(document.getElementById('modal-title').textContent).toBe('Import Configuration');
+    });
+
+    test('shows modal-overlay', () => {
+      popup.showImportModal();
+      expect(document.getElementById('modal-overlay').style.display).toBe('flex');
+    });
+  });
+
+  describe('showExportModal', () => {
+    test('sets modal-title to "Export Configuration"', () => {
+      popup.showExportModal();
+      expect(document.getElementById('modal-title').textContent).toBe('Export Configuration');
+    });
+
+    test('shows modal-overlay', () => {
+      popup.showExportModal();
+      expect(document.getElementById('modal-overlay').style.display).toBe('flex');
+    });
+
+    test('modal-action button is hidden, modal-copy is shown', () => {
+      popup.showExportModal();
+      expect(document.getElementById('modal-action').style.display).toBe('none');
+      expect(document.getElementById('modal-copy').style.display).toBe('block');
+    });
+  });
+
+  describe('closeModal', () => {
+    test('hides the modal-overlay', () => {
+      document.getElementById('modal-overlay').style.display = 'flex';
+      popup.closeModal();
+      expect(document.getElementById('modal-overlay').style.display).toBe('none');
+    });
+  });
+
+  describe('validateJSON', () => {
+    beforeEach(() => {
+      popup.currentModalMode = 'import';
+    });
+
+    test('empty textarea clears message and disables action button', () => {
+      document.getElementById('json-textarea').value = '';
+      popup.validateJSON();
+      expect(document.getElementById('validation-message').textContent).toBe('');
+      expect(document.getElementById('modal-action').disabled).toBe(true);
+    });
+
+    test('valid JSON array shows success and enables button', () => {
+      document.getElementById('json-textarea').value = JSON.stringify([
+        { name: 'X-Foo', value: 'bar' },
+      ]);
+      popup.validateJSON();
+      expect(document.getElementById('validation-message').innerHTML).toContain('✓');
+      expect(document.getElementById('modal-action').disabled).toBe(false);
+    });
+
+    test('invalid JSON shows error', () => {
+      document.getElementById('json-textarea').value = 'not json';
+      popup.validateJSON();
+      expect(document.getElementById('validation-message').innerHTML).toContain('✗');
+      expect(document.getElementById('modal-action').disabled).toBe(true);
+    });
+
+    test('JSON object (not array) in import mode shows error', () => {
+      document.getElementById('json-textarea').value = JSON.stringify({ key: 'val' });
+      popup.validateJSON();
+      expect(document.getElementById('validation-message').innerHTML).toContain('✗');
+    });
+  });
+
+  // ─── toggleDropdown / closeDropdown ──────────────────────────────────────────
+
+  describe('toggleDropdown', () => {
+    test('toggles dropdown visibility from none to block', () => {
+      document.getElementById('profile-dropdown').style.display = 'none';
+      popup.toggleDropdown();
+      expect(document.getElementById('profile-dropdown').style.display).toBe('block');
+    });
+
+    test('toggles dropdown from block to none', () => {
+      document.getElementById('profile-dropdown').style.display = 'block';
+      popup.toggleDropdown();
+      expect(document.getElementById('profile-dropdown').style.display).toBe('none');
+    });
+  });
+
+  describe('closeDropdown', () => {
+    test('hides dropdown', () => {
+      document.getElementById('profile-dropdown').style.display = 'block';
+      popup.closeDropdown();
+      expect(document.getElementById('profile-dropdown').style.display).toBe('none');
+    });
+  });
+
+  // ─── reorderHeaders ───────────────────────────────────────────────────────────
+
+  describe('reorderHeaders', () => {
+    test('moves header from one index to another', async () => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'H1', value: 'v1', enabled: true },
+        { name: 'H2', value: 'v2', enabled: true },
+        { name: 'H3', value: 'v3', enabled: true },
+      ];
+      await popup.reorderHeaders('request', 0, 2);
+      const headers = popup.profiles[popup.currentProfile].requestHeaders;
+      expect(headers[0].name).toBe('H2');
+      expect(headers[1].name).toBe('H3');
+      expect(headers[2].name).toBe('H1');
+    });
+  });
+
+  // ─── showUpdateTooltip / showWelcomeTooltip ───────────────────────────────────
+
+  describe('showUpdateTooltip', () => {
+    test('appends a tooltip element to body', () => {
+      popup.showUpdateTooltip({ previousVersion: '1.0', currentVersion: '2.0' });
+      expect(document.querySelector('.update-notification')).toBeDefined();
+    });
+  });
+
+  describe('showWelcomeTooltip', () => {
+    test('appends a welcome notification to body', () => {
+      popup.showWelcomeTooltip({ version: '2.0' });
+      expect(document.querySelector('.welcome-notification')).toBeDefined();
+    });
+  });
+
+  // ─── Color picker methods ─────────────────────────────────────────────────────
+
+  describe('showColorPicker', () => {
+    test('shows color-picker-overlay', () => {
+      popup.showColorPicker();
+      expect(document.getElementById('color-picker-overlay').style.display).toBe('flex');
+    });
+  });
+
+  describe('closeColorPicker', () => {
+    test('hides color-picker-overlay', () => {
+      document.getElementById('color-picker-overlay').style.display = 'flex';
+      popup.closeColorPicker();
+      expect(document.getElementById('color-picker-overlay').style.display).toBe('none');
+    });
+  });
+
+  describe('saveProfileColor', () => {
+    test('saves color picker temp values to profile and persists', () => {
+      popup.colorPickerState.tempBackgroundColor = '#123456';
+      popup.colorPickerState.tempTextColor = '#abcdef';
+      chrome.storage.local.set.mockClear();
+
+      popup.saveProfileColor();
+
+      expect(popup.profiles[popup.currentProfile].backgroundColor).toBe('#123456');
+      expect(popup.profiles[popup.currentProfile].textColor).toBe('#abcdef');
+      expect(chrome.storage.local.set).toHaveBeenCalled();
+    });
+  });
+
   // ─── checkForUpdateNotification ──────────────────────────────────────────────
 
   describe('checkForUpdateNotification', () => {
     test('shows update tooltip when updateNotification.shown is false', async () => {
-      const updateNotification = { previousVersion: '2.0.0', currentVersion: '2.1.0', shown: false };
+      const updateNotification = {
+        previousVersion: '2.0.0',
+        currentVersion: '2.1.0',
+        shown: false,
+      };
       chrome.storage.local.get.mockResolvedValue({ updateNotification });
       const spy = vi.spyOn(popup, 'showUpdateTooltip').mockImplementation(() => {});
 
