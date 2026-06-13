@@ -82,6 +82,7 @@
 - **Create new profile**: Click the "+" circle at bottom of sidebar
 - **Switch profiles**: Click any numbered circle
 - **Delete profile**: Right-click on a profile circle (except default)
+- **Import/Export profiles**: Use the import/export buttons in the toolbar to share configurations as JSON; importing a JSON file exported from ModHeader creates one profile per ModHeader profile (note: response headers and URL filters are not supported and will not be imported)
 - **Active indicator**: Green circle = active, red = inactive
 
 ### Header Controls

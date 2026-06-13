@@ -1052,9 +1052,51 @@ export class HeaderEditorPopup {
     alert(`Successfully imported to profile "${this.profiles[this.currentProfile].name}"`);
   }
 
+  isModHeaderProfileExport(data) {
+    return (
+      Array.isArray(data) &&
+      data.length > 0 &&
+      data.every(item => item && typeof item === 'object' && Array.isArray(item.headers))
+    );
+  }
+
+  async importModHeaderProfiles(modHeaderData) {
+    let firstImportedKey = null;
+    let skippedFeatures = 0;
+    modHeaderData.forEach((mhProfile, index) => {
+      this.profileCounter++;
+      const newKey = `profile_${Date.now()}_mh_${index}`;
+      if (firstImportedKey === null) {
+        firstImportedKey = newKey;
+      }
+      if ((mhProfile.respHeaders || []).length > 0 || (mhProfile.filters || []).length > 0) {
+        skippedFeatures++;
+      }
+      this.profiles[newKey] = {
+        name: mhProfile.title || `Imported Profile ${this.profileCounter}`,
+        description: 'Imported from ModHeader - click to edit',
+        requestHeaders: this.extractHeadersFromArray(mhProfile.headers),
+      };
+    });
+    if (firstImportedKey) {
+      this.currentProfile = firstImportedKey;
+    }
+    await this.saveData();
+    this.renderUI();
+    return { imported: modHeaderData.length, skippedFeatures };
+  }
+
   async importProfileFromData(importData) {
-    if (Array.isArray(importData)) {
-      // ModHeader format - single profile from headers array
+    if (this.isModHeaderProfileExport(importData)) {
+      // ModHeader profile export format: array of profile objects with headers[]
+      const result = await this.importModHeaderProfiles(importData);
+      if (result.skippedFeatures > 0) {
+        alert(
+          `Note: ${result.skippedFeatures} profile(s) contained response headers or URL filters, which are not supported and were not imported.`
+        );
+      }
+    } else if (Array.isArray(importData)) {
+      // Plain headers array format
       await this.createProfileFromHeaders(importData);
     } else if (importData.profiles) {
       // Full export format - multiple profiles

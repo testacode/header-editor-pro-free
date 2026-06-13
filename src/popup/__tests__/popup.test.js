@@ -778,6 +778,141 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
+  describe('ModHeader profile import (plan 008)', () => {
+    const modHeaderFixture = [
+      {
+        title: 'Dev Profile',
+        shortTitle: 'D',
+        headers: [
+          { enabled: true, name: 'X-Api-Key', value: 'abc', comment: '' },
+          { enabled: false, name: 'X-Debug', value: '1', comment: '' },
+        ],
+        respHeaders: [],
+        filters: [],
+        appendMode: false,
+        backgroundColor: '#da7b76',
+        textColor: '#ffffff',
+      },
+      {
+        title: 'Staging Profile',
+        shortTitle: 'S',
+        headers: [{ enabled: true, name: 'X-Env', value: 'staging', comment: '' }],
+        respHeaders: [],
+        filters: [],
+        appendMode: false,
+      },
+    ];
+
+    test('isModHeaderProfileExport: true for fixture', () => {
+      expect(popup.isModHeaderProfileExport(modHeaderFixture)).toBe(true);
+    });
+
+    test('isModHeaderProfileExport: false for empty array', () => {
+      expect(popup.isModHeaderProfileExport([])).toBe(false);
+    });
+
+    test('isModHeaderProfileExport: false for plain headers array', () => {
+      expect(popup.isModHeaderProfileExport([{ name: 'X-Test', value: 'v' }])).toBe(false);
+    });
+
+    test('isModHeaderProfileExport: false for profiles object', () => {
+      expect(popup.isModHeaderProfileExport({ profiles: {} })).toBe(false);
+    });
+
+    test('isModHeaderProfileExport: false for null', () => {
+      expect(popup.isModHeaderProfileExport(null)).toBe(false);
+    });
+
+    test('imports 2 ModHeader profiles, names from title, currentProfile = first', async () => {
+      const profilesBefore = Object.keys(popup.profiles);
+      await popup.importProfileFromData(modHeaderFixture);
+
+      const allKeys = Object.keys(popup.profiles);
+      const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
+      expect(importedKeys).toHaveLength(2);
+
+      const first = popup.profiles[importedKeys[0]];
+      const second = popup.profiles[importedKeys[1]];
+      expect(first.name).toBe('Dev Profile');
+      expect(second.name).toBe('Staging Profile');
+      expect(popup.currentProfile).toBe(importedKeys[0]);
+    });
+
+    test('headers are normalized correctly (enabled:false preserved)', async () => {
+      const profilesBefore = Object.keys(popup.profiles);
+      await popup.importProfileFromData(modHeaderFixture);
+
+      const allKeys = Object.keys(popup.profiles);
+      const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
+      const first = popup.profiles[importedKeys[0]];
+
+      expect(first.requestHeaders).toEqual([
+        { name: 'X-Api-Key', value: 'abc', enabled: true },
+        { name: 'X-Debug', value: '1', enabled: false },
+      ]);
+    });
+
+    test('respHeaders non-empty triggers alert with skippedFeatures count', async () => {
+      const withRespHeaders = [
+        {
+          title: 'Has Resp',
+          headers: [{ enabled: true, name: 'X-Req', value: 'v' }],
+          respHeaders: [{ enabled: true, name: 'X-Resp', value: 'r' }],
+          filters: [],
+        },
+      ];
+      const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+      await popup.importProfileFromData(withRespHeaders);
+
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('1 profile(s)'));
+      alertSpy.mockRestore();
+    });
+
+    test('respHeaders are not persisted in imported profile', async () => {
+      const withRespHeaders = [
+        {
+          title: 'Has Resp',
+          headers: [{ enabled: true, name: 'X-Req', value: 'v' }],
+          respHeaders: [{ enabled: true, name: 'X-Resp', value: 'r' }],
+          filters: [],
+        },
+      ];
+      vi.spyOn(window, 'alert').mockImplementation(() => {});
+      const profilesBefore = Object.keys(popup.profiles);
+      await popup.importProfileFromData(withRespHeaders);
+
+      const allKeys = Object.keys(popup.profiles);
+      const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
+      const imported = popup.profiles[importedKeys[0]];
+
+      expect(imported.requestHeaders).toHaveLength(1);
+      expect(imported.requestHeaders[0].name).toBe('X-Req');
+      expect(imported.responseHeaders).toBeUndefined();
+    });
+
+    test('profile without title uses fallback name', async () => {
+      const noTitle = [{ headers: [{ enabled: true, name: 'X-A', value: '1' }] }];
+      const profilesBefore = Object.keys(popup.profiles);
+      await popup.importProfileFromData(noTitle);
+
+      const allKeys = Object.keys(popup.profiles);
+      const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
+      const imported = popup.profiles[importedKeys[0]];
+      expect(imported.name).toMatch(/^Imported Profile \d+$/);
+    });
+
+    test('plain headers array still routes to createProfileFromHeaders (no regression)', async () => {
+      const plainHeaders = [{ name: 'X-Legacy', value: 'val', enabled: true }];
+      const profilesBefore = Object.keys(popup.profiles).length;
+      await popup.importProfileFromData(plainHeaders);
+      expect(Object.keys(popup.profiles).length).toBe(profilesBefore + 1);
+      // plain import uses createProfileFromHeaders (no ModHeader description)
+      expect(popup.profiles[popup.currentProfile].description).toBe(
+        'Imported from JSON - click to edit'
+      );
+    });
+  });
+
   describe('setValidationMessage (plan 006 — no innerHTML injection)', () => {
     test('HTML in error message is rendered as literal text, not as markup', () => {
       const malicious = '<img src=x onerror=alert(1)>';
