@@ -17,7 +17,7 @@
 
 🔥 **100% FREE** - No subscriptions, no premium features, no limitations  
 🎯 **Unlimited Profiles** - Create as many header configurations as you need  
-⚡ **Real-time Header Modification** - Instant application via Chrome's declarativeNetRequest API  
+⚡ **Real-time Request Header Modification** - Instant application of request headers via Chrome's declarativeNetRequest API (response headers not supported)  
 🎨 **Professional Dark UI** - Clean, modern interface designed for developers  
 ☑️ **Individual Header Controls** - Enable/disable each header independently  
 ⏸️ **Pause Functionality** - Temporarily disable without losing configurations  
@@ -25,7 +25,7 @@
 
 ## 🎯 Perfect For
 
-- **Web Developers** - Testing API responses and CORS configurations
+- **Web Developers** - Adding request headers for API testing and auth flows
 - **QA Testers** - Simulating different environments and conditions  
 - **API Testing** - Adding authentication headers and custom parameters
 - **Debugging** - Troubleshooting header-related issues
