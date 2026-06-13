@@ -119,11 +119,9 @@ Object.defineProperty(global, 'navigator', {
 // Mock window.close for popup tests
 global.window.close = vi.fn();
 
-// Mock URL and Blob for file operations
-global.URL = {
-  createObjectURL: vi.fn().mockReturnValue('blob:mock-url'),
-  revokeObjectURL: vi.fn(),
-};
+// Mock URL static methods for file operations (preserve URL constructor — Vitest 4 requires it)
+global.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-url');
+global.URL.revokeObjectURL = vi.fn();
 
 global.Blob = vi.fn().mockImplementation((content, options) => ({
   size: content.reduce((acc, item) => acc + item.length, 0),
