@@ -27,8 +27,8 @@ export class UpdateNotificationsManager {
           welcomeNotification: { ...result.welcomeNotification, shown: true },
         });
       }
-    } catch (_error) {
-      // Silently handle errors
+    } catch (error) {
+      console.error('Update notification check failed:', error);
     }
   }
 

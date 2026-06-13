@@ -72,7 +72,8 @@ export class HeaderEditorPopup {
         saturation: 1,
         lightness: 0.5,
       };
-    } catch (_error) {
+    } catch (error) {
+      console.error('Failed to load data from storage, using defaults:', error);
       this.profiles = {
         default: {
           name: 'Default',

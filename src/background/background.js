@@ -248,7 +248,8 @@ export class HeaderEditorBackground {
           await this.delay(50);
         }
       }
-    } catch (_error) {
+    } catch (error) {
+      console.error('clearAllRules primary path failed, falling back to tracked rules:', error);
       // Fallback: try to remove tracked rules
       try {
         if (this.activeRules.size > 0) {
