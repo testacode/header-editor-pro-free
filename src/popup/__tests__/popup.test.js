@@ -182,9 +182,25 @@ describe('HeaderEditorPopup', () => {
       expect(chrome.storage.local.set).toHaveBeenCalled();
     });
 
-    // BUG: real switchProfile has no guard — it sets currentProfile to the key then
-    // renderUI() crashes because profiles[key] is undefined. Documented as bug for plan 006.
-    test.todo('switching to non-existent profile does nothing (BUG: real code crashes, no guard)');
+    test('switching to non-existent profile does nothing', async () => {
+      const original = popup.currentProfile;
+      chrome.storage.local.set.mockClear();
+
+      await expect(popup.switchProfile('nope')).resolves.not.toThrow();
+
+      expect(popup.currentProfile).toBe(original);
+      expect(chrome.storage.local.set).not.toHaveBeenCalled();
+    });
+
+    test('switching to existing profile updates currentProfile and saves', async () => {
+      popup.profiles.sanity = { name: 'Sanity', requestHeaders: [] };
+      chrome.storage.local.set.mockClear();
+
+      await popup.switchProfile('sanity');
+
+      expect(popup.currentProfile).toBe('sanity');
+      expect(chrome.storage.local.set).toHaveBeenCalled();
+    });
   });
 
   describe('deleteCurrentProfile (deleteCurrentProfile method)', () => {

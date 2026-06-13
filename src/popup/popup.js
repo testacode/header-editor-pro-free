@@ -482,6 +482,9 @@ export class HeaderEditorPopup {
   }
 
   async switchProfile(profileKey) {
+    if (!this.profiles[profileKey]) {
+      return;
+    }
     this.currentProfile = profileKey;
     await this.saveData();
     this.renderUI();
