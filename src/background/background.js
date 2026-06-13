@@ -1,4 +1,4 @@
-class HeaderEditorBackground {
+export class HeaderEditorBackground {
   constructor() {
     this.currentRuleId = 1;
     this.activeRules = new Set();
