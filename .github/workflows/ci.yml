@@ -45,9 +45,7 @@ jobs:
       with:
         files: ./coverage/lcov.info
         fail_ci_if_error: false
-        # Public repo: tokenless upload works via OIDC. For higher reliability,
-        # add a CODECOV_TOKEN repo secret and uncomment the next line.
-        # token: ${{ secrets.CODECOV_TOKEN }}
+        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Build extension
       run: npm run build
