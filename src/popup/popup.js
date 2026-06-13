@@ -1,6 +1,9 @@
 // Import CSS
 import './popup.css';
 
+import { hexToHsl, hslToHex } from './color-utils.js';
+import { normalizeHeader } from './header-normalize.js';
+
 export class HeaderEditorPopup {
   constructor() {
     this.currentProfile = 'default';
@@ -83,11 +86,7 @@ export class HeaderEditorPopup {
     Object.values(this.profiles).forEach(profile => {
       ['requestHeaders'].forEach(headerType => {
         if (profile[headerType]) {
-          profile[headerType] = profile[headerType].map(header => ({
-            name: header.name || '',
-            value: header.value || '',
-            enabled: header.enabled !== undefined ? header.enabled : true,
-          }));
+          profile[headerType] = profile[headerType].map(normalizeHeader);
         }
       });
     });
@@ -974,17 +973,9 @@ export class HeaderEditorPopup {
   }
 
   extractHeadersFromArray(importData) {
-    const headers = [];
-    importData.forEach(header => {
-      if (header.name && typeof header.name === 'string') {
-        headers.push({
-          name: header.name,
-          value: header.value || '',
-          enabled: header.enabled !== false,
-        });
-      }
-    });
-    return headers;
+    return importData
+      .filter(header => header.name && typeof header.name === 'string')
+      .map(normalizeHeader);
   }
 
   async copyToClipboard() {
@@ -1258,7 +1249,7 @@ export class HeaderEditorPopup {
   }
 
   updateGradientBackground(color, preserveHue = false) {
-    const hslColor = this.hexToHsl(color);
+    const hslColor = hexToHsl(color);
 
     // Only update hue if not preserving it (e.g., when saturation > 0.1)
     if (!preserveHue && hslColor.s > 0.1) {
@@ -1276,7 +1267,7 @@ export class HeaderEditorPopup {
   }
 
   updateColorSelector(color, smooth = true) {
-    const hslColor = this.hexToHsl(color);
+    const hslColor = hexToHsl(color);
     const selector = document.getElementById('color-selector');
 
     // Position the selector based on current color
@@ -1347,7 +1338,7 @@ export class HeaderEditorPopup {
 
       // Preserve the current hue when saturation is 0 (white/grey area)
       // Don't let hexToHsl change the hue when color becomes achromatic
-      const color = this.hslToHex(this.colorPickerState.hue, saturation, lightness);
+      const color = hslToHex(this.colorPickerState.hue, saturation, lightness);
 
       if (this.colorPickerState.currentTab === 'background') {
         this.colorPickerState.tempBackgroundColor = color;
@@ -1408,7 +1399,7 @@ export class HeaderEditorPopup {
       const lightness = this.colorPickerState.lightness;
 
       // Generate new color with updated hue
-      const newColor = this.hslToHex(this.colorPickerState.hue, saturation, lightness);
+      const newColor = hslToHex(this.colorPickerState.hue, saturation, lightness);
 
       // Update the appropriate color value
       if (this.colorPickerState.currentTab === 'background') {
@@ -1434,7 +1425,7 @@ export class HeaderEditorPopup {
         }
 
         // Update HSL values and selector position
-        const hslColor = this.hexToHsl(color);
+        const hslColor = hexToHsl(color);
         this.colorPickerState.hue = hslColor.h;
         this.colorPickerState.saturation = hslColor.s;
         this.colorPickerState.lightness = hslColor.l;
@@ -1454,51 +1445,9 @@ export class HeaderEditorPopup {
     this.closeColorPicker();
   }
 
-  // Color utility functions
-  hexToHsl(hex) {
-    const r = parseInt(hex.slice(1, 3), 16) / 255;
-    const g = parseInt(hex.slice(3, 5), 16) / 255;
-    const b = parseInt(hex.slice(5, 7), 16) / 255;
-
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h, s;
-    const l = (max + min) / 2;
-
-    if (max === min) {
-      h = s = 0;
-    } else {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-        case r:
-          h = (g - b) / d + (g < b ? 6 : 0);
-          break;
-        case g:
-          h = (b - r) / d + 2;
-          break;
-        case b:
-          h = (r - g) / d + 4;
-          break;
-      }
-      h /= 6;
-    }
-
-    return { h: Math.round(h * 360), s, l };
-  }
-
-  hslToHex(h, s, l) {
-    h /= 360;
-    const a = s * Math.min(l, 1 - l);
-    const f = n => {
-      const k = (n + h / (1 / 12)) % 12;
-      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return Math.round(255 * color)
-        .toString(16)
-        .padStart(2, '0');
-    };
-    return `#${f(0)}${f(8)}${f(4)}`;
-  }
+  // Wrappers kept for tests that call these through the class instance.
+  hexToHsl(hex) { return hexToHsl(hex); }
+  hslToHex(h, s, l) { return hslToHex(h, s, l); }
 
   async checkForUpdateNotification() {
     try {
