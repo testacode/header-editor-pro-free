@@ -1,3 +1,5 @@
+import { isHeaderEnabled } from '../popup/header-normalize.js';
+
 export class HeaderEditorBackground {
   constructor() {
     this.currentRuleId = 1;
@@ -126,7 +128,7 @@ export class HeaderEditorBackground {
 
     // Process request headers - only enabled ones
     if (currentProfile.requestHeaders && currentProfile.requestHeaders.length > 0) {
-      const enabledRequestHeaders = currentProfile.requestHeaders.filter(h => h.enabled !== false);
+      const enabledRequestHeaders = currentProfile.requestHeaders.filter(isHeaderEnabled);
       if (enabledRequestHeaders.length > 0) {
         const requestHeaderRule = this.createRequestHeaderRule(enabledRequestHeaders);
         if (requestHeaderRule) {

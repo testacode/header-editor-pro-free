@@ -14,6 +14,18 @@ export function normalizeHeader(header) {
   return {
     name: header.name ?? '',
     value: header.value || '',
-    enabled: header.enabled !== false,
+    enabled: isHeaderEnabled(header),
   };
+}
+
+/**
+ * A header is enabled unless `enabled` is explicitly false (missing = enabled).
+ * Single source of truth for the enabled predicate used across popup,
+ * background and import/export.
+ *
+ * @param {{ enabled?: boolean }} header
+ * @returns {boolean}
+ */
+export function isHeaderEnabled(header) {
+  return header.enabled !== false;
 }

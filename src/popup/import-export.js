@@ -1,4 +1,4 @@
-import { normalizeHeader } from './header-normalize.js';
+import { normalizeHeader, isHeaderEnabled } from './header-normalize.js';
 
 export class ImportExportManager {
   constructor(popup) {
@@ -422,7 +422,7 @@ export class ImportExportManager {
         if (header.name && header.name.trim()) {
           headers.push({
             appendMode: false,
-            enabled: header.enabled !== false,
+            enabled: isHeaderEnabled(header),
             name: header.name,
             value: header.value || '',
           });

@@ -2,7 +2,7 @@
 import './popup.css';
 
 import { hexToHsl, hslToHex } from './color-utils.js';
-import { normalizeHeader } from './header-normalize.js';
+import { normalizeHeader, isHeaderEnabled } from './header-normalize.js';
 import { ImportExportManager } from './import-export.js';
 import { UpdateNotificationsManager } from './update-notifications.js';
 import { ColorPickerManager } from './color-picker.js';
@@ -382,7 +382,7 @@ export class HeaderEditorPopup {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.className = 'header-checkbox';
-    checkbox.checked = header.enabled !== false;
+    checkbox.checked = isHeaderEnabled(header);
     checkbox.addEventListener('change', e => {
       this.updateHeader(type, index, 'enabled', e.target.checked);
     });
