@@ -5,6 +5,15 @@ on:
     tags:
       - 'v*'  # Triggers on version tags like v1.0.0, v1.1.0, etc.
   workflow_dispatch:  # Allows manual trigger from GitHub UI
+    inputs:
+      publish_firefox:
+        description: 'Publish to Firefox AMO after building'
+        type: choice
+        default: 'skip'
+        options:
+          - skip      # build + GitHub Release only (no store upload)
+          - dry-run   # validate credentials and ZIPs without publishing
+          - publish   # upload to AMO (goes straight to production)
 
 jobs:
   build-and-release:
@@ -53,7 +62,7 @@ jobs:
       id: get_version
       run: |
         VERSION=$(cat src/manifest.json | grep '"version"' | cut -d'"' -f4)
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
         echo "Extension version: $VERSION"
         
     - name: Create Release with GitHub CLI
@@ -97,8 +106,27 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-    - name: Upload to Chrome Web Store (Optional)
-      if: false  # Set to true when you want to auto-publish to Chrome Web Store
+    # Firefox AMO auto-publish. Only runs on manual workflow_dispatch with
+    # publish_firefox != skip, so a tag push never ships to production.
+    # Chrome Web Store stays manual (dashboard upload) by design.
+    - name: Publish to Firefox AMO
+      if: github.event_name == 'workflow_dispatch' && inputs.publish_firefox != 'skip'
+      env:
+        FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+        FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+        FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+        VERSION: ${{ steps.get_version.outputs.version }}
+        PUBLISH_MODE: ${{ inputs.publish_firefox }}
       run: |
-        echo "Auto-upload to Chrome Web Store can be configured here"
-        echo "You would need to add Chrome Web Store API credentials"
+        EXTRA_ARGS=()
+        if [ "$PUBLISH_MODE" = "dry-run" ]; then
+          EXTRA_ARGS+=(--dry-run)
+          echo "Running in DRY-RUN mode: validating creds + ZIPs, not publishing."
+        fi
+        npx publish-browser-extension@4.0.5 \
+          --firefox-zip "header-editor-pro-free-extension-v${VERSION}.zip" \
+          --firefox-sources-zip "header-editor-pro-free-source-v${VERSION}.zip" \
+          --firefox-extension-id "$FIREFOX_EXTENSION_ID" \
+          --firefox-jwt-issuer "$FIREFOX_JWT_ISSUER" \
+          --firefox-jwt-secret "$FIREFOX_JWT_SECRET" \
+          "${EXTRA_ARGS[@]}"

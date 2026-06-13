@@ -49,7 +49,7 @@
 3. Click "Add Extension" in the popup
 
 ### Firefox Add-ons (Recommended)
-1. Visit [Firefox Add-ons](#) (link coming soon)
+1. Visit [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/header-editor-pro-free/)
 2. Click "Add to Firefox"
 3. Click "Add" in the confirmation popup
 
@@ -199,7 +199,7 @@ Both methods trigger **GitHub Actions** to automatically build the extension ZIP
 ### Download Options
 - **GitHub Releases**: Get the latest versioned ZIP files directly
 - **Chrome Web Store**: [Install from Chrome Web Store](https://chromewebstore.google.com/detail/cpdkigffbilaglfmddclhgfflimpaeim)
-- **Firefox Add-ons**: Coming soon - official AMO listing
+- **Firefox Add-ons**: [Install from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/header-editor-pro-free/)
 
 ### Package Files
 When you download from GitHub releases, you'll get:
