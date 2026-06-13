@@ -1,7 +1,7 @@
 // Import CSS
 import './popup.css';
 
-class HeaderEditorPopup {
+export class HeaderEditorPopup {
   constructor() {
     this.currentProfile = 'default';
     this.profiles = {};
