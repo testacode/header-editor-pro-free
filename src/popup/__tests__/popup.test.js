@@ -1,778 +1,499 @@
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
+import { HeaderEditorPopup } from '../popup.js';
 
-// Mock console.log to suppress output during tests
-const originalLog = console.log;
-console.log = vi.fn();
+const popupHtml = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
+
+vi.stubGlobal('alert', vi.fn());
+vi.stubGlobal('confirm', vi.fn(() => true));
+
+// colorPickerState is set at the end of loadData() happy path — signals init finished.
+// In error path it is never set; use createPopupErrorPath() for those tests.
+async function createPopup() {
+  const popup = new HeaderEditorPopup();
+  await vi.waitFor(() => expect(popup.colorPickerState).toBeDefined());
+  return popup;
+}
+
+// For tests where loadData throws: wait for profiles to be set in catch block instead.
+async function createPopupErrorPath() {
+  const popup = new HeaderEditorPopup();
+  await vi.waitFor(() => expect(popup.profiles).not.toEqual({}));
+  return popup;
+}
 
 describe('HeaderEditorPopup', () => {
-  let HeaderEditorPopup;
   let popup;
 
-  beforeEach(() => {
-    vi.resetModules();
-
-    // Create a mock version of the HeaderEditorPopup class
-    HeaderEditorPopup = class {
-      constructor() {
-        this.currentProfile = 'default';
-        this.profiles = {};
-        this.isEnabled = true;
-        this.isPaused = false;
-        this.isPinned = false;
-        this.colorPickerInteractionsSetup = false;
-        this.infoLinksSetup = false;
-        this.profileCounter = 1;
-      }
-
-      async loadData() {
-        try {
-          const result = await chrome.storage.local.get(['headerEditorData']);
-          const data = result.headerEditorData || {
-            profiles: {
-              default: {
-                name: 'Default',
-                description: 'Click to edit description',
-                requestHeaders: [],
-                backgroundColor: '#4caf50',
-                textColor: '#ffffff',
-              },
-            },
-            currentProfile: 'default',
-            enabled: true,
-            paused: false,
-            pinned: false,
-            profileCounter: 1,
-          };
-
-          this.profiles = data.profiles;
-          this.currentProfile = data.currentProfile;
-          this.isEnabled = data.enabled;
-          this.isPaused = data.paused || false;
-          this.isPinned = data.pinned || false;
-          this.profileCounter = data.profileCounter || 1;
-
-          this.migrateHeaderFormat();
-          this.migrateProfileFormat();
-
-          this.colorPickerState = {
-            currentTab: 'background',
-            tempBackgroundColor: '#4caf50',
-            tempTextColor: '#ffffff',
-            hue: 180,
-            saturation: 1,
-            lightness: 0.5,
-          };
-        } catch (_error) {
-          this.profiles = {
-            default: {
-              name: 'Default',
-              description: 'Click to edit description',
-              requestHeaders: [],
-            },
-          };
-          this.currentProfile = 'default';
-          this.isEnabled = true;
-          this.isPaused = false;
-          this.isPinned = false;
-          this.profileCounter = 1;
-        }
-      }
-
-      migrateHeaderFormat() {
-        Object.values(this.profiles).forEach(profile => {
-          ['requestHeaders'].forEach(headerType => {
-            if (profile[headerType]) {
-              profile[headerType] = profile[headerType].map(header => ({
-                name: header.name || '',
-                value: header.value || '',
-                enabled: header.enabled !== undefined ? header.enabled : true,
-              }));
-            }
-          });
-        });
-      }
-
-      migrateProfileFormat() {
-        Object.entries(this.profiles).forEach(([key, profile]) => {
-          if (profile.description === undefined) {
-            profile.description = key === 'default' ? 'Click to edit description' : '';
-          } else if (key === 'default' && profile.description === '') {
-            profile.description = 'Click to edit description';
-          }
-        });
-      }
-
-      async checkForUpdateNotification() {
-        try {
-          const result = await chrome.storage.local.get([
-            'updateNotification',
-            'welcomeNotification',
-          ]);
-
-          if (result.updateNotification && !result.updateNotification.shown) {
-            this.showUpdateTooltip(result.updateNotification);
-
-            chrome.storage.local.set({
-              updateNotification: { ...result.updateNotification, shown: true },
-            });
-
-            chrome.runtime.sendMessage({ action: 'clearUpdateBadge' });
-          } else if (result.welcomeNotification && !result.welcomeNotification.shown) {
-            this.showWelcomeTooltip(result.welcomeNotification);
-
-            chrome.storage.local.set({
-              welcomeNotification: { ...result.welcomeNotification, shown: true },
-            });
-          }
-        } catch (_error) {
-          // Silently handle errors
-        }
-      }
-
-      showUpdateTooltip(updateInfo) {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'update-notification update-notification-slide-in';
-        tooltip.innerHTML = `
-          <div class="update-header">
-            <span class="update-icon">✨</span>
-            <span class="update-title">Extension Updated!</span>
-            <button class="update-close">×</button>
-          </div>
-          <div class="update-content">
-            Updated from v${updateInfo.previousVersion} to v${updateInfo.currentVersion}
-            <div class="update-subtitle">Check latest features and improvements</div>
-          </div>
-        `;
-
-        document.body.appendChild(tooltip);
-
-        const closeBtn = tooltip.querySelector('.update-close');
-        closeBtn.addEventListener('click', () => {
-          tooltip.classList.add('update-notification-slide-out');
-          setTimeout(() => tooltip.remove(), 300);
-        });
-
-        setTimeout(() => {
-          if (tooltip.parentNode) {
-            tooltip.classList.add('update-notification-slide-out');
-            setTimeout(() => tooltip.remove(), 300);
-          }
-        }, 6000);
-      }
-
-      showWelcomeTooltip(welcomeInfo) {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'update-notification welcome-notification update-notification-slide-in';
-        tooltip.innerHTML = `
-          <div class="update-header">
-            <span class="update-icon">🎉</span>
-            <span class="update-title">Welcome to Header Editor Pro!</span>
-            <button class="update-close">×</button>
-          </div>
-          <div class="update-content">
-            Thanks for installing v${welcomeInfo.version}
-            <div class="update-subtitle">Create unlimited profiles and modify HTTP headers easily</div>
-          </div>
-        `;
-
-        document.body.appendChild(tooltip);
-
-        const closeBtn = tooltip.querySelector('.update-close');
-        closeBtn.addEventListener('click', () => {
-          tooltip.classList.add('update-notification-slide-out');
-          setTimeout(() => tooltip.remove(), 300);
-        });
-
-        setTimeout(() => {
-          if (tooltip.parentNode) {
-            tooltip.classList.add('update-notification-slide-out');
-            setTimeout(() => tooltip.remove(), 300);
-          }
-        }, 8000);
-      }
-
-      async saveData() {
-        const data = {
-          profiles: this.profiles,
-          currentProfile: this.currentProfile,
-          enabled: this.isEnabled,
-          paused: this.isPaused,
-          pinned: this.isPinned,
-          profileCounter: this.profileCounter,
-        };
-
-        await chrome.storage.local.set({ headerEditorData: data });
-      }
-
-      addHeader(type = 'requestHeaders') {
-        const currentProfile = this.profiles[this.currentProfile];
-        if (!currentProfile[type]) {
-          currentProfile[type] = [];
-        }
-
-        currentProfile[type].push({
-          name: '',
-          value: '',
-          enabled: true,
-        });
-
-        this.saveData();
-      }
-
-      removeHeader(type, index) {
-        const currentProfile = this.profiles[this.currentProfile];
-        if (currentProfile[type] && currentProfile[type][index]) {
-          currentProfile[type].splice(index, 1);
-          this.saveData();
-        }
-      }
-
-      updateHeader(type, index, field, value) {
-        const currentProfile = this.profiles[this.currentProfile];
-        if (currentProfile[type] && currentProfile[type][index]) {
-          currentProfile[type][index][field] = value;
-          this.saveData();
-        }
-      }
-
-      toggleHeader(type, index) {
-        const currentProfile = this.profiles[this.currentProfile];
-        if (currentProfile[type] && currentProfile[type][index]) {
-          currentProfile[type][index].enabled = !currentProfile[type][index].enabled;
-          this.saveData();
-        }
-      }
-
-      createNewProfile() {
-        this.profileCounter++;
-        const newProfileId = `profile_${Date.now()}`;
-
-        this.profiles[newProfileId] = {
-          name: `Profile ${this.profileCounter}`,
-          description: '',
-          requestHeaders: [],
-          backgroundColor: '#4caf50',
-          textColor: '#ffffff',
-        };
-
-        this.currentProfile = newProfileId;
-        this.saveData();
-
-        return newProfileId;
-      }
-
-      deleteProfile(profileId) {
-        if (profileId === 'default' || !this.profiles[profileId]) {
-          return false;
-        }
-
-        delete this.profiles[profileId];
-
-        if (this.currentProfile === profileId) {
-          this.currentProfile = 'default';
-        }
-
-        this.saveData();
-        return true;
-      }
-
-      switchProfile(profileId) {
-        if (this.profiles[profileId]) {
-          this.currentProfile = profileId;
-          this.saveData();
-          return true;
-        }
-        return false;
-      }
-
-      toggleEnabled() {
-        this.isEnabled = !this.isEnabled;
-        this.saveData();
-      }
-
-      togglePaused() {
-        this.isPaused = !this.isPaused;
-        this.saveData();
-      }
-
-      togglePinned() {
-        this.isPinned = !this.isPinned;
-        this.saveData();
-      }
-
-      hexToHsl(hex) {
-        const r = parseInt(hex.slice(1, 3), 16) / 255;
-        const g = parseInt(hex.slice(3, 5), 16) / 255;
-        const b = parseInt(hex.slice(5, 7), 16) / 255;
-
-        const max = Math.max(r, g, b);
-        const min = Math.min(r, g, b);
-        let h, s;
-        const l = (max + min) / 2;
-
-        if (max === min) {
-          h = s = 0;
-        } else {
-          const d = max - min;
-          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-          switch (max) {
-            case r:
-              h = (g - b) / d + (g < b ? 6 : 0);
-              break;
-            case g:
-              h = (b - r) / d + 2;
-              break;
-            case b:
-              h = (r - g) / d + 4;
-              break;
-          }
-          h /= 6;
-        }
-
-        return { h: Math.round(h * 360), s, l };
-      }
-
-      hslToHex(h, s, l) {
-        h /= 360;
-        const a = s * Math.min(l, 1 - l);
-        const f = n => {
-          const k = (n + h / (1 / 12)) % 12;
-          const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-          return Math.round(255 * color)
-            .toString(16)
-            .padStart(2, '0');
-        };
-        return `#${f(0)}${f(8)}${f(4)}`;
-      }
-    };
-
-    popup = new HeaderEditorPopup();
+  beforeEach(async () => {
     vi.clearAllMocks();
+    document.documentElement.innerHTML = popupHtml;
+    // Default mock: empty storage → defaults
+    chrome.storage.local.get.mockResolvedValue({});
+    popup = await createPopup();
   });
 
-  afterEach(() => {
-    console.log = originalLog;
-  });
+  // ─── loadData ───────────────────────────────────────────────────────────────
 
-  describe('constructor', () => {
-    test('should initialize with default values', () => {
+  describe('loadData', () => {
+    test('empty storage → default profile with enabled=true', () => {
+      expect(popup.profiles.default).toBeDefined();
+      expect(popup.profiles.default.name).toBe('Default');
       expect(popup.currentProfile).toBe('default');
-      expect(popup.profiles).toEqual({});
       expect(popup.isEnabled).toBe(true);
       expect(popup.isPaused).toBe(false);
       expect(popup.isPinned).toBe(false);
       expect(popup.profileCounter).toBe(1);
     });
-  });
 
-  describe('loadData', () => {
-    test('should load data from chrome storage', async () => {
+    test('storage with data → state hydrated', async () => {
       const mockData = {
         profiles: {
-          default: {
-            name: 'Test Profile',
-            requestHeaders: [],
-          },
+          default: { name: 'My Profile', description: 'desc', requestHeaders: [] },
         },
         currentProfile: 'default',
-        enabled: true,
-        paused: false,
-        profileCounter: 2,
+        enabled: false,
+        paused: true,
+        pinned: true,
+        profileCounter: 5,
       };
-
       chrome.storage.local.get.mockResolvedValue({ headerEditorData: mockData });
 
-      await popup.loadData();
+      document.documentElement.innerHTML = popupHtml;
+      const p = await createPopup();
 
-      expect(popup.profiles).toEqual(mockData.profiles);
-      expect(popup.currentProfile).toBe('default');
-      expect(popup.isEnabled).toBe(true);
-      expect(popup.profileCounter).toBe(2);
+      expect(p.profiles.default.name).toBe('My Profile');
+      expect(p.isEnabled).toBe(false);
+      expect(p.isPaused).toBe(true);
+      expect(p.isPinned).toBe(true);
+      expect(p.profileCounter).toBe(5);
     });
 
-    test('should use default data when storage is empty', async () => {
-      chrome.storage.local.get.mockResolvedValue({});
-
-      await popup.loadData();
-
-      expect(popup.profiles.default).toBeDefined();
-      expect(popup.profiles.default.name).toBe('Default');
-      expect(popup.currentProfile).toBe('default');
-      expect(popup.isEnabled).toBe(true);
-    });
-
-    test('should handle storage errors gracefully', async () => {
+    test('storage error → falls back to defaults', async () => {
       chrome.storage.local.get.mockRejectedValue(new Error('Storage error'));
 
-      await popup.loadData();
+      document.documentElement.innerHTML = popupHtml;
+      // colorPickerState is NOT set in the error path — use error-path helper
+      const p = await createPopupErrorPath();
 
-      expect(popup.profiles.default).toBeDefined();
-      expect(popup.currentProfile).toBe('default');
-      expect(popup.isEnabled).toBe(true);
+      expect(p.profiles.default).toBeDefined();
+      expect(p.currentProfile).toBe('default');
+      expect(p.isEnabled).toBe(true);
+    });
+
+    test('colorPickerState is initialized after loadData', () => {
+      expect(popup.colorPickerState).toBeDefined();
+      expect(popup.colorPickerState.currentTab).toBe('background');
     });
   });
 
+  // ─── migrateHeaderFormat ─────────────────────────────────────────────────────
+
   describe('migrateHeaderFormat', () => {
-    test('should migrate headers without enabled property', () => {
+    test('adds enabled:true to headers missing the field', () => {
       popup.profiles = {
-        test: {
-          requestHeaders: [{ name: 'Test-Header', value: 'test-value' }],
-        },
+        test: { requestHeaders: [{ name: 'X-Foo', value: 'bar' }] },
       };
-
       popup.migrateHeaderFormat();
-
       expect(popup.profiles.test.requestHeaders[0].enabled).toBe(true);
     });
 
-    test('should preserve existing enabled values', () => {
+    test('preserves existing enabled:false value', () => {
       popup.profiles = {
-        test: {
-          requestHeaders: [{ name: 'Test-Header', value: 'test-value', enabled: false }],
-        },
+        test: { requestHeaders: [{ name: 'X-Foo', value: 'bar', enabled: false }] },
       };
-
       popup.migrateHeaderFormat();
-
       expect(popup.profiles.test.requestHeaders[0].enabled).toBe(false);
     });
-  });
 
-  describe('checkForUpdateNotification', () => {
-    test('should show update notification when available', async () => {
-      const updateNotification = {
-        previousVersion: '2.0.0',
-        currentVersion: '2.1.0',
-        shown: false,
-      };
-
-      chrome.storage.local.get.mockResolvedValue({ updateNotification });
-      const showUpdateSpy = vi.spyOn(popup, 'showUpdateTooltip').mockImplementation();
-
-      await popup.checkForUpdateNotification();
-
-      expect(showUpdateSpy).toHaveBeenCalledWith(updateNotification);
-      expect(chrome.storage.local.set).toHaveBeenCalledWith({
-        updateNotification: { ...updateNotification, shown: true },
-      });
-      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ action: 'clearUpdateBadge' });
-    });
-
-    test('should show welcome notification for new installs', async () => {
-      const welcomeNotification = {
-        version: '2.1.0',
-        shown: false,
-      };
-
-      chrome.storage.local.get.mockResolvedValue({ welcomeNotification });
-      const showWelcomeSpy = vi.spyOn(popup, 'showWelcomeTooltip').mockImplementation();
-
-      await popup.checkForUpdateNotification();
-
-      expect(showWelcomeSpy).toHaveBeenCalledWith(welcomeNotification);
-      expect(chrome.storage.local.set).toHaveBeenCalledWith({
-        welcomeNotification: { ...welcomeNotification, shown: true },
-      });
-    });
-
-    test('should not show notifications if already shown', async () => {
-      chrome.storage.local.get.mockResolvedValue({
-        updateNotification: { shown: true },
-      });
-
-      const showUpdateSpy = vi.spyOn(popup, 'showUpdateTooltip').mockImplementation();
-
-      await popup.checkForUpdateNotification();
-
-      expect(showUpdateSpy).not.toHaveBeenCalled();
+    test('profile without requestHeaders is left untouched', () => {
+      popup.profiles = { test: { name: 'No Headers' } };
+      expect(() => popup.migrateHeaderFormat()).not.toThrow();
     });
   });
 
-  describe('showUpdateTooltip', () => {
-    test('should create and display update tooltip', () => {
-      const updateInfo = {
-        previousVersion: '2.0.0',
-        currentVersion: '2.1.0',
-      };
-
-      // Test that the method includes expected content
-      const spy = vi.spyOn(popup, 'showUpdateTooltip');
-      popup.showUpdateTooltip(updateInfo);
-
-      expect(spy).toHaveBeenCalledWith(updateInfo);
-    });
-  });
-
-  describe('addHeader', () => {
-    beforeEach(async () => {
-      await popup.loadData();
-    });
-
-    test('should add new header to current profile', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      popup.addHeader('requestHeaders');
-
-      expect(popup.profiles[popup.currentProfile].requestHeaders).toHaveLength(1);
-      expect(popup.profiles[popup.currentProfile].requestHeaders[0]).toEqual({
-        name: '',
-        value: '',
-        enabled: true,
-      });
-      expect(_saveSpy).toHaveBeenCalled();
-    });
-
-    test('should create headers array if it does not exist', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-      delete popup.profiles[popup.currentProfile].requestHeaders;
-
-      popup.addHeader('requestHeaders');
-
-      expect(popup.profiles[popup.currentProfile].requestHeaders).toBeDefined();
-      expect(popup.profiles[popup.currentProfile].requestHeaders).toHaveLength(1);
-    });
-  });
-
-  describe('removeHeader', () => {
-    beforeEach(async () => {
-      await popup.loadData();
-      popup.profiles[popup.currentProfile].requestHeaders = [
-        { name: 'Header1', value: 'value1', enabled: true },
-        { name: 'Header2', value: 'value2', enabled: true },
-      ];
-    });
-
-    test('should remove header at specified index', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      popup.removeHeader('requestHeaders', 0);
-
-      expect(popup.profiles[popup.currentProfile].requestHeaders).toHaveLength(1);
-      expect(popup.profiles[popup.currentProfile].requestHeaders[0].name).toBe('Header2');
-      expect(_saveSpy).toHaveBeenCalled();
-    });
-
-    test('should not remove if index is invalid', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      popup.removeHeader('requestHeaders', 10);
-
-      expect(popup.profiles[popup.currentProfile].requestHeaders).toHaveLength(2);
-      expect(_saveSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('updateHeader', () => {
-    beforeEach(async () => {
-      await popup.loadData();
-      popup.profiles[popup.currentProfile].requestHeaders = [
-        { name: 'Header1', value: 'value1', enabled: true },
-      ];
-    });
-
-    test('should update header field', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      popup.updateHeader('requestHeaders', 0, 'name', 'NewHeader');
-
-      expect(popup.profiles[popup.currentProfile].requestHeaders[0].name).toBe('NewHeader');
-      expect(_saveSpy).toHaveBeenCalled();
-    });
-
-    test('should not update if index is invalid', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      popup.updateHeader('requestHeaders', 10, 'name', 'NewHeader');
-
-      expect(_saveSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('toggleHeader', () => {
-    beforeEach(async () => {
-      await popup.loadData();
-      popup.profiles[popup.currentProfile].requestHeaders = [
-        { name: 'Header1', value: 'value1', enabled: true },
-      ];
-    });
-
-    test('should toggle header enabled state', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      popup.toggleHeader('requestHeaders', 0);
-
-      expect(popup.profiles[popup.currentProfile].requestHeaders[0].enabled).toBe(false);
-      expect(_saveSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('createNewProfile', () => {
-    test('should create new profile with unique ID', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      const profileId = popup.createNewProfile();
-
-      expect(profileId).toMatch(/^profile_\d+$/);
-      expect(popup.profiles[profileId]).toBeDefined();
-      expect(popup.profiles[profileId].name).toBe('Profile 2');
-      expect(popup.currentProfile).toBe(profileId);
-      expect(popup.profileCounter).toBe(2);
-      expect(_saveSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('deleteProfile', () => {
-    beforeEach(() => {
-      popup.profiles = {
-        default: { name: 'Default' },
-        test: { name: 'Test Profile' },
-      };
-    });
-
-    test('should delete non-default profile', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      const result = popup.deleteProfile('test');
-
-      expect(result).toBe(true);
-      expect(popup.profiles.test).toBeUndefined();
-      expect(_saveSpy).toHaveBeenCalled();
-    });
-
-    test('should not delete default profile', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      const result = popup.deleteProfile('default');
-
-      expect(result).toBe(false);
-      expect(popup.profiles.default).toBeDefined();
-      expect(_saveSpy).not.toHaveBeenCalled();
-    });
-
-    test('should switch to default if deleting current profile', () => {
-      popup.currentProfile = 'test';
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      popup.deleteProfile('test');
-
-      expect(popup.currentProfile).toBe('default');
-    });
-  });
-
-  describe('switchProfile', () => {
-    beforeEach(() => {
-      popup.profiles = {
-        default: { name: 'Default' },
-        test: { name: 'Test Profile' },
-      };
-    });
-
-    test('should switch to existing profile', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      const result = popup.switchProfile('test');
-
-      expect(result).toBe(true);
-      expect(popup.currentProfile).toBe('test');
-      expect(_saveSpy).toHaveBeenCalled();
-    });
-
-    test('should not switch to non-existing profile', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-
-      const result = popup.switchProfile('nonexistent');
-
-      expect(result).toBe(false);
-      expect(popup.currentProfile).toBe('default');
-      expect(_saveSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('toggle functions', () => {
-    test('toggleEnabled should toggle enabled state', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-      const initialState = popup.isEnabled;
-
-      popup.toggleEnabled();
-
-      expect(popup.isEnabled).toBe(!initialState);
-      expect(_saveSpy).toHaveBeenCalled();
-    });
-
-    test('togglePaused should toggle paused state', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-      const initialState = popup.isPaused;
-
-      popup.togglePaused();
-
-      expect(popup.isPaused).toBe(!initialState);
-      expect(_saveSpy).toHaveBeenCalled();
-    });
-
-    test('togglePinned should toggle pinned state', () => {
-      const _saveSpy = vi.spyOn(popup, 'saveData').mockImplementation();
-      const initialState = popup.isPinned;
-
-      popup.togglePinned();
-
-      expect(popup.isPinned).toBe(!initialState);
-      expect(_saveSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('color utility functions', () => {
-    test('hexToHsl should convert hex to HSL', () => {
-      const result = popup.hexToHsl('#ff0000');
-      expect(result.h).toBe(0);
-      expect(result.s).toBe(1);
-      expect(result.l).toBe(0.5);
-    });
-
-    test('hslToHex should convert HSL to hex', () => {
-      const result = popup.hslToHex(0, 1, 0.5);
-      expect(result).toBe('#ff0000');
-    });
-
-    test('color conversion should be approximately reversible', () => {
-      const originalHex = '#4caf50';
-      const hsl = popup.hexToHsl(originalHex);
-      const convertedHex = popup.hslToHex(hsl.h, hsl.s, hsl.l);
-
-      // Due to floating point precision, we should check if colors are close enough
-      const originalR = parseInt(originalHex.slice(1, 3), 16);
-      const originalG = parseInt(originalHex.slice(3, 5), 16);
-      const originalB = parseInt(originalHex.slice(5, 7), 16);
-
-      const convertedR = parseInt(convertedHex.slice(1, 3), 16);
-      const convertedG = parseInt(convertedHex.slice(3, 5), 16);
-      const convertedB = parseInt(convertedHex.slice(5, 7), 16);
-
-      // Allow for ±1 difference due to rounding
-      expect(Math.abs(originalR - convertedR)).toBeLessThanOrEqual(1);
-      expect(Math.abs(originalG - convertedG)).toBeLessThanOrEqual(1);
-      expect(Math.abs(originalB - convertedB)).toBeLessThanOrEqual(1);
-    });
-  });
+  // ─── saveData ────────────────────────────────────────────────────────────────
 
   describe('saveData', () => {
-    test('should save data to chrome storage', async () => {
+    test('persists current state to chrome.storage.local with correct key', async () => {
+      chrome.storage.local.set.mockClear();
       await popup.saveData();
 
       expect(chrome.storage.local.set).toHaveBeenCalledWith({
-        headerEditorData: expect.objectContaining({
+        headerEditorData: {
           profiles: popup.profiles,
           currentProfile: popup.currentProfile,
           enabled: popup.isEnabled,
           paused: popup.isPaused,
           pinned: popup.isPinned,
           profileCounter: popup.profileCounter,
-        }),
+        },
       });
+    });
 
-      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith({
-        action: 'updateHeaders',
-        data: expect.any(Object),
+    test('does NOT call sendMessage (plan 004 removed it)', async () => {
+      chrome.storage.local.set.mockClear();
+      chrome.runtime.sendMessage.mockClear();
+      await popup.saveData();
+
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'updateHeaders' })
+      );
+    });
+  });
+
+  // ─── Profile management ───────────────────────────────────────────────────────
+
+  describe('createNewProfile', () => {
+    test('counter increments, new profile becomes active', () => {
+      const initialCounter = popup.profileCounter;
+      popup.createNewProfile();
+
+      expect(popup.profileCounter).toBe(initialCounter + 1);
+      expect(popup.currentProfile).toMatch(/^profile_\d+$/);
+      expect(popup.profiles[popup.currentProfile]).toBeDefined();
+      expect(popup.profiles[popup.currentProfile].name).toBe(
+        `Profile ${popup.profileCounter}`
+      );
+    });
+
+    test('new profile has requestHeaders array', () => {
+      popup.createNewProfile();
+      expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([]);
+    });
+
+    test('new profile has description field', () => {
+      popup.createNewProfile();
+      // Real code sets 'Click to edit description' as description
+      expect(popup.profiles[popup.currentProfile].description).toBeDefined();
+    });
+  });
+
+  describe('switchProfile', () => {
+    test('switches currentProfile and saves', async () => {
+      popup.profiles.other = { name: 'Other', requestHeaders: [] };
+      chrome.storage.local.set.mockClear();
+
+      await popup.switchProfile('other');
+
+      expect(popup.currentProfile).toBe('other');
+      expect(chrome.storage.local.set).toHaveBeenCalled();
+    });
+
+    // BUG: real switchProfile has no guard — it sets currentProfile to the key then
+    // renderUI() crashes because profiles[key] is undefined. Documented as bug for plan 006.
+    test.todo('switching to non-existent profile does nothing (BUG: real code crashes, no guard)');
+  });
+
+  describe('deleteCurrentProfile (deleteCurrentProfile method)', () => {
+    test('deletes non-default profile when confirm returns true', async () => {
+      // Setup a non-default profile
+      popup.profiles.toDelete = { name: 'Delete Me', requestHeaders: [] };
+      popup.currentProfile = 'toDelete';
+      vi.mocked(confirm).mockReturnValue(true);
+
+      await popup.deleteCurrentProfile();
+
+      expect(popup.profiles.toDelete).toBeUndefined();
+      expect(popup.currentProfile).toBe('default');
+    });
+
+    test('does not delete when confirm returns false', async () => {
+      popup.profiles.toDelete = { name: 'Keep Me', requestHeaders: [] };
+      popup.currentProfile = 'toDelete';
+      vi.mocked(confirm).mockReturnValue(false);
+
+      await popup.deleteCurrentProfile();
+
+      expect(popup.profiles.toDelete).toBeDefined();
+    });
+
+    test('cannot delete default profile (returns early)', async () => {
+      popup.currentProfile = 'default';
+      vi.mocked(confirm).mockReturnValue(true);
+      const initialProfiles = { ...popup.profiles };
+
+      await popup.deleteCurrentProfile();
+
+      expect(popup.profiles.default).toBeDefined();
+      expect(Object.keys(popup.profiles)).toEqual(Object.keys(initialProfiles));
+    });
+  });
+
+  describe('showProfileMenu (right-click context menu)', () => {
+    test('deletes profile when confirm returns true', () => {
+      popup.profiles.ctx = { name: 'Context Profile', requestHeaders: [] };
+      vi.mocked(confirm).mockReturnValue(true);
+
+      popup.showProfileMenu('ctx', 0, 0);
+
+      expect(popup.profiles.ctx).toBeUndefined();
+    });
+
+    test('cannot delete default via context menu', () => {
+      vi.mocked(confirm).mockReturnValue(true);
+      popup.showProfileMenu('default', 0, 0);
+      expect(popup.profiles.default).toBeDefined();
+    });
+  });
+
+  // ─── Header management ────────────────────────────────────────────────────────
+
+  describe('addHeader', () => {
+    test('pushes {name:"",value:"",enabled:true} to requestHeaders', () => {
+      const before = popup.profiles[popup.currentProfile].requestHeaders.length;
+      popup.addHeader('request');
+      const after = popup.profiles[popup.currentProfile].requestHeaders.length;
+
+      expect(after).toBe(before + 1);
+      expect(popup.profiles[popup.currentProfile].requestHeaders[after - 1]).toEqual({
+        name: '',
+        value: '',
+        enabled: true,
       });
+    });
+
+    test('does NOT call saveData immediately (waits for user input)', () => {
+      chrome.storage.local.set.mockClear();
+      popup.addHeader('request');
+      expect(chrome.storage.local.set).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateHeader', () => {
+    beforeEach(() => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'X-Foo', value: 'bar', enabled: true },
+      ];
+    });
+
+    test('mutates header at correct index', async () => {
+      await popup.updateHeader('request', 0, 'name', 'X-New');
+      expect(popup.profiles[popup.currentProfile].requestHeaders[0].name).toBe('X-New');
+    });
+
+    test('saves immediately when field is "enabled"', async () => {
+      chrome.storage.local.set.mockClear();
+      await popup.updateHeader('request', 0, 'enabled', false);
+      expect(chrome.storage.local.set).toHaveBeenCalled();
+    });
+
+    test('does NOT save for non-enabled fields (save happens on blur)', async () => {
+      chrome.storage.local.set.mockClear();
+      await popup.updateHeader('request', 0, 'name', 'New');
+      expect(chrome.storage.local.set).not.toHaveBeenCalled();
+    });
+
+    test('out-of-bounds index is a no-op', async () => {
+      await popup.updateHeader('request', 99, 'name', 'Ghost');
+      expect(popup.profiles[popup.currentProfile].requestHeaders[0].name).toBe('X-Foo');
+    });
+  });
+
+  describe('removeHeader', () => {
+    beforeEach(() => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'H1', value: 'v1', enabled: true },
+        { name: 'H2', value: 'v2', enabled: true },
+      ];
+    });
+
+    test('removes header at index and saves', async () => {
+      chrome.storage.local.set.mockClear();
+      await popup.removeHeader('request', 0);
+      expect(popup.profiles[popup.currentProfile].requestHeaders).toHaveLength(1);
+      expect(popup.profiles[popup.currentProfile].requestHeaders[0].name).toBe('H2');
+      expect(chrome.storage.local.set).toHaveBeenCalled();
+    });
+  });
+
+  // ─── Pause / Pin ─────────────────────────────────────────────────────────────
+
+  describe('togglePause', () => {
+    test('inverts isPaused and saves', async () => {
+      const before = popup.isPaused;
+      chrome.storage.local.set.mockClear();
+
+      await popup.togglePause();
+
+      expect(popup.isPaused).toBe(!before);
+      expect(chrome.storage.local.set).toHaveBeenCalled();
+    });
+  });
+
+  describe('togglePin', () => {
+    test('inverts isPinned and saves', async () => {
+      const before = popup.isPinned;
+      chrome.storage.local.set.mockClear();
+
+      await popup.togglePin();
+
+      expect(popup.isPinned).toBe(!before);
+      expect(chrome.storage.local.set).toHaveBeenCalled();
+    });
+  });
+
+  // ─── Import / Export utilities ────────────────────────────────────────────────
+
+  describe('extractHeadersFromArray', () => {
+    test('normalizes {name,value,enabled} and filters items without name string', () => {
+      const input = [
+        { name: 'X-Foo', value: 'bar', enabled: false },
+        { name: '', value: 'ignored' },
+        { value: 'no-name' },
+        { name: 'X-Valid' },
+      ];
+      const result = popup.extractHeadersFromArray(input);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({ name: 'X-Foo', value: 'bar', enabled: false });
+      expect(result[1]).toEqual({ name: 'X-Valid', value: '', enabled: true });
+    });
+
+    test('enabled defaults to true when not false', () => {
+      const result = popup.extractHeadersFromArray([{ name: 'H', value: 'v' }]);
+      expect(result[0].enabled).toBe(true);
+    });
+  });
+
+  describe('convertToModHeaderFormat', () => {
+    test('converts requestHeaders to ModHeader array format', () => {
+      const profile = {
+        requestHeaders: [
+          { name: 'X-A', value: 'a', enabled: true },
+          { name: 'X-B', value: 'b', enabled: false },
+          { name: '', value: 'skipped', enabled: true }, // empty name filtered
+        ],
+      };
+      const result = popup.convertToModHeaderFormat(profile);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({ appendMode: false, enabled: true, name: 'X-A', value: 'a' });
+      expect(result[1]).toEqual({ appendMode: false, enabled: false, name: 'X-B', value: 'b' });
+    });
+
+    test('profile with no requestHeaders returns empty array', () => {
+      const result = popup.convertToModHeaderFormat({});
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('importProfileFromData', () => {
+    test('array input creates a new profile from headers', async () => {
+      const profilesBefore = Object.keys(popup.profiles).length;
+      await popup.importProfileFromData([{ name: 'X-Test', value: 'v' }]);
+      expect(Object.keys(popup.profiles).length).toBe(profilesBefore + 1);
+    });
+
+    test('object with profiles key imports multiple profiles', async () => {
+      const exportData = {
+        profiles: {
+          p1: { name: 'P1', description: '', requestHeaders: [] },
+        },
+        currentProfile: 'p1',
+      };
+      const profilesBefore = Object.keys(popup.profiles).length;
+      await popup.importProfileFromData(exportData);
+      expect(Object.keys(popup.profiles).length).toBe(profilesBefore + 1);
+    });
+
+    test('invalid format (no array, no profiles key) throws', async () => {
+      await expect(popup.importProfileFromData({ invalid: true })).rejects.toThrow();
+    });
+  });
+
+  // ─── renderUI DOM smoke test ──────────────────────────────────────────────────
+
+  describe('renderUI', () => {
+    test('profile circles reflect current profile count', () => {
+      popup.createNewProfile();
+      popup.renderUI();
+
+      const circles = document.querySelectorAll('.profile-circle');
+      expect(circles.length).toBe(Object.keys(popup.profiles).length);
+    });
+
+    test('after render, header inputs match stored headers', () => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'X-First', value: 'one', enabled: true },
+        { name: 'X-Second', value: 'two', enabled: true },
+      ];
+      popup.renderUI();
+
+      const nameInputs = document.querySelectorAll('.header-name');
+      expect(nameInputs).toHaveLength(2);
+      expect(nameInputs[0].value).toBe('X-First');
+      expect(nameInputs[1].value).toBe('X-Second');
+    });
+  });
+
+  // ─── Color utilities ──────────────────────────────────────────────────────────
+
+  describe('color utilities', () => {
+    test('hexToHsl converts #ff0000 to hue 0', () => {
+      const result = popup.hexToHsl('#ff0000');
+      expect(result.h).toBe(0);
+      expect(result.s).toBe(1);
+      expect(result.l).toBe(0.5);
+    });
+
+    test('hslToHex converts 0,1,0.5 to #ff0000', () => {
+      expect(popup.hslToHex(0, 1, 0.5)).toBe('#ff0000');
+    });
+
+    test('round-trip is within ±1 per channel', () => {
+      const original = '#4caf50';
+      const hsl = popup.hexToHsl(original);
+      const converted = popup.hslToHex(hsl.h, hsl.s, hsl.l);
+
+      for (let i = 0; i < 3; i++) {
+        const offset = 1 + i * 2;
+        const a = parseInt(original.slice(offset, offset + 2), 16);
+        const b = parseInt(converted.slice(offset, offset + 2), 16);
+        expect(Math.abs(a - b)).toBeLessThanOrEqual(1);
+      }
+    });
+  });
+
+  // ─── checkForUpdateNotification ──────────────────────────────────────────────
+
+  describe('checkForUpdateNotification', () => {
+    test('shows update tooltip when updateNotification.shown is false', async () => {
+      const updateNotification = { previousVersion: '2.0.0', currentVersion: '2.1.0', shown: false };
+      chrome.storage.local.get.mockResolvedValue({ updateNotification });
+      const spy = vi.spyOn(popup, 'showUpdateTooltip').mockImplementation(() => {});
+
+      await popup.checkForUpdateNotification();
+
+      expect(spy).toHaveBeenCalledWith(updateNotification);
+      expect(chrome.storage.local.set).toHaveBeenCalledWith({
+        updateNotification: { ...updateNotification, shown: true },
+      });
+    });
+
+    test('shows welcome tooltip for new installs', async () => {
+      const welcomeNotification = { version: '2.1.0', shown: false };
+      chrome.storage.local.get.mockResolvedValue({ welcomeNotification });
+      const spy = vi.spyOn(popup, 'showWelcomeTooltip').mockImplementation(() => {});
+
+      await popup.checkForUpdateNotification();
+
+      expect(spy).toHaveBeenCalledWith(welcomeNotification);
+    });
+
+    test('does not show tooltip if already shown', async () => {
+      chrome.storage.local.get.mockResolvedValue({ updateNotification: { shown: true } });
+      const spy = vi.spyOn(popup, 'showUpdateTooltip').mockImplementation(() => {});
+
+      await popup.checkForUpdateNotification();
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    test('handles storage errors silently', async () => {
+      chrome.storage.local.get.mockRejectedValue(new Error('fail'));
+      await expect(popup.checkForUpdateNotification()).resolves.not.toThrow();
     });
   });
 });
