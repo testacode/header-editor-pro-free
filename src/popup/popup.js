@@ -115,16 +115,6 @@ class HeaderEditorPopup {
       profileCounter: this.profileCounter,
     };
     await chrome.storage.local.set({ headerEditorData: data });
-
-    // Notify background script of changes
-    try {
-      await chrome.runtime.sendMessage({
-        action: 'updateHeaders',
-        data: data,
-      });
-    } catch (_error) {
-      // Background script might not be ready, ignore error
-    }
   }
 
   setupEventListeners() {

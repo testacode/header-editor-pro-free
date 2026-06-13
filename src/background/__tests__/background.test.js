@@ -378,7 +378,7 @@ describe('HeaderEditorBackground', () => {
       expect(chrome.storage.onChanged.addListener).toHaveBeenCalledWith(expect.any(Function));
     });
 
-    test('updateHeaders message → calls applyHeaderRules with data', async () => {
+    test('updateHeaders message → no longer triggers applyHeaderRules (removed handler)', async () => {
       const applySpy = vi.spyOn(background, 'applyHeaderRules').mockResolvedValue(undefined);
       background.setupMessageHandlers();
 
@@ -387,7 +387,7 @@ describe('HeaderEditorBackground', () => {
       listener({ action: 'updateHeaders', data: testData }, {}, vi.fn());
       await Promise.resolve();
 
-      expect(applySpy).toHaveBeenCalledWith(testData);
+      expect(applySpy).not.toHaveBeenCalled();
     });
 
     test('clearUpdateBadge message → action.setBadgeText with empty string', () => {

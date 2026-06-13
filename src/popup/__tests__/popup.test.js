@@ -201,12 +201,7 @@ describe('HeaderEditorPopup', () => {
           profileCounter: this.profileCounter,
         };
 
-        try {
-          await chrome.storage.local.set({ headerEditorData: data });
-          chrome.runtime.sendMessage({ action: 'updateHeaders', data });
-        } catch (_error) {
-          console.error('Error saving data:', _error);
-        }
+        await chrome.storage.local.set({ headerEditorData: data });
       }
 
       addHeader(type = 'requestHeaders') {
@@ -774,7 +769,7 @@ describe('HeaderEditorPopup', () => {
         }),
       });
 
-      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith({
         action: 'updateHeaders',
         data: expect.any(Object),
       });

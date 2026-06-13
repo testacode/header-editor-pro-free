@@ -60,9 +60,7 @@ export class HeaderEditorBackground {
 
   setupMessageHandlers() {
     chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
-      if (message.action === 'updateHeaders') {
-        this.handleUpdateHeaders(message.data);
-      } else if (message.action === 'clearUpdateBadge') {
+      if (message.action === 'clearUpdateBadge') {
         chrome.action.setBadgeText({ text: '' });
       }
     });
@@ -94,10 +92,6 @@ export class HeaderEditorBackground {
     } catch (_error) {
       await this.clearAllRules();
     }
-  }
-
-  async handleUpdateHeaders(data) {
-    await this.applyHeaderRules(data);
   }
 
   async applyHeaderRules(data) {
