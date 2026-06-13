@@ -5,6 +5,7 @@ import { hexToHsl, hslToHex } from './color-utils.js';
 import { normalizeHeader } from './header-normalize.js';
 import { ImportExportManager } from './import-export.js';
 import { UpdateNotificationsManager } from './update-notifications.js';
+import { ColorPickerManager } from './color-picker.js';
 
 export class HeaderEditorPopup {
   constructor() {
@@ -18,6 +19,7 @@ export class HeaderEditorPopup {
     this.profileCounter = 1;
     this.importExport = new ImportExportManager(this);
     this.updateNotifications = new UpdateNotificationsManager(this);
+    this.colorPicker = new ColorPickerManager(this);
     this.init();
   }
 
@@ -800,250 +802,15 @@ export class HeaderEditorPopup {
   downloadJSON(data, filename) { return this.importExport.downloadJSON(data, filename); }
 
   // Color Picker Methods
-  showColorPicker() {
-    const profile = this.profiles[this.currentProfile];
-
-    // Set initial colors from current profile
-    this.colorPickerState.tempBackgroundColor = profile.backgroundColor || '#4caf50';
-    this.colorPickerState.tempTextColor = profile.textColor || '#ffffff';
-    this.colorPickerState.currentTab = 'background';
-
-    // Update UI
-    this.updateColorPickerUI();
-
-    // Show modal
-    document.getElementById('color-picker-overlay').style.display = 'flex';
-  }
-
-  closeColorPicker() {
-    document.getElementById('color-picker-overlay').style.display = 'none';
-  }
-
-  updateColorPickerUI() {
-    const profile = this.profiles[this.currentProfile];
-    const previewCircle = document.getElementById('color-preview-circle');
-    const previewText = document.getElementById('color-preview-text');
-
-    // Update preview circle
-    previewCircle.style.backgroundColor = this.colorPickerState.tempBackgroundColor;
-    previewText.style.color = this.colorPickerState.tempTextColor;
-    previewText.textContent = profile.name.charAt(0).toUpperCase();
-
-    // Update tab states
-    document
-      .getElementById('background-tab')
-      .classList.toggle('active', this.colorPickerState.currentTab === 'background');
-    document
-      .getElementById('text-tab')
-      .classList.toggle('active', this.colorPickerState.currentTab === 'text');
-
-    // Update color gradient background based on current tab
-    const currentColor =
-      this.colorPickerState.currentTab === 'background'
-        ? this.colorPickerState.tempBackgroundColor
-        : this.colorPickerState.tempTextColor;
-
-    this.updateGradientBackground(currentColor);
-    this.setupColorPickerInteractions();
-    this.updateColorSelector(currentColor, false); // No smooth transition on initial load
-  }
-
-  updateGradientBackground(color, preserveHue = false) {
-    const hslColor = hexToHsl(color);
-
-    // Only update hue if not preserving it (e.g., when saturation > 0.1)
-    if (!preserveHue && hslColor.s > 0.1) {
-      this.colorPickerState.hue = hslColor.h;
-    }
-
-    const gradient = document.getElementById('color-gradient');
-    const hueSlider = document.getElementById('hue-slider');
-
-    // Update gradient background - combine both gradients properly
-    gradient.style.background = `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%), linear-gradient(to right, rgba(255,255,255,1) 0%, hsl(${this.colorPickerState.hue}, 100%, 50%) 100%)`;
-
-    // Update hue slider
-    hueSlider.value = this.colorPickerState.hue;
-  }
-
-  updateColorSelector(color, smooth = true) {
-    const hslColor = hexToHsl(color);
-    const selector = document.getElementById('color-selector');
-
-    // Position the selector based on current color
-    const saturation = hslColor.s;
-    const lightness = hslColor.l;
-
-    // Store in state for hue slider to use
-    this.colorPickerState.saturation = saturation;
-    this.colorPickerState.lightness = lightness;
-
-    // Add smooth transition for non-dragging updates
-    if (smooth) {
-      selector.classList.add('smooth');
-    } else {
-      selector.classList.remove('smooth');
-    }
-
-    selector.style.left = `${saturation * 100}%`;
-    selector.style.top = `${(1 - lightness) * 100}%`;
-  }
-
-  updateColorPreview() {
-    const profile = this.profiles[this.currentProfile];
-    const previewCircle = document.getElementById('color-preview-circle');
-    const previewText = document.getElementById('color-preview-text');
-
-    // Update preview circle
-    previewCircle.style.backgroundColor = this.colorPickerState.tempBackgroundColor;
-    previewText.style.color = this.colorPickerState.tempTextColor;
-    previewText.textContent = profile.name.charAt(0).toUpperCase();
-  }
-
-  setupColorPickerInteractions() {
-    // Only set up interactions once
-    if (this.colorPickerInteractionsSetup) {
-      return;
-    }
-    this.colorPickerInteractionsSetup = true;
-
-    // Tab switching
-    document.getElementById('background-tab').onclick = () => {
-      this.colorPickerState.currentTab = 'background';
-      this.updateColorPickerUI();
-    };
-
-    document.getElementById('text-tab').onclick = () => {
-      this.colorPickerState.currentTab = 'text';
-      this.updateColorPickerUI();
-    };
-
-    // Color gradient interaction
-    const gradient = document.getElementById('color-gradient');
-    const selector = document.getElementById('color-selector');
-
-    let isDragging = false;
-
-    const updateColorFromPosition = e => {
-      const rect = gradient.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const saturation = Math.max(0, Math.min(1, x / rect.width));
-      const lightness = Math.max(0, Math.min(1, 1 - y / rect.height));
-
-      // Store saturation and lightness in state
-      this.colorPickerState.saturation = saturation;
-      this.colorPickerState.lightness = lightness;
-
-      // Preserve the current hue when saturation is 0 (white/grey area)
-      // Don't let hexToHsl change the hue when color becomes achromatic
-      const color = hslToHex(this.colorPickerState.hue, saturation, lightness);
-
-      if (this.colorPickerState.currentTab === 'background') {
-        this.colorPickerState.tempBackgroundColor = color;
-      } else {
-        this.colorPickerState.tempTextColor = color;
-      }
-
-      // Update selector position (no smooth transition during drag)
-      selector.classList.remove('smooth');
-      selector.style.left = `${saturation * 100}%`;
-      selector.style.top = `${(1 - lightness) * 100}%`;
-
-      // Update UI but don't call updateColorPickerUI which might recalculate hue
-      this.updateColorPreview();
-    };
-
-    // Mouse events for gradient
-    gradient.onmousedown = e => {
-      isDragging = true;
-      updateColorFromPosition(e);
-      e.preventDefault();
-      e.stopPropagation();
-    };
-
-    // Global mouse events to handle dragging outside the gradient
-    document.onmousemove = e => {
-      if (isDragging) {
-        updateColorFromPosition(e);
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    };
-
-    document.onmouseup = () => {
-      if (isDragging) {
-        isDragging = false;
-        // Re-enable smooth transitions after dragging
-        selector.classList.add('smooth');
-      }
-    };
-
-    // Also keep the click handler for single clicks
-    gradient.onclick = e => {
-      if (!isDragging) {
-        updateColorFromPosition(e);
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    };
-
-    // Hue slider
-    const hueSlider = document.getElementById('hue-slider');
-    hueSlider.oninput = () => {
-      this.colorPickerState.hue = parseInt(hueSlider.value);
-
-      // Use stored saturation and lightness values
-      const saturation = this.colorPickerState.saturation;
-      const lightness = this.colorPickerState.lightness;
-
-      // Generate new color with updated hue
-      const newColor = hslToHex(this.colorPickerState.hue, saturation, lightness);
-
-      // Update the appropriate color value
-      if (this.colorPickerState.currentTab === 'background') {
-        this.colorPickerState.tempBackgroundColor = newColor;
-      } else {
-        this.colorPickerState.tempTextColor = newColor;
-      }
-
-      // Update the entire UI
-      this.updateColorPickerUI();
-    };
-
-    // Preset colors
-    document.querySelectorAll('.preset-color').forEach(preset => {
-      preset.onclick = () => {
-        const color = preset.getAttribute('data-color');
-
-        // Update the appropriate temp color
-        if (this.colorPickerState.currentTab === 'background') {
-          this.colorPickerState.tempBackgroundColor = color;
-        } else {
-          this.colorPickerState.tempTextColor = color;
-        }
-
-        // Update HSL values and selector position
-        const hslColor = hexToHsl(color);
-        this.colorPickerState.hue = hslColor.h;
-        this.colorPickerState.saturation = hslColor.s;
-        this.colorPickerState.lightness = hslColor.l;
-
-        this.updateColorPickerUI();
-      };
-    });
-  }
-
-  saveProfileColor() {
-    const profile = this.profiles[this.currentProfile];
-    profile.backgroundColor = this.colorPickerState.tempBackgroundColor;
-    profile.textColor = this.colorPickerState.tempTextColor;
-
-    this.saveData();
-    this.renderProfileCircles();
-    this.closeColorPicker();
-  }
+  // ── Color picker delegations ──────────────────────────────────────────────
+  showColorPicker() { return this.colorPicker.showColorPicker(); }
+  closeColorPicker() { return this.colorPicker.closeColorPicker(); }
+  updateColorPickerUI() { return this.colorPicker.updateColorPickerUI(); }
+  updateGradientBackground(color, preserveHue) { return this.colorPicker.updateGradientBackground(color, preserveHue); }
+  updateColorSelector(color, smooth) { return this.colorPicker.updateColorSelector(color, smooth); }
+  updateColorPreview() { return this.colorPicker.updateColorPreview(); }
+  setupColorPickerInteractions() { return this.colorPicker.setupColorPickerInteractions(); }
+  saveProfileColor() { return this.colorPicker.saveProfileColor(); }
 
   // Wrappers kept for tests that call these through the class instance.
   hexToHsl(hex) { return hexToHsl(hex); }
