@@ -777,49 +777,120 @@ export class HeaderEditorPopup {
   }
 
   // ── Import/Export delegations (tests call these directly on the popup instance) ──
-  showImportModal() { return this.importExport.showImportModal(); }
-  showExportModal() { return this.importExport.showExportModal(); }
-  updateExportData() { return this.importExport.updateExportData(); }
-  closeModal() { return this.importExport.closeModal(); }
-  setValidationMessage(kind, text) { return this.importExport.setValidationMessage(kind, text); }
-  validateJSON() { return this.importExport.validateJSON(); }
-  async handleModalAction() { return this.importExport.handleModalAction(); }
-  async handleImportFromModal() { return this.importExport.handleImportFromModal(); }
-  async replaceCurrentProfile(importData) { return this.importExport.replaceCurrentProfile(importData); }
-  extractHeadersFromArray(importData) { return this.importExport.extractHeadersFromArray(importData); }
-  async copyToClipboard() { return this.importExport.copyToClipboard(); }
-  showImportDialog() { return this.importExport.showImportDialog(); }
-  async handleImportFile(event) { return this.importExport.handleImportFile(event); }
-  readFileAsText(file) { return this.importExport.readFileAsText(file); }
-  async importProfile(importData) { return this.importExport.importProfile(importData); }
-  isModHeaderProfileExport(data) { return this.importExport.isModHeaderProfileExport(data); }
-  async importModHeaderProfiles(modHeaderData) { return this.importExport.importModHeaderProfiles(modHeaderData); }
-  async importProfileFromData(importData) { return this.importExport.importProfileFromData(importData); }
-  async createProfileFromHeaders(headersArray) { return this.importExport.createProfileFromHeaders(headersArray); }
-  async importMultipleProfiles(exportData) { return this.importExport.importMultipleProfiles(exportData); }
-  exportCurrentProfile() { return this.importExport.exportCurrentProfile(); }
-  convertToModHeaderFormat(profile) { return this.importExport.convertToModHeaderFormat(profile); }
-  downloadJSON(data, filename) { return this.importExport.downloadJSON(data, filename); }
+  showImportModal() {
+    return this.importExport.showImportModal();
+  }
+  showExportModal() {
+    return this.importExport.showExportModal();
+  }
+  updateExportData() {
+    return this.importExport.updateExportData();
+  }
+  closeModal() {
+    return this.importExport.closeModal();
+  }
+  setValidationMessage(kind, text) {
+    return this.importExport.setValidationMessage(kind, text);
+  }
+  validateJSON() {
+    return this.importExport.validateJSON();
+  }
+  async handleModalAction() {
+    return this.importExport.handleModalAction();
+  }
+  async handleImportFromModal() {
+    return this.importExport.handleImportFromModal();
+  }
+  async replaceCurrentProfile(importData) {
+    return this.importExport.replaceCurrentProfile(importData);
+  }
+  extractHeadersFromArray(importData) {
+    return this.importExport.extractHeadersFromArray(importData);
+  }
+  async copyToClipboard() {
+    return this.importExport.copyToClipboard();
+  }
+  showImportDialog() {
+    return this.importExport.showImportDialog();
+  }
+  async handleImportFile(event) {
+    return this.importExport.handleImportFile(event);
+  }
+  readFileAsText(file) {
+    return this.importExport.readFileAsText(file);
+  }
+  async importProfile(importData) {
+    return this.importExport.importProfile(importData);
+  }
+  isModHeaderProfileExport(data) {
+    return this.importExport.isModHeaderProfileExport(data);
+  }
+  async importModHeaderProfiles(modHeaderData) {
+    return this.importExport.importModHeaderProfiles(modHeaderData);
+  }
+  async importProfileFromData(importData) {
+    return this.importExport.importProfileFromData(importData);
+  }
+  async createProfileFromHeaders(headersArray) {
+    return this.importExport.createProfileFromHeaders(headersArray);
+  }
+  async importMultipleProfiles(exportData) {
+    return this.importExport.importMultipleProfiles(exportData);
+  }
+  exportCurrentProfile() {
+    return this.importExport.exportCurrentProfile();
+  }
+  convertToModHeaderFormat(profile) {
+    return this.importExport.convertToModHeaderFormat(profile);
+  }
+  downloadJSON(data, filename) {
+    return this.importExport.downloadJSON(data, filename);
+  }
 
-  // Color Picker Methods
   // ── Color picker delegations ──────────────────────────────────────────────
-  showColorPicker() { return this.colorPicker.showColorPicker(); }
-  closeColorPicker() { return this.colorPicker.closeColorPicker(); }
-  updateColorPickerUI() { return this.colorPicker.updateColorPickerUI(); }
-  updateGradientBackground(color, preserveHue) { return this.colorPicker.updateGradientBackground(color, preserveHue); }
-  updateColorSelector(color, smooth) { return this.colorPicker.updateColorSelector(color, smooth); }
-  updateColorPreview() { return this.colorPicker.updateColorPreview(); }
-  setupColorPickerInteractions() { return this.colorPicker.setupColorPickerInteractions(); }
-  saveProfileColor() { return this.colorPicker.saveProfileColor(); }
+  showColorPicker() {
+    return this.colorPicker.showColorPicker();
+  }
+  closeColorPicker() {
+    return this.colorPicker.closeColorPicker();
+  }
+  updateColorPickerUI() {
+    return this.colorPicker.updateColorPickerUI();
+  }
+  updateGradientBackground(color, preserveHue) {
+    return this.colorPicker.updateGradientBackground(color, preserveHue);
+  }
+  updateColorSelector(color, smooth) {
+    return this.colorPicker.updateColorSelector(color, smooth);
+  }
+  updateColorPreview() {
+    return this.colorPicker.updateColorPreview();
+  }
+  setupColorPickerInteractions() {
+    return this.colorPicker.setupColorPickerInteractions();
+  }
+  saveProfileColor() {
+    return this.colorPicker.saveProfileColor();
+  }
 
   // Wrappers kept for tests that call these through the class instance.
-  hexToHsl(hex) { return hexToHsl(hex); }
-  hslToHex(h, s, l) { return hslToHex(h, s, l); }
+  hexToHsl(hex) {
+    return hexToHsl(hex);
+  }
+  hslToHex(h, s, l) {
+    return hslToHex(h, s, l);
+  }
 
   // ── Update notification delegations (tests spy on popup instance directly) ──
-  async checkForUpdateNotification() { return this.updateNotifications.checkForUpdateNotification(); }
-  showUpdateTooltip(updateInfo) { return this.updateNotifications.showUpdateTooltip(updateInfo); }
-  showWelcomeTooltip(welcomeInfo) { return this.updateNotifications.showWelcomeTooltip(welcomeInfo); }
+  async checkForUpdateNotification() {
+    return this.updateNotifications.checkForUpdateNotification();
+  }
+  showUpdateTooltip(updateInfo) {
+    return this.updateNotifications.showUpdateTooltip(updateInfo);
+  }
+  showWelcomeTooltip(welcomeInfo) {
+    return this.updateNotifications.showWelcomeTooltip(welcomeInfo);
+  }
 }
 
 // Initialize popup when DOM is loaded
