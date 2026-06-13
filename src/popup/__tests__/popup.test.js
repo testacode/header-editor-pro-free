@@ -730,6 +730,73 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
+  // ─── importProfile / importMultipleProfiles / setValidationMessage ───────────
+
+  describe('importProfile (plan 006 — await persistence)', () => {
+    test('storage.set is called before alert fires when importing an array', async () => {
+      chrome.storage.local.set.mockClear();
+      vi.mocked(alert).mockClear();
+
+      await popup.importProfile([{ name: 'X-Test', value: 'v' }]);
+
+      const setOrder = chrome.storage.local.set.mock.invocationCallOrder[0];
+      const alertOrder = vi.mocked(alert).mock.invocationCallOrder[0];
+
+      expect(setOrder).toBeDefined();
+      expect(alertOrder).toBeDefined();
+      expect(setOrder).toBeLessThan(alertOrder);
+
+      // The new profile is also persisted with the expected header
+      const setCall = chrome.storage.local.set.mock.calls[0][0];
+      const storedProfiles = setCall.headerEditorData.profiles;
+      const keys = Object.keys(storedProfiles);
+      const importedKey = keys.find(k => k.startsWith('profile_') && k !== 'default');
+      expect(importedKey).toBeDefined();
+      expect(storedProfiles[importedKey].requestHeaders[0].name).toBe('X-Test');
+    });
+  });
+
+  describe('importMultipleProfiles (plan 006 — first key tracked directly)', () => {
+    test('currentProfile is set to the first imported profile key (3 profiles)', async () => {
+      const exportData = {
+        profiles: {
+          orig1: { name: 'Alpha', description: '', requestHeaders: [] },
+          orig2: { name: 'Beta', description: '', requestHeaders: [] },
+          orig3: { name: 'Gamma', description: '', requestHeaders: [] },
+        },
+      };
+
+      const profilesBefore = Object.keys(popup.profiles);
+      await popup.importMultipleProfiles(exportData);
+
+      const allKeys = Object.keys(popup.profiles);
+      const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
+      expect(importedKeys).toHaveLength(3);
+
+      // currentProfile must be the FIRST imported key (insertion order)
+      expect(popup.currentProfile).toBe(importedKeys[0]);
+    });
+  });
+
+  describe('setValidationMessage (plan 006 — no innerHTML injection)', () => {
+    test('HTML in error message is rendered as literal text, not as markup', () => {
+      const malicious = '<img src=x onerror=alert(1)>';
+      popup.setValidationMessage('error', malicious);
+
+      const container = document.getElementById('validation-message');
+      expect(document.querySelector('#validation-message img')).toBeNull();
+      expect(container.textContent).toContain(malicious);
+    });
+
+    test('success message creates span.success with correct text', () => {
+      popup.setValidationMessage('success', '✓ Valid JSON');
+
+      const span = document.querySelector('#validation-message span.success');
+      expect(span).not.toBeNull();
+      expect(span.textContent).toBe('✓ Valid JSON');
+    });
+  });
+
   // ─── checkForUpdateNotification ──────────────────────────────────────────────
 
   describe('checkForUpdateNotification', () => {

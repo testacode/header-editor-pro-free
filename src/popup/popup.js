@@ -858,13 +858,27 @@ export class HeaderEditorPopup {
             0
           );
 
-    document.getElementById('validation-message').innerHTML =
-      `<span class="success">✓ Ready to copy (${exportScope === 'current' ? 'current profile' : `${Object.keys(this.profiles).length} profiles`})</span>`;
+    this.setValidationMessage(
+      'success',
+      `✓ Ready to copy (${exportScope === 'current' ? 'current profile' : `${Object.keys(this.profiles).length} profiles`})`
+    );
   }
 
   closeModal() {
     document.getElementById('modal-overlay').style.display = 'none';
     this.currentModalMode = null;
+  }
+
+  setValidationMessage(kind, text) {
+    const message = document.getElementById('validation-message');
+    message.textContent = '';
+    if (!text) {
+      return;
+    }
+    const span = document.createElement('span');
+    span.className = kind; // 'error' | 'success'
+    span.textContent = text;
+    message.appendChild(span);
   }
 
   validateJSON() {
@@ -895,14 +909,14 @@ export class HeaderEditorPopup {
           }
         }
 
-        message.innerHTML = `<span class="success">✓ Valid JSON (${parsed.length} headers)</span>`;
+        this.setValidationMessage('success', `✓ Valid JSON (${parsed.length} headers)`);
       } else {
-        message.innerHTML = '<span class="success">✓ Valid JSON</span>';
+        this.setValidationMessage('success', '✓ Valid JSON');
       }
 
       actionBtn.disabled = false;
     } catch (_error) {
-      message.innerHTML = `<span class="error">✗ ${_error.message}</span>`;
+      this.setValidationMessage('error', `✗ ${_error.message}`);
       actionBtn.disabled = true;
     }
   }
@@ -929,8 +943,7 @@ export class HeaderEditorPopup {
 
       this.closeModal();
     } catch (_error) {
-      const message = document.getElementById('validation-message');
-      message.innerHTML = `<span class="error">✗ Import failed: ${_error.message}</span>`;
+      this.setValidationMessage('error', `✗ Import failed: ${_error.message}`);
     }
   }
 
@@ -1042,7 +1055,7 @@ export class HeaderEditorPopup {
   async importProfileFromData(importData) {
     if (Array.isArray(importData)) {
       // ModHeader format - single profile from headers array
-      this.createProfileFromHeaders(importData);
+      await this.createProfileFromHeaders(importData);
     } else if (importData.profiles) {
       // Full export format - multiple profiles
       await this.importMultipleProfiles(importData);
@@ -1051,7 +1064,7 @@ export class HeaderEditorPopup {
     }
   }
 
-  createProfileFromHeaders(headersArray) {
+  async createProfileFromHeaders(headersArray) {
     const headers = this.extractHeadersFromArray(headersArray);
 
     this.profileCounter++;
@@ -1063,16 +1076,21 @@ export class HeaderEditorPopup {
     };
 
     this.currentProfile = key;
-    this.saveData();
+    await this.saveData();
     this.renderUI();
   }
 
   async importMultipleProfiles(exportData) {
     let importedCount = 0;
+    let firstImportedKey = null;
 
     for (const [_originalKey, profileData] of Object.entries(exportData.profiles)) {
       this.profileCounter++;
       const newKey = `profile_${Date.now()}_${importedCount}`;
+
+      if (firstImportedKey === null) {
+        firstImportedKey = newKey;
+      }
 
       this.profiles[newKey] = {
         name: profileData.name || `Imported Profile ${this.profileCounter}`,
@@ -1081,15 +1099,8 @@ export class HeaderEditorPopup {
       };
 
       importedCount++;
-
-      // Small delay to ensure unique timestamps
-      await new Promise(resolve => setTimeout(resolve, 1));
     }
 
-    // Switch to first imported profile
-    const firstImportedKey = Object.keys(this.profiles).find(key =>
-      key.includes(`profile_${Date.now().toString().slice(0, -3)}`)
-    );
     if (firstImportedKey) {
       this.currentProfile = firstImportedKey;
     }
