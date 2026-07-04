@@ -656,6 +656,18 @@ describe('HeaderEditorPopup', () => {
       popup.validateJSON();
       expect(document.getElementById('validation-message').innerHTML).toContain('✗');
     });
+
+    test('full export object ({profiles}) in import mode shows success (plan 018)', () => {
+      document.getElementById('json-textarea').value = JSON.stringify({
+        profiles: {
+          p1: { name: 'P1', description: '', requestHeaders: [] },
+          p2: { name: 'P2', description: '', requestHeaders: [] },
+        },
+      });
+      popup.validateJSON();
+      expect(document.getElementById('validation-message').innerHTML).toContain('✓');
+      expect(document.getElementById('modal-action').disabled).toBe(false);
+    });
   });
 
   // ─── toggleDropdown / closeDropdown ──────────────────────────────────────────
@@ -791,6 +803,91 @@ describe('HeaderEditorPopup', () => {
 
       // currentProfile must be the FIRST imported key (insertion order)
       expect(popup.currentProfile).toBe(importedKeys[0]);
+    });
+
+    test('profile with non-array requestHeaders results in empty array (plan 018)', async () => {
+      const exportData = {
+        profiles: {
+          orig1: { name: 'Alpha', description: '', requestHeaders: 'garbage' },
+        },
+      };
+      const profilesBefore = Object.keys(popup.profiles);
+      await popup.importMultipleProfiles(exportData);
+
+      const allKeys = Object.keys(popup.profiles);
+      const importedKey = allKeys.find(k => !profilesBefore.includes(k));
+      expect(popup.profiles[importedKey].requestHeaders).toEqual([]);
+    });
+
+    test('profile with entries missing string name are filtered out (plan 018)', async () => {
+      const exportData = {
+        profiles: {
+          orig1: {
+            name: 'Alpha',
+            description: '',
+            requestHeaders: [{ name: 'X-Ok', value: 'v' }, { value: 'no-name' }, { name: '' }],
+          },
+        },
+      };
+      const profilesBefore = Object.keys(popup.profiles);
+      await popup.importMultipleProfiles(exportData);
+
+      const allKeys = Object.keys(popup.profiles);
+      const importedKey = allKeys.find(k => !profilesBefore.includes(k));
+      expect(popup.profiles[importedKey].requestHeaders).toEqual([
+        { name: 'X-Ok', value: 'v', enabled: true },
+      ]);
+    });
+  });
+
+  describe('replaceCurrentProfile (plan 018)', () => {
+    test('array of headers replaces current profile requestHeaders, normalized', async () => {
+      await popup.replaceCurrentProfile([{ name: 'X-New', value: 'v' }]);
+      expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([
+        { name: 'X-New', value: 'v', enabled: true },
+      ]);
+    });
+
+    test('full export with a single profile takes its headers, normalized', async () => {
+      const exportData = {
+        profiles: {
+          only: {
+            name: 'Only',
+            description: '',
+            requestHeaders: [{ name: 'X-Single', value: 'v', enabled: false }],
+          },
+        },
+      };
+      await popup.replaceCurrentProfile(exportData);
+      expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([
+        { name: 'X-Single', value: 'v', enabled: false },
+      ]);
+    });
+
+    test('full export with multiple profiles throws "Cannot replace" error', async () => {
+      const exportData = {
+        profiles: {
+          p1: { name: 'P1', description: '', requestHeaders: [] },
+          p2: { name: 'P2', description: '', requestHeaders: [] },
+        },
+      };
+      await expect(popup.replaceCurrentProfile(exportData)).rejects.toThrow(/Cannot replace/);
+    });
+
+    test('invalid format (no array, no profiles key) throws', async () => {
+      await expect(popup.replaceCurrentProfile({ invalid: true })).rejects.toThrow(
+        'Invalid import format'
+      );
+    });
+
+    test('regression: full export with requestHeaders as a string yields [] not the string', async () => {
+      const exportData = {
+        profiles: {
+          only: { name: 'Only', description: '', requestHeaders: 'garbage' },
+        },
+      };
+      await popup.replaceCurrentProfile(exportData);
+      expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([]);
     });
   });
 

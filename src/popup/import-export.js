@@ -87,14 +87,6 @@ export class ImportExportManager {
     const jsonString = JSON.stringify(exportData, null, 2);
     document.getElementById('json-textarea').value = jsonString;
 
-    const _headerCount =
-      exportScope === 'current'
-        ? exportData.length
-        : Object.values(popup.profiles).reduce(
-            (count, profile) => count + (profile.requestHeaders?.length || 0),
-            0
-          );
-
     this.setValidationMessage(
       'success',
       `✓ Ready to copy (${exportScope === 'current' ? 'current profile' : `${Object.keys(popup.profiles).length} profiles`})`
@@ -135,19 +127,26 @@ export class ImportExportManager {
 
       // Validate structure for import
       if (popup.currentModalMode === 'import') {
-        if (!Array.isArray(parsed)) {
-          throw new Error('JSON must be an array of headers');
-        }
-
-        // Check if headers have required structure
-        for (let i = 0; i < parsed.length; i++) {
-          const header = parsed[i];
-          if (!header.name || typeof header.name !== 'string') {
-            throw new Error(`Header ${i + 1}: missing or invalid 'name' field`);
+        if (Array.isArray(parsed) && this.isModHeaderProfileExport(parsed)) {
+          this.setValidationMessage('success', `✓ Valid JSON (${parsed.length} profiles)`);
+        } else if (Array.isArray(parsed)) {
+          // Check if headers have required structure
+          for (let i = 0; i < parsed.length; i++) {
+            const header = parsed[i];
+            if (!header.name || typeof header.name !== 'string') {
+              throw new Error(`Header ${i + 1}: missing or invalid 'name' field`);
+            }
           }
-        }
 
-        this.setValidationMessage('success', `✓ Valid JSON (${parsed.length} headers)`);
+          this.setValidationMessage('success', `✓ Valid JSON (${parsed.length} headers)`);
+        } else if (parsed && typeof parsed === 'object' && parsed.profiles) {
+          this.setValidationMessage(
+            'success',
+            `✓ Valid JSON (${Object.keys(parsed.profiles).length} profiles)`
+          );
+        } else {
+          throw new Error('Invalid JSON format. Expected array of headers or profiles object.');
+        }
       } else {
         this.setValidationMessage('success', '✓ Valid JSON');
       }
@@ -198,7 +197,9 @@ export class ImportExportManager {
         // Import single profile from multi-profile export
         const profileKey = Object.keys(importData.profiles)[0];
         const profileData = importData.profiles[profileKey];
-        popup.profiles[popup.currentProfile].requestHeaders = profileData.requestHeaders || [];
+        popup.profiles[popup.currentProfile].requestHeaders = this.sanitizeHeaders(
+          profileData.requestHeaders
+        );
       } else {
         throw new Error(
           'Cannot replace current profile with multiple profiles. Use "Create new profile" mode instead.'
@@ -216,6 +217,10 @@ export class ImportExportManager {
     return importData
       .filter(header => header.name && typeof header.name === 'string')
       .map(normalizeHeader);
+  }
+
+  sanitizeHeaders(maybeHeaders) {
+    return Array.isArray(maybeHeaders) ? this.extractHeadersFromArray(maybeHeaders) : [];
   }
 
   // ── Clipboard ─────────────────────────────────────────────────────────────
@@ -379,7 +384,7 @@ export class ImportExportManager {
       popup.profiles[newKey] = {
         name: profileData.name || `Imported Profile ${popup.profileCounter}`,
         description: profileData.description || 'Imported from JSON - click to edit',
-        requestHeaders: profileData.requestHeaders || [],
+        requestHeaders: this.sanitizeHeaders(profileData.requestHeaders),
       };
 
       importedCount++;
