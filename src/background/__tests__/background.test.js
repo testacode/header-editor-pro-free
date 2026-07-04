@@ -368,6 +368,120 @@ describe('HeaderEditorBackground', () => {
     });
   });
 
+  // ─── rule state signature (plan 022) ─────────────────────────────────────
+
+  describe('rule state signature (plan 022)', () => {
+    const baseState = () => ({
+      pinned: false,
+      profiles: {
+        p1: {
+          name: 'Profile 1',
+          backgroundColor: '#111111',
+          requestHeaders: [{ name: 'X-Test', value: 'hello', enabled: true }],
+        },
+      },
+      currentProfile: 'p1',
+      enabled: true,
+      paused: false,
+    });
+
+    const mockStorage = state => {
+      chrome.storage.local.get.mockResolvedValue({ headerEditorData: state });
+    };
+
+    test('same state twice → applyHeaderRules only called on the first loadAndApplyRules', async () => {
+      const applySpy = vi.spyOn(background, 'applyHeaderRules');
+      mockStorage(baseState());
+
+      await background.loadAndApplyRules();
+      await background.loadAndApplyRules();
+
+      expect(applySpy).toHaveBeenCalledTimes(1);
+    });
+
+    test('pinned change only → second loadAndApplyRules does not re-apply', async () => {
+      const applySpy = vi.spyOn(background, 'applyHeaderRules');
+      mockStorage(baseState());
+
+      await background.loadAndApplyRules();
+
+      mockStorage({ ...baseState(), pinned: true });
+      await background.loadAndApplyRules();
+
+      expect(applySpy).toHaveBeenCalledTimes(1);
+    });
+
+    test('profile backgroundColor change only → second loadAndApplyRules does not re-apply', async () => {
+      const applySpy = vi.spyOn(background, 'applyHeaderRules');
+      mockStorage(baseState());
+
+      await background.loadAndApplyRules();
+
+      const changed = baseState();
+      changed.profiles.p1.backgroundColor = '#ff0000';
+      mockStorage(changed);
+      await background.loadAndApplyRules();
+
+      expect(applySpy).toHaveBeenCalledTimes(1);
+    });
+
+    test('header value change → second loadAndApplyRules re-applies', async () => {
+      const applySpy = vi.spyOn(background, 'applyHeaderRules');
+      mockStorage(baseState());
+
+      await background.loadAndApplyRules();
+
+      const changed = baseState();
+      changed.profiles.p1.requestHeaders[0].value = 'changed';
+      mockStorage(changed);
+      await background.loadAndApplyRules();
+
+      expect(applySpy).toHaveBeenCalledTimes(2);
+    });
+
+    test('currentProfile change → second loadAndApplyRules re-applies', async () => {
+      const applySpy = vi.spyOn(background, 'applyHeaderRules');
+      const state = baseState();
+      state.profiles.p2 = {
+        name: 'Profile 2',
+        requestHeaders: [{ name: 'X-Test', value: 'hello', enabled: true }],
+      };
+      mockStorage(state);
+
+      await background.loadAndApplyRules();
+
+      mockStorage({ ...state, currentProfile: 'p2' });
+      await background.loadAndApplyRules();
+
+      expect(applySpy).toHaveBeenCalledTimes(2);
+    });
+
+    test('paused change → second loadAndApplyRules re-applies', async () => {
+      const applySpy = vi.spyOn(background, 'applyHeaderRules');
+      mockStorage(baseState());
+
+      await background.loadAndApplyRules();
+
+      mockStorage({ ...baseState(), paused: true });
+      await background.loadAndApplyRules();
+
+      expect(applySpy).toHaveBeenCalledTimes(2);
+    });
+
+    test('applyHeaderRules failure → signature not saved, next call with same state retries', async () => {
+      const applySpy = vi.spyOn(background, 'applyHeaderRules');
+      applySpy.mockRejectedValueOnce(new Error('boom'));
+      mockStorage(baseState());
+
+      await background.loadAndApplyRules();
+      expect(background.lastAppliedSignature).toBeNull();
+
+      await background.loadAndApplyRules();
+
+      expect(applySpy).toHaveBeenCalledTimes(2);
+    });
+  });
+
   // ─── setupMessageHandlers ────────────────────────────────────────────────
 
   describe('setupMessageHandlers', () => {

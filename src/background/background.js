@@ -4,6 +4,7 @@ export class HeaderEditorBackground {
   constructor() {
     this.currentRuleId = 1;
     this.activeRules = new Set();
+    this.lastAppliedSignature = null;
     this.isFirefox = this.detectFirefox();
     this.init();
   }
@@ -74,6 +75,16 @@ export class HeaderEditorBackground {
     });
   }
 
+  ruleStateSignature(data) {
+    const profile = data.profiles?.[data.currentProfile];
+    return JSON.stringify({
+      enabled: data.enabled,
+      paused: data.paused,
+      currentProfile: data.currentProfile,
+      requestHeaders: profile?.requestHeaders ?? null,
+    });
+  }
+
   async loadAndApplyRules() {
     try {
       const result = await chrome.storage.local.get(['headerEditorData']);
@@ -90,9 +101,16 @@ export class HeaderEditorBackground {
         profileCounter: 1,
       };
 
+      const signature = this.ruleStateSignature(data);
+      if (signature === this.lastAppliedSignature) {
+        return;
+      }
+
       await this.applyHeaderRules(data);
+      this.lastAppliedSignature = signature;
     } catch (error) {
       console.error('Failed to apply header rules, clearing all rules:', error);
+      this.lastAppliedSignature = null;
       await this.clearAllRules();
     }
   }
