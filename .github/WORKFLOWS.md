@@ -17,7 +17,7 @@ This directory contains automated workflows for building and releasing the Heade
 - Perfect for testing development versions
 
 **How to use:**
-1. Push your changes to main branch
+1. Push your changes to master branch
 2. Go to **Actions** tab in GitHub repository
 3. Click on the latest workflow run
 4. Download the `header-editor-pro-free-extension` artifact
@@ -65,7 +65,7 @@ git commit -m "release: bump version to 1.1.0"
 
 # 3. Create and push tag
 git tag v1.1.0
-git push origin main --tags
+git push origin master --tags
 ```
 
 #### Option C: GitHub UI
@@ -150,7 +150,6 @@ You can check workflow status:
 ## 🔧 Troubleshooting
 
 ### Workflow Not Triggering
-- Check branch names match (main vs master)
 - Ensure tag format is correct (`v1.0.0` not `1.0.0`)
 - Verify you have proper permissions
 

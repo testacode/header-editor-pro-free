@@ -18,8 +18,13 @@ Essential guidance for agentic coding agents working in this Chrome/Firefox exte
 - **Chrome APIs**: Use `chrome.*` APIs (auto-polyfilled for Firefox)
 - **Storage**: Use `chrome.storage.local` for persistence
 - **Naming**: camelCase for variables/methods, PascalCase for classes
-- **No console.log**: Remove all console.log statements from production code
-- **File Size**: Keep files under 200 lines, maintain separation of concerns
+- **Console logging**: `console.error`/`console.log` are allowed and used
+  deliberately for on-device debugging (eslint `no-console` is off). Do NOT
+  strip existing logging; it was added intentionally (see commits afc5604,
+  c25f150).
+- **File Size**: Prefer small, focused modules. There is no hard line limit;
+  the largest files (popup.js ~900 lines) are already decomposed into
+  managers — extend the managers rather than growing popup.js.
 - **Error Handling**: Always wrap async operations in try/catch blocks
 - **CSS**: No frameworks (no Tailwind), vanilla CSS with class-based styling
 

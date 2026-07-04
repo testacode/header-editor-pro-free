@@ -133,7 +133,6 @@
 │   ├── manifest.json    # Unified config for Chrome & Firefox
 │   ├── popup/           # UI components (HTML, CSS, JS)
 │   ├── background/      # Service worker logic
-│   ├── pages/           # Privacy policy and other pages
 │   └── assets/icons/    # Extension icons (16px-128px)
 ├── dist/                # Built extension (gitignored)
 ├── rspack.config.js     # Rspack bundler configuration
@@ -157,6 +156,7 @@
 5. Go to `chrome://extensions`
 6. Click "Reload" on the extension card
 7. Test your changes
+8. Before pushing: `npm run code-quality` (lint + format + tests — same gate CI runs)
 
 ### Build Process
 The extension uses **Rspack** (23x faster than Webpack) for bundling:
@@ -189,7 +189,7 @@ node scripts/release.js
 git add .
 git commit -m "release: bump version to 1.1.0"
 git tag v1.1.0
-git push origin main --tags
+git push origin master --tags
 ```
 
 Both methods trigger **GitHub Actions** to automatically build the extension ZIP and create a GitHub release.
@@ -217,7 +217,7 @@ Contributions are welcome! Please:
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Run `npm run code-quality` (lint, format check, tests) — CI enforces this
 5. Submit a pull request
 
 ## 📄 License
