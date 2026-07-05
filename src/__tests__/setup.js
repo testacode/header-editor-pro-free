@@ -38,7 +38,7 @@ const mockRuntime = {
   },
   sendMessage: vi.fn().mockResolvedValue(undefined),
   getManifest: vi.fn().mockReturnValue({
-    version: '2.1.1',
+    version: '2.2.2',
     name: 'Header Editor Pro - Free',
   }),
   getURL: vi.fn(path => `chrome-extension://test-extension-id/${path}`),
@@ -140,20 +140,6 @@ global.FileReader = vi.fn().mockImplementation(() => ({
 global.confirm = vi.fn().mockReturnValue(true);
 global.alert = vi.fn();
 
-// Mock setTimeout and setInterval to be synchronous in tests
-global.setTimeout = vi.fn(fn => {
-  if (typeof fn === 'function') {
-    fn();
-  }
-  return 1;
-});
-
-global.setInterval = vi.fn(fn => {
-  if (typeof fn === 'function') {
-    fn();
-  }
-  return 1;
-});
-
-global.clearTimeout = vi.fn();
-global.clearInterval = vi.fn();
+// NOTE: no global timer mocks. Timing behavior (tooltip auto-dismiss, copy-button
+// reset, Firefox DNR delays) is tested with per-suite fake timers
+// (vi.useFakeTimers) so suites that don't use timers don't pay for them.

@@ -714,16 +714,48 @@ describe('HeaderEditorPopup', () => {
   // ─── showUpdateTooltip / showWelcomeTooltip ───────────────────────────────────
 
   describe('showUpdateTooltip', () => {
-    test('appends a tooltip element to body', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
+
+    test('appends a tooltip with interpolated versions', () => {
       popup.showUpdateTooltip({ previousVersion: '1.0', currentVersion: '2.0' });
-      expect(document.querySelector('.update-notification')).toBeDefined();
+      const tooltip = document.querySelector('.update-notification');
+      expect(tooltip).not.toBeNull();
+      expect(tooltip.textContent).toContain('1.0');
+      expect(tooltip.textContent).toContain('2.0');
+    });
+
+    test('auto-closes after 6s then slide-out', () => {
+      popup.showUpdateTooltip({ previousVersion: '1.0', currentVersion: '2.0' });
+      expect(document.querySelector('.update-notification')).not.toBeNull();
+      vi.advanceTimersByTime(6000 + 300);
+      expect(document.querySelector('.update-notification')).toBeNull();
+    });
+
+    test('close button removes the tooltip', () => {
+      popup.showUpdateTooltip({ previousVersion: '1.0', currentVersion: '2.0' });
+      document.querySelector('.update-close').click();
+      vi.advanceTimersByTime(300);
+      expect(document.querySelector('.update-notification')).toBeNull();
     });
   });
 
   describe('showWelcomeTooltip', () => {
-    test('appends a welcome notification to body', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
+
+    test('appends a welcome notification with version', () => {
       popup.showWelcomeTooltip({ version: '2.0' });
-      expect(document.querySelector('.welcome-notification')).toBeDefined();
+      const tooltip = document.querySelector('.welcome-notification');
+      expect(tooltip).not.toBeNull();
+      expect(tooltip.textContent).toContain('2.0');
+    });
+
+    test('auto-closes after 8s then slide-out', () => {
+      popup.showWelcomeTooltip({ version: '2.0' });
+      expect(document.querySelector('.welcome-notification')).not.toBeNull();
+      vi.advanceTimersByTime(8000 + 300);
+      expect(document.querySelector('.welcome-notification')).toBeNull();
     });
   });
 
