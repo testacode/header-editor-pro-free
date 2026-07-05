@@ -91,6 +91,30 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
+  // ─── refreshHeaders ───────────────────────────────────────────────────────────
+
+  describe('refreshHeaders', () => {
+    test('reloads state from storage (not just re-render of memory)', async () => {
+      // Storage changes after the initial load; refreshHeaders must pick it up.
+      chrome.storage.local.get.mockResolvedValue({
+        headerEditorData: {
+          profiles: { default: { name: 'Reloaded', description: 'd', requestHeaders: [] } },
+          currentProfile: 'default',
+          enabled: false,
+          paused: false,
+          pinned: false,
+          profileCounter: 3,
+        },
+      });
+
+      await popup.refreshHeaders();
+
+      expect(popup.profiles.default.name).toBe('Reloaded');
+      expect(popup.isEnabled).toBe(false);
+      expect(popup.profileCounter).toBe(3);
+    });
+  });
+
   // ─── migrateHeaderFormat ─────────────────────────────────────────────────────
 
   describe('migrateHeaderFormat', () => {

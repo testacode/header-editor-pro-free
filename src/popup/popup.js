@@ -605,8 +605,9 @@ export class HeaderEditorPopup {
     return this.deleteProfile(profileKey);
   }
 
-  refreshHeaders() {
-    this.renderHeaders();
+  async refreshHeaders() {
+    await this.loadData();
+    this.renderUI();
   }
 
   openFullscreen() {
