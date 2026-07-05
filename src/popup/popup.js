@@ -322,7 +322,7 @@ export class HeaderEditorPopup {
       // Context menu for profile management
       circleDiv.addEventListener('contextmenu', e => {
         e.preventDefault();
-        this.showProfileMenu(key, e.clientX, e.clientY);
+        this.showProfileMenu(key);
       });
 
       container.appendChild(circleDiv);
@@ -576,38 +576,33 @@ export class HeaderEditorPopup {
     tooltip.style.display = 'none';
   }
 
-  async deleteCurrentProfile() {
-    // Close dropdown first
-    this.closeDropdown();
-
-    if (this.currentProfile === 'default') {
-      return; // Should not happen due to UI logic, but safety check
+  async deleteProfile(profileKey) {
+    if (profileKey === 'default' || !this.profiles[profileKey]) {
+      return; // default is never deletable; unknown keys are a no-op
     }
 
-    const profileName = this.profiles[this.currentProfile]?.name || 'this profile';
-
+    const profileName = this.profiles[profileKey]?.name || 'this profile';
     if (
-      confirm(`Are you sure you want to delete "${profileName}"? This action cannot be undone.`)
+      !confirm(`Are you sure you want to delete "${profileName}"? This action cannot be undone.`)
     ) {
-      delete this.profiles[this.currentProfile];
-      this.currentProfile = 'default';
-      await this.saveData();
-      this.renderUI();
+      return;
     }
+
+    delete this.profiles[profileKey];
+    if (this.currentProfile === profileKey) {
+      this.currentProfile = 'default';
+    }
+    await this.saveData();
+    this.renderUI();
   }
 
-  showProfileMenu(profileKey, _x, _y) {
-    // Simple context menu - could be enhanced
-    if (profileKey !== 'default') {
-      if (confirm(`Delete profile "${this.profiles[profileKey].name}"?`)) {
-        delete this.profiles[profileKey];
-        if (this.currentProfile === profileKey) {
-          this.currentProfile = 'default';
-        }
-        this.saveData();
-        this.renderUI();
-      }
-    }
+  async deleteCurrentProfile() {
+    this.closeDropdown();
+    return this.deleteProfile(this.currentProfile);
+  }
+
+  showProfileMenu(profileKey) {
+    return this.deleteProfile(profileKey);
   }
 
   refreshHeaders() {

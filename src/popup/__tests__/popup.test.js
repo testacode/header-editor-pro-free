@@ -243,14 +243,14 @@ describe('HeaderEditorPopup', () => {
       popup.profiles.ctx = { name: 'Context Profile', requestHeaders: [] };
       vi.mocked(confirm).mockReturnValue(true);
 
-      popup.showProfileMenu('ctx', 0, 0);
+      popup.showProfileMenu('ctx');
 
       expect(popup.profiles.ctx).toBeUndefined();
     });
 
     test('cannot delete default via context menu', () => {
       vi.mocked(confirm).mockReturnValue(true);
-      popup.showProfileMenu('default', 0, 0);
+      popup.showProfileMenu('default');
       expect(popup.profiles.default).toBeDefined();
     });
   });
