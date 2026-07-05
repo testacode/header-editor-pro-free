@@ -116,5 +116,5 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Privacy Policy Setup:**
 - Privacy policy hosted at root `privacy.html` for GitHub Pages accessibility
 - URL: `https://testacode.github.io/header-editor-pro-free/privacy.html`
-- Referenced in `manifest.json` via `privacy_policy` field
-- Required for Chrome Web Store approval process
+- URL is set in each store's Developer Dashboard (Chrome Web Store / AMO), not in `manifest.json` — `privacy_policy` is not a recognized MV3 manifest key
+- Required for Chrome Web Store approval process (via dashboard)
