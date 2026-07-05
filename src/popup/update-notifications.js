@@ -32,69 +32,58 @@ export class UpdateNotificationsManager {
     }
   }
 
-  showUpdateTooltip(updateInfo) {
+  showTooltip({ className, icon, title, body, subtitle, autoCloseMs }) {
     const tooltip = document.createElement('div');
-    tooltip.className = 'update-notification update-notification-slide-in';
+    tooltip.className = className;
     tooltip.innerHTML = `
       <div class="update-header">
-        <span class="update-icon">✨</span>
-        <span class="update-title">Extension Updated!</span>
+        <span class="update-icon">${icon}</span>
+        <span class="update-title">${title}</span>
         <button class="update-close">×</button>
       </div>
       <div class="update-content">
-        Updated from v${updateInfo.previousVersion} to v${updateInfo.currentVersion}
-        <div class="update-subtitle">Check latest features and improvements</div>
+        ${body}
+        <div class="update-subtitle">${subtitle}</div>
       </div>
     `;
 
     document.body.appendChild(tooltip);
 
-    // Setup close button
-    const closeBtn = tooltip.querySelector('.update-close');
-    closeBtn.addEventListener('click', () => {
+    const slideOutAndRemove = () => {
       tooltip.classList.add('update-notification-slide-out');
       setTimeout(() => tooltip.remove(), 300);
-    });
+    };
 
-    // Auto-close after 6 seconds
+    // Setup close button
+    tooltip.querySelector('.update-close').addEventListener('click', slideOutAndRemove);
+
+    // Auto-close after the configured delay
     setTimeout(() => {
       if (tooltip.parentNode) {
-        tooltip.classList.add('update-notification-slide-out');
-        setTimeout(() => tooltip.remove(), 300);
+        slideOutAndRemove();
       }
-    }, 6000);
+    }, autoCloseMs);
+  }
+
+  showUpdateTooltip(updateInfo) {
+    this.showTooltip({
+      className: 'update-notification update-notification-slide-in',
+      icon: '✨',
+      title: 'Extension Updated!',
+      body: `Updated from v${updateInfo.previousVersion} to v${updateInfo.currentVersion}`,
+      subtitle: 'Check latest features and improvements',
+      autoCloseMs: 6000,
+    });
   }
 
   showWelcomeTooltip(welcomeInfo) {
-    const tooltip = document.createElement('div');
-    tooltip.className = 'update-notification welcome-notification update-notification-slide-in';
-    tooltip.innerHTML = `
-      <div class="update-header">
-        <span class="update-icon">🎉</span>
-        <span class="update-title">Welcome to Header Editor Pro!</span>
-        <button class="update-close">×</button>
-      </div>
-      <div class="update-content">
-        Thanks for installing v${welcomeInfo.version}
-        <div class="update-subtitle">Create unlimited profiles and modify HTTP headers easily</div>
-      </div>
-    `;
-
-    document.body.appendChild(tooltip);
-
-    // Setup close button
-    const closeBtn = tooltip.querySelector('.update-close');
-    closeBtn.addEventListener('click', () => {
-      tooltip.classList.add('update-notification-slide-out');
-      setTimeout(() => tooltip.remove(), 300);
+    this.showTooltip({
+      className: 'update-notification welcome-notification update-notification-slide-in',
+      icon: '🎉',
+      title: 'Welcome to Header Editor Pro!',
+      body: `Thanks for installing v${welcomeInfo.version}`,
+      subtitle: 'Create unlimited profiles and modify HTTP headers easily',
+      autoCloseMs: 8000,
     });
-
-    // Auto-close after 8 seconds for welcome message
-    setTimeout(() => {
-      if (tooltip.parentNode) {
-        tooltip.classList.add('update-notification-slide-out');
-        setTimeout(() => tooltip.remove(), 300);
-      }
-    }, 8000);
   }
 }
