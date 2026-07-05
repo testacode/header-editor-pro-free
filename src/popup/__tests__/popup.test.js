@@ -724,6 +724,11 @@ describe('HeaderEditorPopup', () => {
       popup.importExport.showImportModal();
       expect(document.getElementById('modal-overlay').style.display).toBe('flex');
     });
+
+    test('modal-download button is hidden in import mode', () => {
+      popup.importExport.showImportModal();
+      expect(document.getElementById('modal-download').style.display).toBe('none');
+    });
   });
 
   describe('showExportModal', () => {
@@ -741,6 +746,11 @@ describe('HeaderEditorPopup', () => {
       popup.importExport.showExportModal();
       expect(document.getElementById('modal-action').style.display).toBe('none');
       expect(document.getElementById('modal-copy').style.display).toBe('block');
+    });
+
+    test('modal-download button is visible in export mode', () => {
+      popup.importExport.showExportModal();
+      expect(document.getElementById('modal-download').style.display).toBe('block');
     });
   });
 
@@ -1383,19 +1393,67 @@ describe('HeaderEditorPopup', () => {
       clickSpy.mockRestore();
     });
 
-    test('exportCurrentProfile alerts and returns when no profile is selected', () => {
-      popup.currentProfile = 'does-not-exist';
-      popup.importExport.exportCurrentProfile();
-      expect(alert).toHaveBeenCalledWith('No profile selected to export');
-      expect(clickSpy).not.toHaveBeenCalled();
+    function setScope(value) {
+      document.querySelector(`input[name="export-scope"][value="${value}"]`).checked = true;
+    }
+
+    test('downloadExport with scope=current downloads the textarea JSON with a profile filename', () => {
+      setScope('current');
+      const payload = [{ appendMode: false, enabled: true, name: 'X', value: 'v' }];
+      document.getElementById('json-textarea').value = JSON.stringify(payload);
+      const downloadSpy = vi.spyOn(popup.importExport, 'downloadJSON');
+
+      popup.importExport.downloadExport();
+
+      expect(downloadSpy).toHaveBeenCalledWith(payload, expect.stringMatching(/_headers\.json$/));
     });
 
-    test('exportCurrentProfile downloads the current profile as JSON', () => {
+    test('downloadExport with scope=all uses a dated profiles filename', () => {
+      setScope('all');
+      const payload = {
+        profiles: { p1: { name: 'P1', requestHeaders: [] } },
+        currentProfile: 'p1',
+      };
+      document.getElementById('json-textarea').value = JSON.stringify(payload);
       const downloadSpy = vi.spyOn(popup.importExport, 'downloadJSON');
-      popup.importExport.exportCurrentProfile();
-      expect(downloadSpy).toHaveBeenCalled();
-      // filename derived from profile name
-      expect(downloadSpy.mock.calls[0][1]).toMatch(/_headers\.json$/);
+
+      popup.importExport.downloadExport();
+
+      expect(downloadSpy).toHaveBeenCalledWith(
+        payload,
+        expect.stringMatching(/^header-editor-profiles-\d{4}-\d{2}-\d{2}\.json$/)
+      );
+    });
+
+    test('downloadExport round-trip: scope=all payload re-imports without throwing', async () => {
+      setScope('all');
+      const payload = {
+        profiles: {
+          p1: {
+            name: 'P1',
+            description: '',
+            requestHeaders: [{ name: 'X-Req', value: 'q', enabled: true }],
+            responseHeaders: [{ name: 'X-Resp', value: 'r', enabled: true }],
+          },
+        },
+        currentProfile: 'p1',
+      };
+      document.getElementById('json-textarea').value = JSON.stringify(payload);
+      vi.spyOn(popup.importExport, 'downloadJSON').mockImplementation(() => {});
+      popup.importExport.downloadExport();
+
+      await expect(popup.importExport.importProfileFromData(payload)).resolves.not.toThrow();
+    });
+
+    test('downloadExport with invalid JSON shows a validation error and does not download', () => {
+      setScope('current');
+      document.getElementById('json-textarea').value = '{ not valid json';
+      const downloadSpy = vi.spyOn(popup.importExport, 'downloadJSON');
+
+      popup.importExport.downloadExport();
+
+      expect(downloadSpy).not.toHaveBeenCalled();
+      expect(document.getElementById('validation-message').textContent).toContain('✗');
     });
 
     test('downloadJSON creates a blob URL, clicks the link, and revokes the URL', () => {

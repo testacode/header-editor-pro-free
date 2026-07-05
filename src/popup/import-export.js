@@ -15,6 +15,7 @@ export class ImportExportManager {
     document.getElementById('modal-action').textContent = 'Import';
     document.getElementById('modal-action').style.display = 'block';
     document.getElementById('modal-copy').style.display = 'none';
+    document.getElementById('modal-download').style.display = 'none';
     document.getElementById('validation-message').textContent = '';
 
     // Show import options, hide export options
@@ -36,6 +37,7 @@ export class ImportExportManager {
     document.getElementById('json-textarea').placeholder = '';
     document.getElementById('modal-action').style.display = 'none';
     document.getElementById('modal-copy').style.display = 'block';
+    document.getElementById('modal-download').style.display = 'block';
 
     // Show export options, hide import options
     document.querySelector('.option-group:first-child').style.display = 'block'; // Show export scope
@@ -407,22 +409,28 @@ export class ImportExportManager {
 
   // ── Export logic ──────────────────────────────────────────────────────────
 
-  exportCurrentProfile() {
-    const popup = this.popup;
-    const currentProfile = popup.profiles[popup.currentProfile];
-    if (!currentProfile) {
-      alert('No profile selected to export');
+  // Download whatever the export modal is currently showing (the textarea is the
+  // source of truth, so a user-edited JSON is honored). Filename depends on scope.
+  downloadExport() {
+    const exportScope = document.querySelector('input[name="export-scope"]:checked').value;
+    const jsonText = document.getElementById('json-textarea').value;
+
+    let data;
+    try {
+      data = JSON.parse(jsonText);
+    } catch (error) {
+      this.setValidationMessage('error', `✗ ${error.message}`);
       return;
     }
 
-    // Convert to ModHeader format
-    const exportData = this.convertToModHeaderFormat(currentProfile);
+    const filename =
+      exportScope === 'current'
+        ? `${(this.popup.profiles[this.popup.currentProfile]?.name || 'profile')
+            .replace(/[^a-z0-9]/gi, '_')
+            .toLowerCase()}_headers.json`
+        : `header-editor-profiles-${new Date().toISOString().slice(0, 10)}.json`;
 
-    // Create and download the file
-    this.downloadJSON(
-      exportData,
-      `${currentProfile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_headers.json`
-    );
+    this.downloadJSON(data, filename);
   }
 
   convertToModHeaderFormat(profile) {

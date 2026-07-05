@@ -203,6 +203,10 @@ export class HeaderEditorPopup {
       this.importExport.copyToClipboard();
     });
 
+    document.getElementById('modal-download').addEventListener('click', () => {
+      this.importExport.downloadExport();
+    });
+
     document.getElementById('modal-overlay').addEventListener('click', e => {
       if (e.target === e.currentTarget) {
         this.importExport.closeModal();
