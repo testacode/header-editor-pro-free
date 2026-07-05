@@ -17,7 +17,7 @@
 
 🔥 **100% FREE** - No subscriptions, no premium features, no limitations  
 🎯 **Unlimited Profiles** - Create as many header configurations as you need  
-⚡ **Real-time Request Header Modification** - Instant application of request headers via Chrome's declarativeNetRequest API (response headers not supported)  
+⚡ **Real-time Header Modification** - Instant application of request and response headers via Chrome's declarativeNetRequest API  
 🎨 **Professional Dark UI** - Clean, modern interface designed for developers  
 ☑️ **Individual Header Controls** - Enable/disable each header independently  
 ⏸️ **Pause Functionality** - Temporarily disable without losing configurations  
@@ -82,11 +82,11 @@
 - **Create new profile**: Click the "+" circle at bottom of sidebar
 - **Switch profiles**: Click any numbered circle
 - **Delete profile**: Right-click on a profile circle (except default)
-- **Import/Export profiles**: Use the import/export buttons in the toolbar to share configurations as JSON; importing a JSON file exported from ModHeader creates one profile per ModHeader profile (note: response headers and URL filters are not supported and will not be imported)
+- **Import/Export profiles**: Use the import/export buttons in the toolbar to share configurations as JSON; importing a JSON file exported from ModHeader creates one profile per ModHeader profile, including its request and response headers (note: URL filters are not supported and will not be imported)
 - **Active indicator**: Green circle = active, red = inactive
 
 ### Header Controls
-- **Add headers**: Use "Add header" buttons in the request headers section
+- **Add headers**: Use "Add header" buttons in the request and response header sections
 - **Edit headers**: Type directly in name/value fields
 - **Enable/disable**: Use checkboxes next to each header
 - **Delete headers**: Click the "✕" button
@@ -94,7 +94,7 @@
 ### Toolbar Features
 - **Pause/Resume**: ⏸️/▶️ button to temporarily disable all modifications
 - **Profile name**: Shows current active profile
-- **Quick add**: "+" button to add request headers
+- **Quick add**: "+" button to add request or response headers
 
 ## 🔧 Technical Details
 
