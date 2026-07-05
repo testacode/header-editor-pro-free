@@ -38,7 +38,7 @@ const mockRuntime = {
   },
   sendMessage: vi.fn().mockResolvedValue(undefined),
   getManifest: vi.fn().mockReturnValue({
-    version: '2.2.2',
+    version: '2.3.0',
     name: 'Header Editor Pro - Free',
   }),
   getURL: vi.fn(path => `chrome-extension://test-extension-id/${path}`),
