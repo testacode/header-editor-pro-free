@@ -9,6 +9,7 @@ export function defaultProfile() {
     name: 'Default',
     description: 'Click to edit description',
     requestHeaders: [],
+    responseHeaders: [],
     backgroundColor: '#4caf50',
     textColor: '#ffffff',
   };

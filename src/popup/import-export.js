@@ -80,6 +80,7 @@ export class ImportExportManager {
           name: profile.name,
           description: profile.description,
           requestHeaders: profile.requestHeaders || [],
+          responseHeaders: profile.responseHeaders || [],
         };
       });
     }
@@ -200,6 +201,9 @@ export class ImportExportManager {
         popup.profiles[popup.currentProfile].requestHeaders = this.sanitizeHeaders(
           profileData.requestHeaders
         );
+        popup.profiles[popup.currentProfile].responseHeaders = this.sanitizeHeaders(
+          profileData.responseHeaders
+        );
       } else {
         throw new Error(
           'Cannot replace current profile with multiple profiles. Use "Create new profile" mode instead.'
@@ -314,13 +318,14 @@ export class ImportExportManager {
       if (firstImportedKey === null) {
         firstImportedKey = newKey;
       }
-      if ((mhProfile.respHeaders || []).length > 0 || (mhProfile.filters || []).length > 0) {
+      if ((mhProfile.filters || []).length > 0) {
         skippedFeatures++;
       }
       popup.profiles[newKey] = {
         name: mhProfile.title || `Imported Profile ${popup.profileCounter}`,
         description: 'Imported from ModHeader - click to edit',
         requestHeaders: this.extractHeadersFromArray(mhProfile.headers),
+        responseHeaders: this.sanitizeHeaders(mhProfile.respHeaders),
       };
     });
     if (firstImportedKey) {
@@ -337,7 +342,7 @@ export class ImportExportManager {
       const result = await this.importModHeaderProfiles(importData);
       if (result.skippedFeatures > 0) {
         alert(
-          `Note: ${result.skippedFeatures} profile(s) contained response headers or URL filters, which are not supported and were not imported.`
+          `Note: ${result.skippedFeatures} profile(s) contained URL filters, which are not supported and were not imported.`
         );
       }
     } else if (Array.isArray(importData)) {
@@ -361,6 +366,7 @@ export class ImportExportManager {
       name: `Imported Profile ${popup.profileCounter}`,
       description: 'Imported from JSON - click to edit',
       requestHeaders: headers,
+      responseHeaders: [],
     };
 
     popup.currentProfile = key;
@@ -385,6 +391,7 @@ export class ImportExportManager {
         name: profileData.name || `Imported Profile ${popup.profileCounter}`,
         description: profileData.description || 'Imported from JSON - click to edit',
         requestHeaders: this.sanitizeHeaders(profileData.requestHeaders),
+        responseHeaders: this.sanitizeHeaders(profileData.responseHeaders),
       };
 
       importedCount++;
@@ -435,7 +442,8 @@ export class ImportExportManager {
       });
     }
 
-    // Response headers would need different handling in ModHeader format
+    // Single-profile export uses the flat ModHeader header array (request-only by
+    // shape). Response headers are preserved via the full "all profiles" export.
 
     return headers;
   }

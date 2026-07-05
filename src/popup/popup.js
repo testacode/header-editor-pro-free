@@ -71,7 +71,7 @@ export class HeaderEditorPopup {
 
   migrateHeaderFormat() {
     Object.values(this.profiles).forEach(profile => {
-      ['requestHeaders'].forEach(headerType => {
+      ['requestHeaders', 'responseHeaders'].forEach(headerType => {
         if (profile[headerType]) {
           profile[headerType] = profile[headerType].map(normalizeHeader);
         }
@@ -269,6 +269,10 @@ export class HeaderEditorPopup {
     document.getElementById('add-request-header').addEventListener('click', () => {
       this.addHeader('request');
     });
+
+    document.getElementById('add-response-header').addEventListener('click', () => {
+      this.addHeader('response');
+    });
   }
 
   renderUI() {
@@ -330,6 +334,7 @@ export class HeaderEditorPopup {
 
   renderHeaders() {
     this.renderHeadersList('request');
+    this.renderHeadersList('response');
   }
 
   renderHeadersList(type) {
@@ -487,7 +492,12 @@ export class HeaderEditorPopup {
   }
 
   addHeader(type) {
-    const headers = this.profiles[this.currentProfile][`${type}Headers`];
+    const key = `${type}Headers`;
+    // Pre-existing profiles in storage may lack responseHeaders — init on demand.
+    if (!this.profiles[this.currentProfile][key]) {
+      this.profiles[this.currentProfile][key] = [];
+    }
+    const headers = this.profiles[this.currentProfile][key];
     headers.push({ name: '', value: '', enabled: true });
     this.renderHeadersList(type);
     // Don't save immediately, wait for user input
@@ -517,6 +527,7 @@ export class HeaderEditorPopup {
       name: `Profile ${this.profileCounter}`,
       description: 'Click to edit description',
       requestHeaders: [],
+      responseHeaders: [],
       backgroundColor: '#4caf50',
       textColor: '#ffffff',
     };

@@ -470,6 +470,58 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
+  // ─── response headers (plan 027) ────────────────────────────────────────────────
+
+  describe('response headers', () => {
+    test('addHeader("response") initializes the field on a legacy profile and adds', () => {
+      delete popup.profiles[popup.currentProfile].responseHeaders; // simulate pre-027 profile
+      popup.addHeader('response');
+      expect(popup.profiles[popup.currentProfile].responseHeaders).toHaveLength(1);
+    });
+
+    test('response headers render in the response list, not the request list', () => {
+      popup.profiles[popup.currentProfile].requestHeaders = [];
+      popup.profiles[popup.currentProfile].responseHeaders = [
+        { name: 'X-Resp', value: 'r', enabled: true },
+      ];
+      popup.renderHeaders();
+
+      expect(document.getElementById('response-headers-list').children).toHaveLength(1);
+      expect(document.getElementById('request-headers-list').children).toHaveLength(0);
+    });
+
+    test('importMultipleProfiles preserves responseHeaders (round-trip)', async () => {
+      const exportData = {
+        profiles: {
+          p1: {
+            name: 'P1',
+            description: '',
+            requestHeaders: [{ name: 'X-Req', value: 'q', enabled: true }],
+            responseHeaders: [{ name: 'X-Resp', value: 'r', enabled: true }],
+          },
+        },
+      };
+      const before = Object.keys(popup.profiles);
+      await popup.importExport.importMultipleProfiles(exportData);
+      const key = Object.keys(popup.profiles).find(k => !before.includes(k));
+
+      expect(popup.profiles[key].responseHeaders).toEqual([
+        { name: 'X-Resp', value: 'r', enabled: true },
+      ]);
+    });
+
+    test('malformed responseHeaders (non-array) sanitizes to []', async () => {
+      const exportData = {
+        profiles: { p1: { name: 'P1', requestHeaders: [], responseHeaders: 'nope' } },
+      };
+      const before = Object.keys(popup.profiles);
+      await popup.importExport.importMultipleProfiles(exportData);
+      const key = Object.keys(popup.profiles).find(k => !before.includes(k));
+
+      expect(popup.profiles[key].responseHeaders).toEqual([]);
+    });
+  });
+
   // ─── Color utilities ──────────────────────────────────────────────────────────
 
   describe('color utilities', () => {
@@ -1035,7 +1087,7 @@ describe('HeaderEditorPopup', () => {
       ]);
     });
 
-    test('respHeaders non-empty triggers alert with skippedFeatures count', async () => {
+    test('respHeaders alone do NOT trigger the skipped alert (plan 027)', async () => {
       const withRespHeaders = [
         {
           title: 'Has Resp',
@@ -1047,11 +1099,11 @@ describe('HeaderEditorPopup', () => {
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
       await popup.importExport.importProfileFromData(withRespHeaders);
 
-      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('1 profile(s)'));
+      expect(alertSpy).not.toHaveBeenCalled();
       alertSpy.mockRestore();
     });
 
-    test('respHeaders are not persisted in imported profile', async () => {
+    test('respHeaders are persisted as responseHeaders (plan 027)', async () => {
       const withRespHeaders = [
         {
           title: 'Has Resp',
@@ -1060,7 +1112,6 @@ describe('HeaderEditorPopup', () => {
           filters: [],
         },
       ];
-      vi.spyOn(window, 'alert').mockImplementation(() => {});
       const profilesBefore = Object.keys(popup.profiles);
       await popup.importExport.importProfileFromData(withRespHeaders);
 
@@ -1070,7 +1121,23 @@ describe('HeaderEditorPopup', () => {
 
       expect(imported.requestHeaders).toHaveLength(1);
       expect(imported.requestHeaders[0].name).toBe('X-Req');
-      expect(imported.responseHeaders).toBeUndefined();
+      expect(imported.responseHeaders).toEqual([{ name: 'X-Resp', value: 'r', enabled: true }]);
+    });
+
+    test('URL filters still trigger the skipped alert (plan 027)', async () => {
+      const withFilters = [
+        {
+          title: 'Has Filters',
+          headers: [{ enabled: true, name: 'X-Req', value: 'v' }],
+          respHeaders: [],
+          filters: [{ urlRegex: 'example\\.com' }],
+        },
+      ];
+      const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+      await popup.importExport.importProfileFromData(withFilters);
+
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('URL filters'));
+      alertSpy.mockRestore();
     });
 
     test('profile without title uses fallback name', async () => {

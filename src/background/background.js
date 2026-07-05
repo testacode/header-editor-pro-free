@@ -83,6 +83,7 @@ export class HeaderEditorBackground {
       paused: data.paused,
       currentProfile: data.currentProfile,
       requestHeaders: profile?.requestHeaders ?? null,
+      responseHeaders: profile?.responseHeaders ?? null,
     });
   }
 
@@ -146,6 +147,20 @@ export class HeaderEditorBackground {
       }
     }
 
+    // Process response headers - only enabled ones
+    if (currentProfile.responseHeaders && currentProfile.responseHeaders.length > 0) {
+      const enabledResponseHeaders = currentProfile.responseHeaders.filter(isHeaderEnabled);
+      if (enabledResponseHeaders.length > 0) {
+        const responseHeaderRule = this.createModifyHeadersRule(
+          enabledResponseHeaders,
+          'responseHeaders'
+        );
+        if (responseHeaderRule) {
+          rules.push(responseHeaderRule);
+        }
+      }
+    }
+
     console.log('HeaderEditor: Rules to apply:', rules.length);
 
     if (rules.length > 0) {
@@ -163,13 +178,15 @@ export class HeaderEditorBackground {
     }
   }
 
-  createRequestHeaderRule(headers) {
+  // Build one modifyHeaders rule for a header direction.
+  // `direction` is 'requestHeaders' or 'responseHeaders' — the DNR action field.
+  createModifyHeadersRule(headers, direction) {
     const validHeaders = headers.filter(h => h.name && h.name.trim());
     if (validHeaders.length === 0) {
       return null;
     }
 
-    const requestHeaders = validHeaders.map(header => ({
+    const modifications = validHeaders.map(header => ({
       header: header.name.trim(),
       operation: header.value ? 'set' : 'remove',
       value: header.value || undefined,
@@ -180,7 +197,7 @@ export class HeaderEditorBackground {
       priority: 1,
       action: {
         type: 'modifyHeaders',
-        requestHeaders: requestHeaders,
+        [direction]: modifications,
       },
       condition: {
         urlFilter: '*',
@@ -201,6 +218,10 @@ export class HeaderEditorBackground {
         ],
       },
     };
+  }
+
+  createRequestHeaderRule(headers) {
+    return this.createModifyHeadersRule(headers, 'requestHeaders');
   }
 
   async addRules(rules) {

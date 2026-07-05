@@ -348,6 +348,110 @@ describe('HeaderEditorBackground', () => {
     });
   });
 
+  // ─── response headers (plan 027) ─────────────────────────────────────────
+
+  describe('response headers', () => {
+    const addedRules = () =>
+      chrome.declarativeNetRequest.updateDynamicRules.mock.calls
+        .filter(c => c[0].addRules)
+        .flatMap(c => c[0].addRules);
+
+    test('response headers only → one rule with action.responseHeaders', async () => {
+      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
+
+      await settle(
+        background.applyHeaderRules({
+          enabled: true,
+          paused: false,
+          profiles: {
+            p: {
+              requestHeaders: [],
+              responseHeaders: [{ name: 'X-Resp', value: 'r', enabled: true }],
+            },
+          },
+          currentProfile: 'p',
+        })
+      );
+
+      const rules = addedRules();
+      expect(rules).toHaveLength(1);
+      expect(rules[0].action.responseHeaders).toHaveLength(1);
+      expect(rules[0].action.responseHeaders[0]).toMatchObject({
+        header: 'X-Resp',
+        operation: 'set',
+        value: 'r',
+      });
+      expect(rules[0].action.requestHeaders).toBeUndefined();
+    });
+
+    test('request + response → two rules with distinct ids', async () => {
+      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
+
+      await settle(
+        background.applyHeaderRules({
+          enabled: true,
+          paused: false,
+          profiles: {
+            p: {
+              requestHeaders: [{ name: 'X-Req', value: 'q', enabled: true }],
+              responseHeaders: [{ name: 'X-Resp', value: 'r', enabled: true }],
+            },
+          },
+          currentProfile: 'p',
+        })
+      );
+
+      const rules = addedRules();
+      expect(rules).toHaveLength(2);
+      expect(rules[0].id).not.toBe(rules[1].id);
+      expect(rules[0].action.requestHeaders).toBeDefined();
+      expect(rules[1].action.responseHeaders).toBeDefined();
+    });
+
+    test('response header with empty value → operation remove', async () => {
+      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
+
+      await settle(
+        background.applyHeaderRules({
+          enabled: true,
+          paused: false,
+          profiles: {
+            p: {
+              requestHeaders: [],
+              responseHeaders: [{ name: 'X-Drop', value: '', enabled: true }],
+            },
+          },
+          currentProfile: 'p',
+        })
+      );
+
+      const rules = addedRules();
+      expect(rules).toHaveLength(1);
+      expect(rules[0].action.responseHeaders[0].operation).toBe('remove');
+      expect(rules[0].action.responseHeaders[0].value).toBeUndefined();
+    });
+
+    test('disabled response headers are filtered out → no rule', async () => {
+      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
+
+      await settle(
+        background.applyHeaderRules({
+          enabled: true,
+          paused: false,
+          profiles: {
+            p: {
+              requestHeaders: [],
+              responseHeaders: [{ name: 'X-Resp', value: 'r', enabled: false }],
+            },
+          },
+          currentProfile: 'p',
+        })
+      );
+
+      expect(addedRules()).toHaveLength(0);
+    });
+  });
+
   // ─── loadAndApplyRules ───────────────────────────────────────────────────
 
   describe('loadAndApplyRules', () => {
@@ -475,6 +579,22 @@ describe('HeaderEditorBackground', () => {
 
       const changed = baseState();
       changed.profiles.p1.requestHeaders[0].value = 'changed';
+      mockStorage(changed);
+      await settle(background.loadAndApplyRules());
+
+      expect(applySpy).toHaveBeenCalledTimes(2);
+    });
+
+    test('response header change → second loadAndApplyRules re-applies (plan 027)', async () => {
+      const applySpy = vi.spyOn(background, 'applyHeaderRules');
+      const state = baseState();
+      state.profiles.p1.responseHeaders = [{ name: 'X-Resp', value: 'a', enabled: true }];
+      mockStorage(state);
+
+      await settle(background.loadAndApplyRules());
+
+      const changed = baseState();
+      changed.profiles.p1.responseHeaders = [{ name: 'X-Resp', value: 'b', enabled: true }];
       mockStorage(changed);
       await settle(background.loadAndApplyRules());
 
