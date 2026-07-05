@@ -1261,3 +1261,11 @@ describe('HeaderEditorPopup', () => {
     });
   });
 });
+
+describe('popup.html remote resources', () => {
+  test('does not load any external <link> or <script> (privacy/offline guard)', () => {
+    const tagMatches = popupHtml.match(/<(link|script)\b[^>]*>/gi) || [];
+    const remoteTags = tagMatches.filter(tag => /https?:\/\//i.test(tag));
+    expect(remoteTags).toEqual([]);
+  });
+});
