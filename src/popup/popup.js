@@ -26,7 +26,7 @@ export class HeaderEditorPopup {
 
   async init() {
     await this.loadData();
-    await this.checkForUpdateNotification();
+    await this.updateNotifications.checkForUpdateNotification();
     this.setupEventListeners();
     this.renderUI();
   }
@@ -119,17 +119,17 @@ export class HeaderEditorPopup {
     });
 
     document.getElementById('import-item').addEventListener('click', () => {
-      this.showImportModal();
+      this.importExport.showImportModal();
       this.closeDropdown();
     });
 
     document.getElementById('export-item').addEventListener('click', () => {
-      this.showExportModal();
+      this.importExport.showExportModal();
       this.closeDropdown();
     });
 
     document.getElementById('color-picker-btn').addEventListener('click', () => {
-      this.showColorPicker();
+      this.colorPicker.showColorPicker();
     });
 
     document.getElementById('fullscreen-btn').addEventListener('click', () => {
@@ -138,7 +138,7 @@ export class HeaderEditorPopup {
 
     // Handle file input change
     document.getElementById('import-file-input').addEventListener('change', e => {
-      this.handleImportFile(e);
+      this.importExport.handleImportFile(e);
     });
 
     // Profile name inline editing
@@ -189,49 +189,49 @@ export class HeaderEditorPopup {
 
     // Modal event listeners
     document.getElementById('modal-close').addEventListener('click', () => {
-      this.closeModal();
+      this.importExport.closeModal();
     });
 
     document.getElementById('modal-cancel').addEventListener('click', () => {
-      this.closeModal();
+      this.importExport.closeModal();
     });
 
     document.getElementById('modal-action').addEventListener('click', () => {
-      this.handleModalAction();
+      this.importExport.handleModalAction();
     });
 
     document.getElementById('modal-copy').addEventListener('click', () => {
-      this.copyToClipboard();
+      this.importExport.copyToClipboard();
     });
 
     document.getElementById('modal-overlay').addEventListener('click', e => {
       if (e.target === e.currentTarget) {
-        this.closeModal();
+        this.importExport.closeModal();
       }
     });
 
     // Color picker modal event listeners
     document.getElementById('color-picker-close').addEventListener('click', () => {
-      this.closeColorPicker();
+      this.colorPicker.closeColorPicker();
     });
 
     document.getElementById('color-picker-cancel').addEventListener('click', () => {
-      this.closeColorPicker();
+      this.colorPicker.closeColorPicker();
     });
 
     document.getElementById('color-picker-save').addEventListener('click', () => {
-      this.saveProfileColor();
+      this.colorPicker.saveProfileColor();
     });
 
     document.getElementById('color-picker-overlay').addEventListener('click', e => {
       if (e.target === e.currentTarget) {
-        this.closeColorPicker();
+        this.colorPicker.closeColorPicker();
       }
     });
 
     // JSON validation on input
     document.getElementById('json-textarea').addEventListener('input', () => {
-      this.validateJSON();
+      this.importExport.validateJSON();
     });
 
     // Close popup when clicking outside (blur event)
