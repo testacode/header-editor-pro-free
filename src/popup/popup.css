@@ -678,6 +678,31 @@ body {
   background: rgba(244, 67, 54, 0.1);
 }
 
+.header-append-toggle {
+  background: none;
+  border: 1px solid #555;
+  color: #888;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.header-append-toggle:hover {
+  border-color: #4caf50;
+  color: #4caf50;
+}
+
+.header-append-toggle.active {
+  background: #4caf50;
+  border-color: #4caf50;
+  color: #fff;
+}
+
 .add-header-btn {
   display: flex;
   align-items: center;

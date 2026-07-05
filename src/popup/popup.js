@@ -1,7 +1,7 @@
 // Import CSS
 import './popup.css';
 
-import { normalizeHeader, isHeaderEnabled } from './header-normalize.js';
+import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normalize.js';
 import { defaultHeaderEditorData } from './default-data.js';
 import { ImportExportManager } from './import-export.js';
 import { UpdateNotificationsManager } from './update-notifications.js';
@@ -399,6 +399,21 @@ export class HeaderEditorPopup {
       this.saveData();
     });
 
+    // Append-mode toggle (append instead of set for multi-value headers)
+    const appendToggle = document.createElement('button');
+    appendToggle.className = 'header-append-toggle';
+    appendToggle.textContent = 'A';
+    appendToggle.title = 'Append instead of set';
+    if (isAppendMode(header)) {
+      appendToggle.classList.add('active');
+    }
+    appendToggle.addEventListener('click', () => {
+      const next = !isAppendMode(this.profiles[this.currentProfile][`${type}Headers`][index]);
+      this.updateHeader(type, index, 'appendMode', next);
+      this.saveData();
+      appendToggle.classList.toggle('active', next);
+    });
+
     // Actions
     const actions = document.createElement('div');
     actions.className = 'header-actions';
@@ -418,6 +433,7 @@ export class HeaderEditorPopup {
     div.appendChild(checkbox);
     div.appendChild(nameInput);
     div.appendChild(valueInput);
+    div.appendChild(appendToggle);
     div.appendChild(actions);
 
     // Add drag and drop event listeners

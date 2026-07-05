@@ -1,4 +1,4 @@
-import { normalizeHeader, isHeaderEnabled } from './header-normalize.js';
+import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normalize.js';
 
 export class ImportExportManager {
   constructor(popup) {
@@ -433,7 +433,7 @@ export class ImportExportManager {
       profile.requestHeaders.forEach(header => {
         if (header.name && header.name.trim()) {
           headers.push({
-            appendMode: false,
+            appendMode: isAppendMode(header),
             enabled: isHeaderEnabled(header),
             name: header.name,
             value: header.value || '',

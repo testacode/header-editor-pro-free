@@ -452,6 +452,73 @@ describe('HeaderEditorBackground', () => {
     });
   });
 
+  // ─── append mode (plan 028) ──────────────────────────────────────────────
+
+  describe('append mode', () => {
+    const applyProfile = profile =>
+      settle(
+        background.applyHeaderRules({
+          enabled: true,
+          paused: false,
+          profiles: { p: profile },
+          currentProfile: 'p',
+        })
+      );
+    const addedRules = () =>
+      chrome.declarativeNetRequest.updateDynamicRules.mock.calls
+        .filter(c => c[0].addRules)
+        .flatMap(c => c[0].addRules);
+
+    beforeEach(() => {
+      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
+    });
+
+    test('response header with appendMode+value → operation append', async () => {
+      await applyProfile({
+        requestHeaders: [],
+        responseHeaders: [{ name: 'Set-Cookie', value: 'a=1', enabled: true, appendMode: true }],
+      });
+      expect(addedRules()[0].action.responseHeaders[0].operation).toBe('append');
+    });
+
+    test('whitelisted request header (accept) with appendMode → operation append', async () => {
+      await applyProfile({
+        requestHeaders: [{ name: 'Accept', value: 'text/html', enabled: true, appendMode: true }],
+      });
+      expect(addedRules()[0].action.requestHeaders[0].operation).toBe('append');
+    });
+
+    test('non-whitelisted request header with appendMode → degraded to set + warn', async () => {
+      const warnSpy = vi.spyOn(console, 'warn');
+      await applyProfile({
+        requestHeaders: [{ name: 'X-Custom', value: 'v', enabled: true, appendMode: true }],
+      });
+      expect(addedRules()[0].action.requestHeaders[0].operation).toBe('set');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('X-Custom'));
+    });
+
+    test('appendMode without value → operation remove', async () => {
+      await applyProfile({
+        requestHeaders: [],
+        responseHeaders: [{ name: 'X-Resp', value: '', enabled: true, appendMode: true }],
+      });
+      expect(addedRules()[0].action.responseHeaders[0].operation).toBe('remove');
+    });
+
+    test('mix of append/set/remove in one response rule', async () => {
+      await applyProfile({
+        requestHeaders: [],
+        responseHeaders: [
+          { name: 'X-Append', value: 'a', enabled: true, appendMode: true },
+          { name: 'X-Set', value: 's', enabled: true, appendMode: false },
+          { name: 'X-Remove', value: '', enabled: true, appendMode: false },
+        ],
+      });
+      const ops = addedRules()[0].action.responseHeaders.map(h => h.operation);
+      expect(ops).toEqual(['append', 'set', 'remove']);
+    });
+  });
+
   // ─── loadAndApplyRules ───────────────────────────────────────────────────
 
   describe('loadAndApplyRules', () => {

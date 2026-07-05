@@ -389,8 +389,8 @@ describe('HeaderEditorPopup', () => {
       const result = popup.importExport.extractHeadersFromArray(input);
 
       expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ name: 'X-Foo', value: 'bar', enabled: false });
-      expect(result[1]).toEqual({ name: 'X-Valid', value: '', enabled: true });
+      expect(result[0]).toEqual({ name: 'X-Foo', value: 'bar', enabled: false, appendMode: false });
+      expect(result[1]).toEqual({ name: 'X-Valid', value: '', enabled: true, appendMode: false });
     });
 
     test('enabled defaults to true when not false', () => {
@@ -506,7 +506,7 @@ describe('HeaderEditorPopup', () => {
       const key = Object.keys(popup.profiles).find(k => !before.includes(k));
 
       expect(popup.profiles[key].responseHeaders).toEqual([
-        { name: 'X-Resp', value: 'r', enabled: true },
+        { name: 'X-Resp', value: 'r', enabled: true, appendMode: false },
       ]);
     });
 
@@ -519,6 +519,58 @@ describe('HeaderEditorPopup', () => {
       const key = Object.keys(popup.profiles).find(k => !before.includes(k));
 
       expect(popup.profiles[key].responseHeaders).toEqual([]);
+    });
+  });
+
+  // ─── append mode (plan 028) ─────────────────────────────────────────────────────
+
+  describe('append mode', () => {
+    test('append toggle reflects the header appendMode state', () => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'Accept', value: 'x', enabled: true, appendMode: true },
+        { name: 'X-Set', value: 'y', enabled: true, appendMode: false },
+      ];
+      popup.renderHeaders();
+
+      const toggles = document
+        .getElementById('request-headers-list')
+        .querySelectorAll('.header-append-toggle');
+      expect(toggles).toHaveLength(2);
+      expect(toggles[0].classList.contains('active')).toBe(true);
+      expect(toggles[1].classList.contains('active')).toBe(false);
+    });
+
+    test('clicking the toggle updates appendMode and saves', () => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'Accept', value: 'x', enabled: true, appendMode: false },
+      ];
+      popup.renderHeaders();
+      const saveSpy = vi.spyOn(popup, 'saveData').mockResolvedValue(undefined);
+
+      const toggle = document
+        .getElementById('request-headers-list')
+        .querySelector('.header-append-toggle');
+      toggle.click();
+
+      expect(popup.profiles[popup.currentProfile].requestHeaders[0].appendMode).toBe(true);
+      expect(saveSpy).toHaveBeenCalled();
+      expect(toggle.classList.contains('active')).toBe(true);
+    });
+
+    test('ModHeader import preserves appendMode:true (no silent degrade)', async () => {
+      const withAppend = [
+        {
+          title: 'Append Profile',
+          headers: [{ enabled: true, name: 'Accept', value: 'text/html', appendMode: true }],
+          respHeaders: [],
+          filters: [],
+        },
+      ];
+      const before = Object.keys(popup.profiles);
+      await popup.importExport.importProfileFromData(withAppend);
+      const key = Object.keys(popup.profiles).find(k => !before.includes(k));
+
+      expect(popup.profiles[key].requestHeaders[0].appendMode).toBe(true);
     });
   });
 
@@ -953,7 +1005,7 @@ describe('HeaderEditorPopup', () => {
       const allKeys = Object.keys(popup.profiles);
       const importedKey = allKeys.find(k => !profilesBefore.includes(k));
       expect(popup.profiles[importedKey].requestHeaders).toEqual([
-        { name: 'X-Ok', value: 'v', enabled: true },
+        { name: 'X-Ok', value: 'v', enabled: true, appendMode: false },
       ]);
     });
   });
@@ -962,7 +1014,7 @@ describe('HeaderEditorPopup', () => {
     test('array of headers replaces current profile requestHeaders, normalized', async () => {
       await popup.importExport.replaceCurrentProfile([{ name: 'X-New', value: 'v' }]);
       expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([
-        { name: 'X-New', value: 'v', enabled: true },
+        { name: 'X-New', value: 'v', enabled: true, appendMode: false },
       ]);
     });
 
@@ -978,7 +1030,7 @@ describe('HeaderEditorPopup', () => {
       };
       await popup.importExport.replaceCurrentProfile(exportData);
       expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([
-        { name: 'X-Single', value: 'v', enabled: false },
+        { name: 'X-Single', value: 'v', enabled: false, appendMode: false },
       ]);
     });
 
@@ -1082,8 +1134,8 @@ describe('HeaderEditorPopup', () => {
       const first = popup.profiles[importedKeys[0]];
 
       expect(first.requestHeaders).toEqual([
-        { name: 'X-Api-Key', value: 'abc', enabled: true },
-        { name: 'X-Debug', value: '1', enabled: false },
+        { name: 'X-Api-Key', value: 'abc', enabled: true, appendMode: false },
+        { name: 'X-Debug', value: '1', enabled: false, appendMode: false },
       ]);
     });
 
@@ -1121,7 +1173,9 @@ describe('HeaderEditorPopup', () => {
 
       expect(imported.requestHeaders).toHaveLength(1);
       expect(imported.requestHeaders[0].name).toBe('X-Req');
-      expect(imported.responseHeaders).toEqual([{ name: 'X-Resp', value: 'r', enabled: true }]);
+      expect(imported.responseHeaders).toEqual([
+        { name: 'X-Resp', value: 'r', enabled: true, appendMode: false },
+      ]);
     });
 
     test('URL filters still trigger the skipped alert (plan 027)', async () => {

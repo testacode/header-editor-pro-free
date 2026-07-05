@@ -1,6 +1,36 @@
 import { isHeaderEnabled } from '../popup/header-normalize.js';
 import { defaultHeaderEditorData } from '../popup/default-data.js';
 
+// Chrome's declarativeNetRequest only allows the `append` operation on this set
+// of REQUEST headers; response headers have no such restriction. Emitting an
+// append rule for a request header outside this list makes updateDynamicRules
+// reject the whole rule, so we degrade to `set` with a warning instead.
+// Source: MDN declarativeNetRequest.ModifyHeaderInfo (verified 2026-07-05).
+// This is a Chrome-defined list and may change — update it if append stops
+// working for a header that used to be allowed.
+const APPEND_ALLOWED_REQUEST_HEADERS = new Set([
+  'accept',
+  'accept-encoding',
+  'accept-language',
+  'access-control-request-headers',
+  'cache-control',
+  'connection',
+  'content-language',
+  'cookie',
+  'forwarded',
+  'if-match',
+  'if-none-match',
+  'keep-alive',
+  'range',
+  'te',
+  'trailer',
+  'transfer-encoding',
+  'upgrade',
+  'via',
+  'want-digest',
+  'x-forwarded-for',
+]);
+
 export class HeaderEditorBackground {
   constructor() {
     this.currentRuleId = 1;
@@ -178,6 +208,26 @@ export class HeaderEditorBackground {
     }
   }
 
+  // Decide the DNR operation for a header: append (multi-value) when the user
+  // enabled append mode and there is a value, else set (has value) or remove.
+  // Request-header append is degraded to set (with a warning) when the header
+  // is outside Chrome's append whitelist, to avoid a rule Chrome would reject.
+  resolveOperation(header, name, direction) {
+    if (header.appendMode && header.value) {
+      if (
+        direction === 'requestHeaders' &&
+        !APPEND_ALLOWED_REQUEST_HEADERS.has(name.toLowerCase())
+      ) {
+        console.warn(
+          `HeaderEditor: append not supported for request header "${name}"; falling back to set`
+        );
+        return 'set';
+      }
+      return 'append';
+    }
+    return header.value ? 'set' : 'remove';
+  }
+
   // Build one modifyHeaders rule for a header direction.
   // `direction` is 'requestHeaders' or 'responseHeaders' — the DNR action field.
   createModifyHeadersRule(headers, direction) {
@@ -186,11 +236,14 @@ export class HeaderEditorBackground {
       return null;
     }
 
-    const modifications = validHeaders.map(header => ({
-      header: header.name.trim(),
-      operation: header.value ? 'set' : 'remove',
-      value: header.value || undefined,
-    }));
+    const modifications = validHeaders.map(header => {
+      const name = header.name.trim();
+      return {
+        header: name,
+        operation: this.resolveOperation(header, name, direction),
+        value: header.value || undefined,
+      };
+    });
 
     return {
       id: this.currentRuleId++,

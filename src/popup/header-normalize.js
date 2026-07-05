@@ -7,15 +7,27 @@
  * Normalize a single header object, filling in missing fields with defaults.
  * Does NOT filter — callers decide whether to keep the result.
  *
- * @param {{ name?: string, value?: string, enabled?: boolean }} header
- * @returns {{ name: string, value: string, enabled: boolean }}
+ * @param {{ name?: string, value?: string, enabled?: boolean, appendMode?: boolean }} header
+ * @returns {{ name: string, value: string, enabled: boolean, appendMode: boolean }}
  */
 export function normalizeHeader(header) {
   return {
     name: header.name ?? '',
     value: header.value || '',
     enabled: isHeaderEnabled(header),
+    appendMode: isAppendMode(header),
   };
+}
+
+/**
+ * A header appends (rather than sets) only when `appendMode` is strictly true.
+ * Missing or non-boolean-true = set semantics (backward compatible).
+ *
+ * @param {{ appendMode?: boolean }} header
+ * @returns {boolean}
+ */
+export function isAppendMode(header) {
+  return header.appendMode === true;
 }
 
 /**

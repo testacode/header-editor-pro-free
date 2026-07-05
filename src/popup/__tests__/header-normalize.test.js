@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { normalizeHeader, isHeaderEnabled } from '../header-normalize.js';
+import { normalizeHeader, isHeaderEnabled, isAppendMode } from '../header-normalize.js';
 
 describe('isHeaderEnabled', () => {
   test('returns true when enabled is explicitly true', () => {
@@ -22,5 +22,32 @@ describe('normalizeHeader uses isHeaderEnabled for the enabled field', () => {
 
   test('preserves enabled:false', () => {
     expect(normalizeHeader({ name: 'X-Foo', value: 'bar', enabled: false }).enabled).toBe(false);
+  });
+});
+
+describe('isAppendMode (plan 028)', () => {
+  test('returns true only when appendMode is strictly true', () => {
+    expect(isAppendMode({ appendMode: true })).toBe(true);
+  });
+
+  test('returns false when appendMode is missing', () => {
+    expect(isAppendMode({})).toBe(false);
+  });
+
+  test('returns false for truthy non-boolean values (strict === true)', () => {
+    expect(isAppendMode({ appendMode: 'yes' })).toBe(false);
+    expect(isAppendMode({ appendMode: 1 })).toBe(false);
+  });
+});
+
+describe('normalizeHeader preserves appendMode (plan 028)', () => {
+  test('keeps appendMode:true', () => {
+    expect(normalizeHeader({ name: 'X-Foo', value: 'bar', appendMode: true }).appendMode).toBe(
+      true
+    );
+  });
+
+  test('defaults missing appendMode to false', () => {
+    expect(normalizeHeader({ name: 'X-Foo', value: 'bar' }).appendMode).toBe(false);
   });
 });
