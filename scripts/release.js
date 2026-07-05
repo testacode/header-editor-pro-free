@@ -32,7 +32,7 @@ function execCommand(command) {
   try {
     return execSync(command, { encoding: 'utf8', stdio: 'pipe' }).trim();
   } catch (error) {
-    throw new Error(`Command failed: ${command}\n${error.message}`);
+    throw new Error(`Command failed: ${command}\n${error.message}`, { cause: error });
   }
 }
 
