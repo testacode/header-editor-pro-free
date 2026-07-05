@@ -362,6 +362,23 @@ describe('HeaderEditorBackground', () => {
       expect(addCalls).toHaveLength(0);
     });
 
+    test('storage empty → applies the shared rich default (pinned + description)', async () => {
+      // Proves background and popup share one default source: the old inline
+      // background default had neither `pinned` nor `profiles.default.description`.
+      const applySpy = vi.spyOn(background, 'applyHeaderRules').mockResolvedValue(undefined);
+
+      await settle(background.loadAndApplyRules());
+
+      expect(applySpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pinned: false,
+          profiles: expect.objectContaining({
+            default: expect.objectContaining({ description: 'Click to edit description' }),
+          }),
+        })
+      );
+    });
+
     test('storage with profile with headers → updateDynamicRules addRules called', async () => {
       chrome.storage.local.get.mockResolvedValue({
         headerEditorData: {

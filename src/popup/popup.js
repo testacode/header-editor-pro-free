@@ -3,6 +3,7 @@ import './popup.css';
 
 import { hexToHsl, hslToHex } from './color-utils.js';
 import { normalizeHeader, isHeaderEnabled } from './header-normalize.js';
+import { defaultHeaderEditorData } from './default-data.js';
 import { ImportExportManager } from './import-export.js';
 import { UpdateNotificationsManager } from './update-notifications.js';
 import { ColorPickerManager } from './color-picker.js';
@@ -33,22 +34,7 @@ export class HeaderEditorPopup {
   async loadData() {
     try {
       const result = await chrome.storage.local.get(['headerEditorData']);
-      const data = result.headerEditorData || {
-        profiles: {
-          default: {
-            name: 'Default',
-            description: 'Click to edit description',
-            requestHeaders: [],
-            backgroundColor: '#4caf50',
-            textColor: '#ffffff',
-          },
-        },
-        currentProfile: 'default',
-        enabled: true,
-        paused: false,
-        pinned: false,
-        profileCounter: 1,
-      };
+      const data = result.headerEditorData || defaultHeaderEditorData();
 
       this.profiles = data.profiles;
       this.currentProfile = data.currentProfile;
@@ -74,18 +60,13 @@ export class HeaderEditorPopup {
       };
     } catch (error) {
       console.error('Failed to load data from storage, using defaults:', error);
-      this.profiles = {
-        default: {
-          name: 'Default',
-          description: 'Click to edit description',
-          requestHeaders: [],
-        },
-      };
-      this.currentProfile = 'default';
-      this.isEnabled = true;
-      this.isPaused = false;
-      this.isPinned = false;
-      this.profileCounter = 1;
+      const data = defaultHeaderEditorData();
+      this.profiles = data.profiles;
+      this.currentProfile = data.currentProfile;
+      this.isEnabled = data.enabled;
+      this.isPaused = data.paused;
+      this.isPinned = data.pinned;
+      this.profileCounter = data.profileCounter;
     }
   }
 

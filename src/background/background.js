@@ -1,4 +1,5 @@
 import { isHeaderEnabled } from '../popup/header-normalize.js';
+import { defaultHeaderEditorData } from '../popup/default-data.js';
 
 export class HeaderEditorBackground {
   constructor() {
@@ -88,18 +89,7 @@ export class HeaderEditorBackground {
   async loadAndApplyRules() {
     try {
       const result = await chrome.storage.local.get(['headerEditorData']);
-      const data = result.headerEditorData || {
-        profiles: {
-          default: {
-            name: 'Default',
-            requestHeaders: [],
-          },
-        },
-        currentProfile: 'default',
-        enabled: true,
-        paused: false,
-        profileCounter: 1,
-      };
+      const data = result.headerEditorData || defaultHeaderEditorData();
 
       const signature = this.ruleStateSignature(data);
       if (signature === this.lastAppliedSignature) {
