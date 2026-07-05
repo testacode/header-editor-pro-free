@@ -8,8 +8,7 @@ export class UpdateNotificationsManager {
       const result = await chrome.storage.local.get(['updateNotification', 'welcomeNotification']);
 
       if (result.updateNotification && !result.updateNotification.shown) {
-        // Delegate back to popup so vi.spyOn on the popup instance still works.
-        this.popup.showUpdateTooltip(result.updateNotification);
+        this.showUpdateTooltip(result.updateNotification);
 
         // Mark as shown
         chrome.storage.local.set({
@@ -19,8 +18,7 @@ export class UpdateNotificationsManager {
         // Clear the badge
         chrome.runtime.sendMessage({ action: 'clearUpdateBadge' });
       } else if (result.welcomeNotification && !result.welcomeNotification.shown) {
-        // Delegate back to popup so vi.spyOn on the popup instance still works.
-        this.popup.showWelcomeTooltip(result.welcomeNotification);
+        this.showWelcomeTooltip(result.welcomeNotification);
 
         // Mark as shown
         chrome.storage.local.set({

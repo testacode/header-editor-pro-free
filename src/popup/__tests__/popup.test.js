@@ -2,6 +2,7 @@ import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { HeaderEditorPopup } from '../popup.js';
+import { hexToHsl, hslToHex } from '../color-utils.js';
 
 const popupHtml = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
 
@@ -385,7 +386,7 @@ describe('HeaderEditorPopup', () => {
         { value: 'no-name' },
         { name: 'X-Valid' },
       ];
-      const result = popup.extractHeadersFromArray(input);
+      const result = popup.importExport.extractHeadersFromArray(input);
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({ name: 'X-Foo', value: 'bar', enabled: false });
@@ -393,7 +394,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('enabled defaults to true when not false', () => {
-      const result = popup.extractHeadersFromArray([{ name: 'H', value: 'v' }]);
+      const result = popup.importExport.extractHeadersFromArray([{ name: 'H', value: 'v' }]);
       expect(result[0].enabled).toBe(true);
     });
   });
@@ -407,7 +408,7 @@ describe('HeaderEditorPopup', () => {
           { name: '', value: 'skipped', enabled: true }, // empty name filtered
         ],
       };
-      const result = popup.convertToModHeaderFormat(profile);
+      const result = popup.importExport.convertToModHeaderFormat(profile);
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({ appendMode: false, enabled: true, name: 'X-A', value: 'a' });
@@ -415,7 +416,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('profile with no requestHeaders returns empty array', () => {
-      const result = popup.convertToModHeaderFormat({});
+      const result = popup.importExport.convertToModHeaderFormat({});
       expect(result).toEqual([]);
     });
   });
@@ -423,7 +424,7 @@ describe('HeaderEditorPopup', () => {
   describe('importProfileFromData', () => {
     test('array input creates a new profile from headers', async () => {
       const profilesBefore = Object.keys(popup.profiles).length;
-      await popup.importProfileFromData([{ name: 'X-Test', value: 'v' }]);
+      await popup.importExport.importProfileFromData([{ name: 'X-Test', value: 'v' }]);
       expect(Object.keys(popup.profiles).length).toBe(profilesBefore + 1);
     });
 
@@ -435,12 +436,12 @@ describe('HeaderEditorPopup', () => {
         currentProfile: 'p1',
       };
       const profilesBefore = Object.keys(popup.profiles).length;
-      await popup.importProfileFromData(exportData);
+      await popup.importExport.importProfileFromData(exportData);
       expect(Object.keys(popup.profiles).length).toBe(profilesBefore + 1);
     });
 
     test('invalid format (no array, no profiles key) throws', async () => {
-      await expect(popup.importProfileFromData({ invalid: true })).rejects.toThrow();
+      await expect(popup.importExport.importProfileFromData({ invalid: true })).rejects.toThrow();
     });
   });
 
@@ -473,20 +474,20 @@ describe('HeaderEditorPopup', () => {
 
   describe('color utilities', () => {
     test('hexToHsl converts #ff0000 to hue 0', () => {
-      const result = popup.hexToHsl('#ff0000');
+      const result = hexToHsl('#ff0000');
       expect(result.h).toBe(0);
       expect(result.s).toBe(1);
       expect(result.l).toBe(0.5);
     });
 
     test('hslToHex converts 0,1,0.5 to #ff0000', () => {
-      expect(popup.hslToHex(0, 1, 0.5)).toBe('#ff0000');
+      expect(hslToHex(0, 1, 0.5)).toBe('#ff0000');
     });
 
     test('round-trip is within ±1 per channel', () => {
       const original = '#4caf50';
-      const hsl = popup.hexToHsl(original);
-      const converted = popup.hslToHex(hsl.h, hsl.s, hsl.l);
+      const hsl = hexToHsl(original);
+      const converted = hslToHex(hsl.h, hsl.s, hsl.l);
 
       for (let i = 0; i < 3; i++) {
         const offset = 1 + i * 2;
@@ -611,29 +612,29 @@ describe('HeaderEditorPopup', () => {
 
   describe('showImportModal', () => {
     test('sets modal-title to "Import Configuration"', () => {
-      popup.showImportModal();
+      popup.importExport.showImportModal();
       expect(document.getElementById('modal-title').textContent).toBe('Import Configuration');
     });
 
     test('shows modal-overlay', () => {
-      popup.showImportModal();
+      popup.importExport.showImportModal();
       expect(document.getElementById('modal-overlay').style.display).toBe('flex');
     });
   });
 
   describe('showExportModal', () => {
     test('sets modal-title to "Export Configuration"', () => {
-      popup.showExportModal();
+      popup.importExport.showExportModal();
       expect(document.getElementById('modal-title').textContent).toBe('Export Configuration');
     });
 
     test('shows modal-overlay', () => {
-      popup.showExportModal();
+      popup.importExport.showExportModal();
       expect(document.getElementById('modal-overlay').style.display).toBe('flex');
     });
 
     test('modal-action button is hidden, modal-copy is shown', () => {
-      popup.showExportModal();
+      popup.importExport.showExportModal();
       expect(document.getElementById('modal-action').style.display).toBe('none');
       expect(document.getElementById('modal-copy').style.display).toBe('block');
     });
@@ -642,7 +643,7 @@ describe('HeaderEditorPopup', () => {
   describe('closeModal', () => {
     test('hides the modal-overlay', () => {
       document.getElementById('modal-overlay').style.display = 'flex';
-      popup.closeModal();
+      popup.importExport.closeModal();
       expect(document.getElementById('modal-overlay').style.display).toBe('none');
     });
   });
@@ -654,7 +655,7 @@ describe('HeaderEditorPopup', () => {
 
     test('empty textarea clears message and disables action button', () => {
       document.getElementById('json-textarea').value = '';
-      popup.validateJSON();
+      popup.importExport.validateJSON();
       expect(document.getElementById('validation-message').textContent).toBe('');
       expect(document.getElementById('modal-action').disabled).toBe(true);
     });
@@ -663,21 +664,21 @@ describe('HeaderEditorPopup', () => {
       document.getElementById('json-textarea').value = JSON.stringify([
         { name: 'X-Foo', value: 'bar' },
       ]);
-      popup.validateJSON();
+      popup.importExport.validateJSON();
       expect(document.getElementById('validation-message').innerHTML).toContain('✓');
       expect(document.getElementById('modal-action').disabled).toBe(false);
     });
 
     test('invalid JSON shows error', () => {
       document.getElementById('json-textarea').value = 'not json';
-      popup.validateJSON();
+      popup.importExport.validateJSON();
       expect(document.getElementById('validation-message').innerHTML).toContain('✗');
       expect(document.getElementById('modal-action').disabled).toBe(true);
     });
 
     test('JSON object (not array) in import mode shows error', () => {
       document.getElementById('json-textarea').value = JSON.stringify({ key: 'val' });
-      popup.validateJSON();
+      popup.importExport.validateJSON();
       expect(document.getElementById('validation-message').innerHTML).toContain('✗');
     });
 
@@ -688,7 +689,7 @@ describe('HeaderEditorPopup', () => {
           p2: { name: 'P2', description: '', requestHeaders: [] },
         },
       });
-      popup.validateJSON();
+      popup.importExport.validateJSON();
       expect(document.getElementById('validation-message').innerHTML).toContain('✓');
       expect(document.getElementById('modal-action').disabled).toBe(false);
     });
@@ -742,7 +743,10 @@ describe('HeaderEditorPopup', () => {
     afterEach(() => vi.useRealTimers());
 
     test('appends a tooltip with interpolated versions', () => {
-      popup.showUpdateTooltip({ previousVersion: '1.0', currentVersion: '2.0' });
+      popup.updateNotifications.showUpdateTooltip({
+        previousVersion: '1.0',
+        currentVersion: '2.0',
+      });
       const tooltip = document.querySelector('.update-notification');
       expect(tooltip).not.toBeNull();
       expect(tooltip.textContent).toContain('1.0');
@@ -750,14 +754,20 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('auto-closes after 6s then slide-out', () => {
-      popup.showUpdateTooltip({ previousVersion: '1.0', currentVersion: '2.0' });
+      popup.updateNotifications.showUpdateTooltip({
+        previousVersion: '1.0',
+        currentVersion: '2.0',
+      });
       expect(document.querySelector('.update-notification')).not.toBeNull();
       vi.advanceTimersByTime(6000 + 300);
       expect(document.querySelector('.update-notification')).toBeNull();
     });
 
     test('close button removes the tooltip', () => {
-      popup.showUpdateTooltip({ previousVersion: '1.0', currentVersion: '2.0' });
+      popup.updateNotifications.showUpdateTooltip({
+        previousVersion: '1.0',
+        currentVersion: '2.0',
+      });
       document.querySelector('.update-close').click();
       vi.advanceTimersByTime(300);
       expect(document.querySelector('.update-notification')).toBeNull();
@@ -769,14 +779,14 @@ describe('HeaderEditorPopup', () => {
     afterEach(() => vi.useRealTimers());
 
     test('appends a welcome notification with version', () => {
-      popup.showWelcomeTooltip({ version: '2.0' });
+      popup.updateNotifications.showWelcomeTooltip({ version: '2.0' });
       const tooltip = document.querySelector('.welcome-notification');
       expect(tooltip).not.toBeNull();
       expect(tooltip.textContent).toContain('2.0');
     });
 
     test('auto-closes after 8s then slide-out', () => {
-      popup.showWelcomeTooltip({ version: '2.0' });
+      popup.updateNotifications.showWelcomeTooltip({ version: '2.0' });
       expect(document.querySelector('.welcome-notification')).not.toBeNull();
       vi.advanceTimersByTime(8000 + 300);
       expect(document.querySelector('.welcome-notification')).toBeNull();
@@ -787,7 +797,7 @@ describe('HeaderEditorPopup', () => {
 
   describe('showColorPicker', () => {
     test('shows color-picker-overlay', () => {
-      popup.showColorPicker();
+      popup.colorPicker.showColorPicker();
       expect(document.getElementById('color-picker-overlay').style.display).toBe('flex');
     });
   });
@@ -795,7 +805,7 @@ describe('HeaderEditorPopup', () => {
   describe('closeColorPicker', () => {
     test('hides color-picker-overlay', () => {
       document.getElementById('color-picker-overlay').style.display = 'flex';
-      popup.closeColorPicker();
+      popup.colorPicker.closeColorPicker();
       expect(document.getElementById('color-picker-overlay').style.display).toBe('none');
     });
   });
@@ -806,7 +816,7 @@ describe('HeaderEditorPopup', () => {
       popup.colorPickerState.tempTextColor = '#abcdef';
       chrome.storage.local.set.mockClear();
 
-      popup.saveProfileColor();
+      popup.colorPicker.saveProfileColor();
 
       expect(popup.profiles[popup.currentProfile].backgroundColor).toBe('#123456');
       expect(popup.profiles[popup.currentProfile].textColor).toBe('#abcdef');
@@ -821,7 +831,7 @@ describe('HeaderEditorPopup', () => {
       chrome.storage.local.set.mockClear();
       vi.mocked(alert).mockClear();
 
-      await popup.importProfile([{ name: 'X-Test', value: 'v' }]);
+      await popup.importExport.importProfile([{ name: 'X-Test', value: 'v' }]);
 
       const setOrder = chrome.storage.local.set.mock.invocationCallOrder[0];
       const alertOrder = vi.mocked(alert).mock.invocationCallOrder[0];
@@ -851,7 +861,7 @@ describe('HeaderEditorPopup', () => {
       };
 
       const profilesBefore = Object.keys(popup.profiles);
-      await popup.importMultipleProfiles(exportData);
+      await popup.importExport.importMultipleProfiles(exportData);
 
       const allKeys = Object.keys(popup.profiles);
       const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
@@ -868,7 +878,7 @@ describe('HeaderEditorPopup', () => {
         },
       };
       const profilesBefore = Object.keys(popup.profiles);
-      await popup.importMultipleProfiles(exportData);
+      await popup.importExport.importMultipleProfiles(exportData);
 
       const allKeys = Object.keys(popup.profiles);
       const importedKey = allKeys.find(k => !profilesBefore.includes(k));
@@ -886,7 +896,7 @@ describe('HeaderEditorPopup', () => {
         },
       };
       const profilesBefore = Object.keys(popup.profiles);
-      await popup.importMultipleProfiles(exportData);
+      await popup.importExport.importMultipleProfiles(exportData);
 
       const allKeys = Object.keys(popup.profiles);
       const importedKey = allKeys.find(k => !profilesBefore.includes(k));
@@ -898,7 +908,7 @@ describe('HeaderEditorPopup', () => {
 
   describe('replaceCurrentProfile (plan 018)', () => {
     test('array of headers replaces current profile requestHeaders, normalized', async () => {
-      await popup.replaceCurrentProfile([{ name: 'X-New', value: 'v' }]);
+      await popup.importExport.replaceCurrentProfile([{ name: 'X-New', value: 'v' }]);
       expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([
         { name: 'X-New', value: 'v', enabled: true },
       ]);
@@ -914,7 +924,7 @@ describe('HeaderEditorPopup', () => {
           },
         },
       };
-      await popup.replaceCurrentProfile(exportData);
+      await popup.importExport.replaceCurrentProfile(exportData);
       expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([
         { name: 'X-Single', value: 'v', enabled: false },
       ]);
@@ -927,11 +937,13 @@ describe('HeaderEditorPopup', () => {
           p2: { name: 'P2', description: '', requestHeaders: [] },
         },
       };
-      await expect(popup.replaceCurrentProfile(exportData)).rejects.toThrow(/Cannot replace/);
+      await expect(popup.importExport.replaceCurrentProfile(exportData)).rejects.toThrow(
+        /Cannot replace/
+      );
     });
 
     test('invalid format (no array, no profiles key) throws', async () => {
-      await expect(popup.replaceCurrentProfile({ invalid: true })).rejects.toThrow(
+      await expect(popup.importExport.replaceCurrentProfile({ invalid: true })).rejects.toThrow(
         'Invalid import format'
       );
     });
@@ -942,7 +954,7 @@ describe('HeaderEditorPopup', () => {
           only: { name: 'Only', description: '', requestHeaders: 'garbage' },
         },
       };
-      await popup.replaceCurrentProfile(exportData);
+      await popup.importExport.replaceCurrentProfile(exportData);
       expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([]);
     });
   });
@@ -973,28 +985,30 @@ describe('HeaderEditorPopup', () => {
     ];
 
     test('isModHeaderProfileExport: true for fixture', () => {
-      expect(popup.isModHeaderProfileExport(modHeaderFixture)).toBe(true);
+      expect(popup.importExport.isModHeaderProfileExport(modHeaderFixture)).toBe(true);
     });
 
     test('isModHeaderProfileExport: false for empty array', () => {
-      expect(popup.isModHeaderProfileExport([])).toBe(false);
+      expect(popup.importExport.isModHeaderProfileExport([])).toBe(false);
     });
 
     test('isModHeaderProfileExport: false for plain headers array', () => {
-      expect(popup.isModHeaderProfileExport([{ name: 'X-Test', value: 'v' }])).toBe(false);
+      expect(popup.importExport.isModHeaderProfileExport([{ name: 'X-Test', value: 'v' }])).toBe(
+        false
+      );
     });
 
     test('isModHeaderProfileExport: false for profiles object', () => {
-      expect(popup.isModHeaderProfileExport({ profiles: {} })).toBe(false);
+      expect(popup.importExport.isModHeaderProfileExport({ profiles: {} })).toBe(false);
     });
 
     test('isModHeaderProfileExport: false for null', () => {
-      expect(popup.isModHeaderProfileExport(null)).toBe(false);
+      expect(popup.importExport.isModHeaderProfileExport(null)).toBe(false);
     });
 
     test('imports 2 ModHeader profiles, names from title, currentProfile = first', async () => {
       const profilesBefore = Object.keys(popup.profiles);
-      await popup.importProfileFromData(modHeaderFixture);
+      await popup.importExport.importProfileFromData(modHeaderFixture);
 
       const allKeys = Object.keys(popup.profiles);
       const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
@@ -1009,7 +1023,7 @@ describe('HeaderEditorPopup', () => {
 
     test('headers are normalized correctly (enabled:false preserved)', async () => {
       const profilesBefore = Object.keys(popup.profiles);
-      await popup.importProfileFromData(modHeaderFixture);
+      await popup.importExport.importProfileFromData(modHeaderFixture);
 
       const allKeys = Object.keys(popup.profiles);
       const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
@@ -1031,7 +1045,7 @@ describe('HeaderEditorPopup', () => {
         },
       ];
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
-      await popup.importProfileFromData(withRespHeaders);
+      await popup.importExport.importProfileFromData(withRespHeaders);
 
       expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('1 profile(s)'));
       alertSpy.mockRestore();
@@ -1048,7 +1062,7 @@ describe('HeaderEditorPopup', () => {
       ];
       vi.spyOn(window, 'alert').mockImplementation(() => {});
       const profilesBefore = Object.keys(popup.profiles);
-      await popup.importProfileFromData(withRespHeaders);
+      await popup.importExport.importProfileFromData(withRespHeaders);
 
       const allKeys = Object.keys(popup.profiles);
       const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
@@ -1062,7 +1076,7 @@ describe('HeaderEditorPopup', () => {
     test('profile without title uses fallback name', async () => {
       const noTitle = [{ headers: [{ enabled: true, name: 'X-A', value: '1' }] }];
       const profilesBefore = Object.keys(popup.profiles);
-      await popup.importProfileFromData(noTitle);
+      await popup.importExport.importProfileFromData(noTitle);
 
       const allKeys = Object.keys(popup.profiles);
       const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
@@ -1073,7 +1087,7 @@ describe('HeaderEditorPopup', () => {
     test('plain headers array still routes to createProfileFromHeaders (no regression)', async () => {
       const plainHeaders = [{ name: 'X-Legacy', value: 'val', enabled: true }];
       const profilesBefore = Object.keys(popup.profiles).length;
-      await popup.importProfileFromData(plainHeaders);
+      await popup.importExport.importProfileFromData(plainHeaders);
       expect(Object.keys(popup.profiles).length).toBe(profilesBefore + 1);
       // plain import uses createProfileFromHeaders (no ModHeader description)
       expect(popup.profiles[popup.currentProfile].description).toBe(
@@ -1085,7 +1099,7 @@ describe('HeaderEditorPopup', () => {
   describe('setValidationMessage (plan 006 — no innerHTML injection)', () => {
     test('HTML in error message is rendered as literal text, not as markup', () => {
       const malicious = '<img src=x onerror=alert(1)>';
-      popup.setValidationMessage('error', malicious);
+      popup.importExport.setValidationMessage('error', malicious);
 
       const container = document.getElementById('validation-message');
       expect(document.querySelector('#validation-message img')).toBeNull();
@@ -1093,7 +1107,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('success message creates span.success with correct text', () => {
-      popup.setValidationMessage('success', '✓ Valid JSON');
+      popup.importExport.setValidationMessage('success', '✓ Valid JSON');
 
       const span = document.querySelector('#validation-message span.success');
       expect(span).not.toBeNull();
@@ -1111,9 +1125,11 @@ describe('HeaderEditorPopup', () => {
         shown: false,
       };
       chrome.storage.local.get.mockResolvedValue({ updateNotification });
-      const spy = vi.spyOn(popup, 'showUpdateTooltip').mockImplementation(() => {});
+      const spy = vi
+        .spyOn(popup.updateNotifications, 'showUpdateTooltip')
+        .mockImplementation(() => {});
 
-      await popup.checkForUpdateNotification();
+      await popup.updateNotifications.checkForUpdateNotification();
 
       expect(spy).toHaveBeenCalledWith(updateNotification);
       expect(chrome.storage.local.set).toHaveBeenCalledWith({
@@ -1124,25 +1140,29 @@ describe('HeaderEditorPopup', () => {
     test('shows welcome tooltip for new installs', async () => {
       const welcomeNotification = { version: '2.1.0', shown: false };
       chrome.storage.local.get.mockResolvedValue({ welcomeNotification });
-      const spy = vi.spyOn(popup, 'showWelcomeTooltip').mockImplementation(() => {});
+      const spy = vi
+        .spyOn(popup.updateNotifications, 'showWelcomeTooltip')
+        .mockImplementation(() => {});
 
-      await popup.checkForUpdateNotification();
+      await popup.updateNotifications.checkForUpdateNotification();
 
       expect(spy).toHaveBeenCalledWith(welcomeNotification);
     });
 
     test('does not show tooltip if already shown', async () => {
       chrome.storage.local.get.mockResolvedValue({ updateNotification: { shown: true } });
-      const spy = vi.spyOn(popup, 'showUpdateTooltip').mockImplementation(() => {});
+      const spy = vi
+        .spyOn(popup.updateNotifications, 'showUpdateTooltip')
+        .mockImplementation(() => {});
 
-      await popup.checkForUpdateNotification();
+      await popup.updateNotifications.checkForUpdateNotification();
 
       expect(spy).not.toHaveBeenCalled();
     });
 
     test('handles storage errors silently', async () => {
       chrome.storage.local.get.mockRejectedValue(new Error('fail'));
-      await expect(popup.checkForUpdateNotification()).resolves.not.toThrow();
+      await expect(popup.updateNotifications.checkForUpdateNotification()).resolves.not.toThrow();
     });
   });
 
@@ -1166,7 +1186,7 @@ describe('HeaderEditorPopup', () => {
 
   describe('color picker interactions', () => {
     beforeEach(() => {
-      popup.showColorPicker(); // wires up the interaction handlers (once)
+      popup.colorPicker.showColorPicker(); // wires up the interaction handlers (once)
       const gradient = document.getElementById('color-gradient');
       gradient.getBoundingClientRect = () => ({
         left: 0,
