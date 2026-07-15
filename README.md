@@ -95,6 +95,8 @@
 ### Profile Filters
 - **Domains filter**: Limit a profile to specific domains (comma-separated). Headers apply to requests going to those domains or initiated from pages on them. Works on Chrome and Firefox.
 - **Tab group filter** (Chrome only): Limit a profile to a tab group. Enabling it with the current tab inside a group picks that group automatically; new tabs added to the group inherit the headers. Perfect for keeping sandbox headers away from production tabs.
+- **Concurrent scoped profiles**: every profile with a tab group filter stays active inside its group, even while another profile is selected — so different tab groups can carry different headers at the same time. On conflicts, the scoped profile wins over the selected one.
+- **Profile badge**: the toolbar icon shows the initial and color of the profile governing the current tab, so you always know which headers are applied where.
 - Both filters live in the **Filters** section below Response headers and can be toggled per profile.
 
 ### Toolbar Features

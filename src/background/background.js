@@ -35,6 +35,7 @@ export class HeaderEditorBackground {
   constructor() {
     this.currentRuleId = 1;
     this.activeRules = new Set();
+    this.badgedTabIds = new Set();
     this.lastAppliedSignature = null;
     this.isFirefox = this.detectFirefox();
     this.init();
@@ -108,6 +109,9 @@ export class HeaderEditorBackground {
     chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
       if (message.action === 'clearUpdateBadge') {
         chrome.action.setBadgeText({ text: '' });
+        // Re-apply so the profile letter badge replaces the cleared "NEW"
+        this.lastAppliedSignature = null;
+        this.loadAndApplyRules();
       }
     });
 
@@ -118,17 +122,40 @@ export class HeaderEditorBackground {
     });
   }
 
-  ruleStateSignature(data, tabIds) {
-    const profile = data.profiles?.[data.currentProfile];
+  ruleStateSignature(data, activeProfiles) {
     return JSON.stringify({
       enabled: data.enabled,
       paused: data.paused,
       currentProfile: data.currentProfile,
-      requestHeaders: profile?.requestHeaders ?? null,
-      responseHeaders: profile?.responseHeaders ?? null,
-      filters: profile?.filters ?? null,
-      tabIds: tabIds ?? null,
+      active: (activeProfiles || []).map(({ key, profile, tabIds }) => ({
+        key,
+        name: profile.name ?? null,
+        backgroundColor: profile.backgroundColor ?? null,
+        requestHeaders: profile.requestHeaders ?? null,
+        responseHeaders: profile.responseHeaders ?? null,
+        filters: profile.filters ?? null,
+        tabIds,
+      })),
     });
+  }
+
+  // The profiles that apply right now: the selected one (as always) plus every
+  // profile whose tab group filter is enabled — those stay active inside their
+  // group even when another profile is selected (ModHeader-style), so sandbox
+  // headers never depend on which profile the popup shows.
+  // Each entry: { key, profile, tabIds } with tabIds null = no tab scoping.
+  async resolveActiveProfiles(data) {
+    const active = [];
+    for (const [key, profile] of Object.entries(data.profiles || {})) {
+      const isCurrent = key === data.currentProfile;
+      // eslint-disable-next-line no-await-in-loop -- profiles are few; sequential keeps rule building deterministic
+      const tabIds = await this.resolveTabIds(profile.filters);
+      if (!isCurrent && tabIds === null) {
+        continue; // not selected and not tab-scoped → inactive
+      }
+      active.push({ key, profile, tabIds });
+    }
+    return active;
   }
 
   async loadAndApplyRules() {
@@ -136,15 +163,15 @@ export class HeaderEditorBackground {
       const result = await chrome.storage.local.get(['headerEditorData']);
       const data = result.headerEditorData || defaultHeaderEditorData();
 
-      const profile = data.profiles?.[data.currentProfile];
-      const tabIds = await this.resolveTabIds(profile?.filters);
+      const activeProfiles = await this.resolveActiveProfiles(data);
 
-      const signature = this.ruleStateSignature(data, tabIds);
+      const signature = this.ruleStateSignature(data, activeProfiles);
       if (signature === this.lastAppliedSignature) {
         return;
       }
 
-      await this.applyHeaderRules(data, tabIds);
+      await this.applyHeaderRules(data, activeProfiles);
+      await this.updateBadges(data, activeProfiles);
       this.lastAppliedSignature = signature;
     } catch (error) {
       console.error('Failed to apply header rules, clearing all rules:', error);
@@ -215,13 +242,12 @@ export class HeaderEditorBackground {
     chrome.runtime.onStartup.addListener(reapply);
   }
 
-  async applyHeaderRules(data, tabIds = null) {
+  async applyHeaderRules(data, activeProfiles = null) {
     console.log('HeaderEditor: Applying header rules', {
       enabled: data.enabled,
       paused: data.paused,
       currentProfile: data.currentProfile,
       isFirefox: this.isFirefox,
-      tabIds,
     });
 
     // Clear existing rules first
@@ -239,56 +265,117 @@ export class HeaderEditorBackground {
       return;
     }
 
-    const currentProfile = data.profiles[data.currentProfile];
-    if (!currentProfile) {
-      return;
+    if (activeProfiles === null) {
+      const currentProfile = data.profiles[data.currentProfile];
+      activeProfiles = currentProfile
+        ? [{ key: data.currentProfile, profile: currentProfile, tabIds: null }]
+        : [];
     }
 
-    // Tab group filter resolved to zero tabs (group empty or gone): the profile
-    // is scoped to nothing, so no rules at all.
-    if (tabIds !== null && tabIds.length === 0) {
-      console.log('HeaderEditor: Tab group filter matches no tabs - not applying rules');
-      return;
-    }
+    const dynamicRules = [];
+    const sessionRules = [];
 
-    const conditions = this.buildConditions(currentProfile.filters, tabIds);
-    const rules = [];
-
-    // Process request headers - only enabled ones
-    if (currentProfile.requestHeaders && currentProfile.requestHeaders.length > 0) {
-      const enabledRequestHeaders = currentProfile.requestHeaders.filter(isHeaderEnabled);
-      if (enabledRequestHeaders.length > 0) {
-        rules.push(
-          ...this.createModifyHeadersRules(enabledRequestHeaders, 'requestHeaders', conditions)
-        );
-      }
-    }
-
-    // Process response headers - only enabled ones
-    if (currentProfile.responseHeaders && currentProfile.responseHeaders.length > 0) {
-      const enabledResponseHeaders = currentProfile.responseHeaders.filter(isHeaderEnabled);
-      if (enabledResponseHeaders.length > 0) {
-        rules.push(
-          ...this.createModifyHeadersRules(enabledResponseHeaders, 'responseHeaders', conditions)
-        );
-      }
-    }
-
-    console.log('HeaderEditor: Rules to apply:', rules.length);
-
-    if (rules.length > 0) {
-      // Firefox needs extra time before adding new rules
-      if (this.isFirefox) {
-        console.log('HeaderEditor: Firefox - adding delay before applying rules');
-        await this.delay(100);
+    for (const { profile, tabIds } of activeProfiles) {
+      // Tab group filter resolved to zero tabs (group empty or gone): the
+      // profile is scoped to nothing, so no rules for it.
+      if (tabIds !== null && tabIds.length === 0) {
+        continue;
       }
 
-      console.log('HeaderEditor: About to add rules:', rules);
+      const conditions = this.buildConditions(profile.filters, tabIds);
+      // Tab-scoped rules outrank the selected profile's global rules when both
+      // touch the same header on the same tab.
+      const priority = tabIds !== null ? 2 : 1;
       // tabIds conditions are only valid on session rules
-      await this.addRules(rules, { session: tabIds !== null });
-      console.log('HeaderEditor: Rules added successfully');
-    } else {
+      const target = tabIds !== null ? sessionRules : dynamicRules;
+
+      for (const direction of ['requestHeaders', 'responseHeaders']) {
+        const headers = (profile[direction] || []).filter(isHeaderEnabled);
+        if (headers.length > 0) {
+          target.push(...this.createModifyHeadersRules(headers, direction, conditions, priority));
+        }
+      }
+    }
+
+    console.log('HeaderEditor: Rules to apply:', {
+      dynamic: dynamicRules.length,
+      session: sessionRules.length,
+    });
+
+    if (dynamicRules.length === 0 && sessionRules.length === 0) {
       console.log('HeaderEditor: No rules to apply');
+      return;
+    }
+
+    // Firefox needs extra time before adding new rules
+    if (this.isFirefox) {
+      console.log('HeaderEditor: Firefox - adding delay before applying rules');
+      await this.delay(100);
+    }
+
+    if (dynamicRules.length > 0) {
+      await this.addRules(dynamicRules);
+    }
+    if (sessionRules.length > 0) {
+      await this.addRules(sessionRules, { session: true });
+    }
+    console.log('HeaderEditor: Rules added successfully');
+  }
+
+  // Show which profile governs each tab: per-tab badge (letter + profile color)
+  // for tab-group-scoped profiles, global badge for the selected profile.
+  async updateBadges(data, activeProfiles) {
+    if (!chrome.action?.setBadgeText) {
+      return;
+    }
+    try {
+      // Don't clobber the "NEW" update badge before the user has seen it
+      const { updateNotification } = await chrome.storage.local.get(['updateNotification']);
+      const pendingUpdateBadge = Boolean(updateNotification) && !updateNotification.shown;
+
+      // Clear per-tab badges from the previous application (closed tabs throw — fine)
+      for (const tabId of this.badgedTabIds) {
+        // eslint-disable-next-line no-await-in-loop -- small set; sequential keeps error handling per tab
+        await chrome.action.setBadgeText({ tabId, text: '' }).catch(() => {});
+      }
+      this.badgedTabIds.clear();
+
+      if (!data.enabled || data.paused) {
+        if (!pendingUpdateBadge) {
+          await chrome.action.setBadgeText({ text: '' });
+        }
+        return;
+      }
+
+      const initialOf = profile => (profile.name || '').trim().charAt(0).toUpperCase() || '•';
+
+      if (!pendingUpdateBadge) {
+        const current = data.profiles[data.currentProfile];
+        if (current) {
+          await chrome.action.setBadgeText({ text: initialOf(current) });
+          await chrome.action.setBadgeBackgroundColor({
+            color: current.backgroundColor || '#4caf50',
+          });
+        }
+      }
+
+      for (const { profile, tabIds } of activeProfiles) {
+        if (tabIds === null) {
+          continue;
+        }
+        for (const tabId of tabIds) {
+          // eslint-disable-next-line no-await-in-loop -- small set; sequential keeps error handling per tab
+          await chrome.action.setBadgeText({ tabId, text: initialOf(profile) });
+          // eslint-disable-next-line no-await-in-loop
+          await chrome.action.setBadgeBackgroundColor({
+            tabId,
+            color: profile.backgroundColor || '#4caf50',
+          });
+          this.badgedTabIds.add(tabId);
+        }
+      }
+    } catch (error) {
+      console.error('HeaderEditor: failed to update badges:', error);
     }
   }
 
@@ -359,7 +446,7 @@ export class HeaderEditorBackground {
 
   // Build the modifyHeaders rules for a header direction, one per condition.
   // `direction` is 'requestHeaders' or 'responseHeaders' — the DNR action field.
-  createModifyHeadersRules(headers, direction, conditions) {
+  createModifyHeadersRules(headers, direction, conditions, priority = 1) {
     const validHeaders = headers.filter(h => h.name && h.name.trim());
     if (validHeaders.length === 0) {
       return [];
@@ -376,7 +463,7 @@ export class HeaderEditorBackground {
 
     return conditions.map(condition => ({
       id: this.currentRuleId++,
-      priority: 1,
+      priority,
       action: {
         type: 'modifyHeaders',
         [direction]: modifications,

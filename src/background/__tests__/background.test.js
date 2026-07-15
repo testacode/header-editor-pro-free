@@ -325,16 +325,21 @@ describe('HeaderEditorBackground', () => {
       currentProfile: 'p',
     };
 
-    test('applyHeaderRules with tabIds → session rules, not dynamic', async () => {
+    const activeOf = (data, key, tabIds) => [{ key, profile: data.profiles[key], tabIds }];
+
+    test('applyHeaderRules with tabIds → session rules with priority 2, not dynamic', async () => {
       vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
 
-      await settle(background.applyHeaderRules(dataWithHeaders, [7, 9]));
+      await settle(
+        background.applyHeaderRules(dataWithHeaders, activeOf(dataWithHeaders, 'p', [7, 9]))
+      );
 
       const sessionAdds = chrome.declarativeNetRequest.updateSessionRules.mock.calls.filter(
         c => c[0].addRules
       );
       expect(sessionAdds).toHaveLength(1);
       expect(sessionAdds[0][0].addRules[0].condition.tabIds).toEqual([7, 9]);
+      expect(sessionAdds[0][0].addRules[0].priority).toBe(2);
 
       const dynamicAdds = chrome.declarativeNetRequest.updateDynamicRules.mock.calls.filter(
         c => c[0].addRules
@@ -345,13 +350,70 @@ describe('HeaderEditorBackground', () => {
     test('applyHeaderRules with empty tabIds → no rules at all', async () => {
       vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
 
-      await settle(background.applyHeaderRules(dataWithHeaders, []));
+      await settle(
+        background.applyHeaderRules(dataWithHeaders, activeOf(dataWithHeaders, 'p', []))
+      );
 
       const anyAdds = [
         ...chrome.declarativeNetRequest.updateSessionRules.mock.calls,
         ...chrome.declarativeNetRequest.updateDynamicRules.mock.calls,
       ].filter(c => c[0].addRules);
       expect(anyAdds).toHaveLength(0);
+    });
+
+    test('selected global profile + scoped profile apply concurrently', async () => {
+      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
+      const data = {
+        enabled: true,
+        paused: false,
+        currentProfile: 'default',
+        profiles: {
+          default: { requestHeaders: [{ name: 'X-Global', value: 'g', enabled: true }] },
+          sandbox: { requestHeaders: [{ name: 'X-Sandbox', value: 's', enabled: true }] },
+        },
+      };
+      const active = [
+        { key: 'default', profile: data.profiles.default, tabIds: null },
+        { key: 'sandbox', profile: data.profiles.sandbox, tabIds: [3] },
+      ];
+
+      await settle(background.applyHeaderRules(data, active));
+
+      const dynamicAdds = chrome.declarativeNetRequest.updateDynamicRules.mock.calls.filter(
+        c => c[0].addRules
+      );
+      expect(dynamicAdds[0][0].addRules[0].action.requestHeaders[0].header).toBe('X-Global');
+
+      const sessionAdds = chrome.declarativeNetRequest.updateSessionRules.mock.calls.filter(
+        c => c[0].addRules
+      );
+      expect(sessionAdds[0][0].addRules[0].action.requestHeaders[0].header).toBe('X-Sandbox');
+      expect(sessionAdds[0][0].addRules[0].condition.tabIds).toEqual([3]);
+    });
+
+    test('resolveActiveProfiles skips non-selected profiles without tab scope', async () => {
+      background.isFirefox = false;
+      chrome.tabGroups.get.mockResolvedValue({ id: 42 });
+      chrome.tabs.query.mockResolvedValue([{ id: 7 }]);
+      const data = {
+        currentProfile: 'default',
+        profiles: {
+          default: { requestHeaders: [] },
+          scoped: {
+            requestHeaders: [],
+            filters: {
+              tabGroup: { enabled: true, group: { id: 42, title: 'SANDBOX', color: 'purple' } },
+            },
+          },
+          inactive: { requestHeaders: [{ name: 'X', value: 'v', enabled: true }] },
+        },
+      };
+
+      const active = await background.resolveActiveProfiles(data);
+
+      expect(active.map(a => a.key)).toEqual(['default', 'scoped']);
+      expect(active[0].tabIds).toBeNull();
+      expect(active[1].tabIds).toEqual([7]);
     });
 
     test('clearAllRules also clears existing session rules', async () => {
@@ -771,8 +833,62 @@ describe('HeaderEditorBackground', () => {
             default: expect.objectContaining({ description: 'Click to edit description' }),
           }),
         }),
-        null
+        expect.any(Array)
       );
+    });
+
+    test('updateBadges: global letter for selected profile, per-tab for scoped', async () => {
+      const data = {
+        enabled: true,
+        paused: false,
+        currentProfile: 'default',
+        profiles: {
+          default: { name: 'Default', backgroundColor: '#4caf50' },
+          sandbox: { name: 'sandbox', backgroundColor: '#ff9800' },
+        },
+      };
+      const active = [
+        { key: 'default', profile: data.profiles.default, tabIds: null },
+        { key: 'sandbox', profile: data.profiles.sandbox, tabIds: [7] },
+      ];
+
+      await background.updateBadges(data, active);
+
+      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: 'D' });
+      expect(chrome.action.setBadgeBackgroundColor).toHaveBeenCalledWith({ color: '#4caf50' });
+      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ tabId: 7, text: 'S' });
+      expect(chrome.action.setBadgeBackgroundColor).toHaveBeenCalledWith({
+        tabId: 7,
+        color: '#ff9800',
+      });
+      expect(background.badgedTabIds.has(7)).toBe(true);
+    });
+
+    test('updateBadges: paused → global badge cleared, previous per-tab badges wiped', async () => {
+      background.badgedTabIds.add(3);
+      const data = { enabled: true, paused: true, currentProfile: 'default', profiles: {} };
+
+      await background.updateBadges(data, []);
+
+      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ tabId: 3, text: '' });
+      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
+      expect(background.badgedTabIds.size).toBe(0);
+    });
+
+    test('updateBadges: pending NEW badge is not overwritten', async () => {
+      chrome.storage.local.get.mockResolvedValue({
+        updateNotification: { shown: false },
+      });
+      const data = {
+        enabled: true,
+        paused: false,
+        currentProfile: 'default',
+        profiles: { default: { name: 'Default' } },
+      };
+
+      await background.updateBadges(data, []);
+
+      expect(chrome.action.setBadgeText).not.toHaveBeenCalledWith({ text: 'D' });
     });
 
     test('storage with profile with headers → updateDynamicRules addRules called', async () => {
@@ -849,7 +965,21 @@ describe('HeaderEditorBackground', () => {
       expect(applySpy).toHaveBeenCalledTimes(1);
     });
 
-    test('profile backgroundColor change only → second loadAndApplyRules does not re-apply', async () => {
+    test('profile description change only → second loadAndApplyRules does not re-apply', async () => {
+      const applySpy = vi.spyOn(background, 'applyHeaderRules');
+      mockStorage(baseState());
+
+      await settle(background.loadAndApplyRules());
+
+      const changed = baseState();
+      changed.profiles.p1.description = 'something else';
+      mockStorage(changed);
+      await settle(background.loadAndApplyRules());
+
+      expect(applySpy).toHaveBeenCalledTimes(1);
+    });
+
+    test('profile backgroundColor change → re-applies (badge color depends on it)', async () => {
       const applySpy = vi.spyOn(background, 'applyHeaderRules');
       mockStorage(baseState());
 
@@ -860,7 +990,7 @@ describe('HeaderEditorBackground', () => {
       mockStorage(changed);
       await settle(background.loadAndApplyRules());
 
-      expect(applySpy).toHaveBeenCalledTimes(1);
+      expect(applySpy).toHaveBeenCalledTimes(2);
     });
 
     test('header value change → second loadAndApplyRules re-applies', async () => {
