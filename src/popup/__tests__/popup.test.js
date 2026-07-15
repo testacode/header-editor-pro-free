@@ -1297,24 +1297,6 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
-  describe('openFullscreen', () => {
-    test('opens a popup window with popup.html and closes the current popup', () => {
-      chrome.windows = { create: vi.fn() };
-      const closeSpy = vi.spyOn(window, 'close').mockImplementation(() => {});
-
-      popup.openFullscreen();
-
-      expect(chrome.windows.create).toHaveBeenCalledWith(
-        expect.objectContaining({ type: 'popup', width: 800, height: 600 })
-      );
-      const arg = chrome.windows.create.mock.calls[0][0];
-      expect(arg.url).toContain('popup.html');
-      expect(closeSpy).toHaveBeenCalled();
-
-      closeSpy.mockRestore();
-    });
-  });
-
   describe('color picker interactions', () => {
     beforeEach(() => {
       popup.colorPicker.showColorPicker(); // wires up the interaction handlers (once)

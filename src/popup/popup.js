@@ -131,10 +131,6 @@ export class HeaderEditorPopup {
       this.colorPicker.showColorPicker();
     });
 
-    document.getElementById('fullscreen-btn').addEventListener('click', () => {
-      this.openFullscreen();
-    });
-
     // Handle file input change
     document.getElementById('import-file-input').addEventListener('change', e => {
       this.importExport.handleImportFile(e);
@@ -638,19 +634,6 @@ export class HeaderEditorPopup {
   async refreshHeaders() {
     await this.loadData();
     this.renderUI();
-  }
-
-  openFullscreen() {
-    // Open the extension in a new window for fullscreen experience
-    chrome.windows.create({
-      url: chrome.runtime.getURL('popup.html'),
-      type: 'popup',
-      width: 800,
-      height: 600,
-    });
-
-    // Close the popup
-    window.close();
   }
 
   async updateProfileName(newName) {
