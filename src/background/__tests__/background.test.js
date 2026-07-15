@@ -1001,7 +1001,7 @@ describe('HeaderEditorBackground', () => {
       background.setupUpdateNotifications();
 
       const listener = chrome.runtime.onInstalled.addListener.mock.calls[0][0];
-      listener({ reason: 'update', previousVersion: '2.3.0' });
+      listener({ reason: 'update', previousVersion: chrome.runtime.getManifest().version });
 
       expect(chrome.action.setBadgeText).not.toHaveBeenCalled();
       expect(chrome.storage.local.set).not.toHaveBeenCalledWith(
