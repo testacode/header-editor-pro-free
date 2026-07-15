@@ -101,12 +101,21 @@ jobs:
         EOF
         sed -i "s/__VERSION__/${VERSION}/g" release_notes.md
 
-        # Create release using GitHub CLI
-        gh release create "$TAG" \
-          --title "Header Editor Pro - Free v${VERSION}" \
-          --notes-file release_notes.md \
-          "header-editor-pro-free-extension-v${VERSION}.zip" \
-          "header-editor-pro-free-source-v${VERSION}.zip"
+        # Create release using GitHub CLI. A workflow_dispatch re-run on an
+        # already-released tag (e.g. to publish to AMO) must not fail on the
+        # existing release — refresh its assets instead.
+        if gh release view "$TAG" > /dev/null 2>&1; then
+          echo "Release $TAG already exists - updating assets"
+          gh release upload "$TAG" --clobber \
+            "header-editor-pro-free-extension-v${VERSION}.zip" \
+            "header-editor-pro-free-source-v${VERSION}.zip"
+        else
+          gh release create "$TAG" \
+            --title "Header Editor Pro - Free v${VERSION}" \
+            --notes-file release_notes.md \
+            "header-editor-pro-free-extension-v${VERSION}.zip" \
+            "header-editor-pro-free-source-v${VERSION}.zip"
+        fi
         
     # Firefox AMO auto-publish. Only runs on manual workflow_dispatch with
     # publish_firefox != skip, so a tag push never ships to production.
