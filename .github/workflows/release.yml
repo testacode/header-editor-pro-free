@@ -67,9 +67,18 @@ jobs:
     - name: Create Release with GitHub CLI
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAG: ${{ github.ref_name }}
+        REF_NAME: ${{ github.ref_name }}
+        REF_TYPE: ${{ github.ref_type }}
         VERSION: ${{ steps.get_version.outputs.version }}
       run: |
+        # On a tag push the ref IS the tag; on workflow_dispatch from a branch,
+        # target the tag matching the built version instead.
+        if [ "$REF_TYPE" = "tag" ]; then
+          TAG="$REF_NAME"
+        else
+          TAG="v${VERSION}"
+        fi
+
         # Create release notes
         cat > release_notes.md << 'EOF'
         ## 🚀 Header Editor Pro - Free v__VERSION__
