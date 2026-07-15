@@ -74,9 +74,29 @@ describe('HeaderEditorBackground', () => {
   // ─── detectFirefox ───────────────────────────────────────────────────────
 
   describe('detectFirefox', () => {
-    test('returns true when browser global is defined (setup.js sets it)', () => {
-      // setup.js sets global.browser = global.chrome
-      expect(background.detectFirefox()).toBe(true);
+    test('returns false when browser is just the Chrome 137+ alias (no getBrowserInfo)', () => {
+      // setup.js sets global.browser = global.chrome, whose runtime mock has
+      // no getBrowserInfo — exactly what modern Chrome exposes.
+      expect(background.detectFirefox()).toBe(false);
+    });
+
+    test('returns true when browser.runtime.getBrowserInfo exists (Firefox)', () => {
+      vi.stubGlobal('browser', { runtime: { getBrowserInfo: vi.fn() } });
+      try {
+        expect(background.detectFirefox()).toBe(true);
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+
+    test('returns true when the user agent mentions Firefox', () => {
+      vi.stubGlobal('browser', undefined);
+      vi.stubGlobal('navigator', { userAgent: 'Mozilla/5.0 (X11; Firefox/139.0)' });
+      try {
+        expect(background.detectFirefox()).toBe(true);
+      } finally {
+        vi.unstubAllGlobals();
+      }
     });
 
     test('returns false when browser global is not defined and UA has no Firefox', () => {

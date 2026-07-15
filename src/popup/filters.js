@@ -28,8 +28,12 @@ export class FiltersManager {
 
   supportsTabGroupFilter() {
     // Firefox's declarativeNetRequest has no tabIds condition, so the tab group
-    // filter cannot work there even where the tabGroups API exists.
-    const isFirefox = typeof browser !== 'undefined' || navigator.userAgent.includes('Firefox');
+    // filter cannot work there even where the tabGroups API exists. Detect
+    // Firefox via getBrowserInfo (Firefox-only) — Chrome 137+ also defines the
+    // `browser` global, so its presence alone is not a Firefox signal.
+    const isFirefox =
+      (typeof browser !== 'undefined' && typeof browser.runtime?.getBrowserInfo === 'function') ||
+      navigator.userAgent.includes('Firefox');
     return !isFirefox && typeof chrome.tabGroups !== 'undefined';
   }
 

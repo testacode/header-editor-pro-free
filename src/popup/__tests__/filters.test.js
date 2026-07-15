@@ -96,9 +96,20 @@ describe('FiltersManager', () => {
   });
 
   describe('tab group filter', () => {
-    test('row stays hidden when unsupported (browser global set = Firefox)', () => {
+    test('row stays hidden on Firefox (browser.runtime.getBrowserInfo present)', () => {
+      vi.stubGlobal('browser', { runtime: { getBrowserInfo: vi.fn() } });
+      try {
+        popup.filters.render();
+        expect(document.getElementById('tab-group-filter-item').style.display).toBe('none');
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+
+    test('row shows on Chrome 137+ where browser is just an alias of chrome', () => {
+      // setup.js sets global.browser = global.chrome (no getBrowserInfo)
       popup.filters.render();
-      expect(document.getElementById('tab-group-filter-item').style.display).toBe('none');
+      expect(document.getElementById('tab-group-filter-item').style.display).toBe('');
     });
 
     describe('on Chrome', () => {

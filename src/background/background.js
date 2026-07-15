@@ -41,7 +41,12 @@ export class HeaderEditorBackground {
   }
 
   detectFirefox() {
-    const isFirefox = typeof browser !== 'undefined' || navigator.userAgent.includes('Firefox');
+    // Chrome 137+ also defines the `browser` global as an alias of `chrome`,
+    // so its mere presence no longer identifies Firefox. getBrowserInfo()
+    // exists only in Firefox.
+    const isFirefox =
+      (typeof browser !== 'undefined' && typeof browser.runtime?.getBrowserInfo === 'function') ||
+      navigator.userAgent.includes('Firefox');
     console.log(
       'HeaderEditor: Browser detection - isFirefox:',
       isFirefox,
