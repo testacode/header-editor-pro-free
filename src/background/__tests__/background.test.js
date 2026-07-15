@@ -792,6 +792,18 @@ describe('HeaderEditorBackground', () => {
       );
     });
 
+    test('reason update with same version (unpacked reload) → no badge, no notification', () => {
+      background.setupUpdateNotifications();
+
+      const listener = chrome.runtime.onInstalled.addListener.mock.calls[0][0];
+      listener({ reason: 'update', previousVersion: '2.3.0' });
+
+      expect(chrome.action.setBadgeText).not.toHaveBeenCalled();
+      expect(chrome.storage.local.set).not.toHaveBeenCalledWith(
+        expect.objectContaining({ updateNotification: expect.anything() })
+      );
+    });
+
     test('reason install → stores welcomeNotification', () => {
       background.setupUpdateNotifications();
 

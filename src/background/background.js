@@ -66,6 +66,12 @@ export class HeaderEditorBackground {
       if (details.reason === 'update') {
         const currentVersion = chrome.runtime.getManifest().version;
 
+        // Reloading an unpacked extension fires 'update' with the same version;
+        // only notify when the version actually changed.
+        if (details.previousVersion === currentVersion) {
+          return;
+        }
+
         // Show "NEW" badge on extension icon
         chrome.action.setBadgeText({ text: 'NEW' });
         chrome.action.setBadgeBackgroundColor({ color: '#4caf50' });
