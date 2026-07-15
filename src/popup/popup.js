@@ -2,10 +2,11 @@
 import './popup.css';
 
 import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normalize.js';
-import { defaultHeaderEditorData } from './default-data.js';
+import { defaultHeaderEditorData, defaultFilters } from './default-data.js';
 import { ImportExportManager } from './import-export.js';
 import { UpdateNotificationsManager } from './update-notifications.js';
 import { ColorPickerManager } from './color-picker.js';
+import { FiltersManager } from './filters.js';
 
 export class HeaderEditorPopup {
   constructor() {
@@ -20,6 +21,7 @@ export class HeaderEditorPopup {
     this.importExport = new ImportExportManager(this);
     this.updateNotifications = new UpdateNotificationsManager(this);
     this.colorPicker = new ColorPickerManager(this);
+    this.filters = new FiltersManager(this);
     this.init();
   }
 
@@ -88,6 +90,10 @@ export class HeaderEditorPopup {
         // Update existing empty default profile description
         profile.description = 'Click to edit description';
       }
+
+      if (!profile.filters) {
+        profile.filters = defaultFilters();
+      }
     });
   }
 
@@ -130,6 +136,8 @@ export class HeaderEditorPopup {
     document.getElementById('color-picker-btn').addEventListener('click', () => {
       this.colorPicker.showColorPicker();
     });
+
+    this.filters.setupEventListeners();
 
     // Handle file input change
     document.getElementById('import-file-input').addEventListener('change', e => {
@@ -278,6 +286,7 @@ export class HeaderEditorPopup {
   renderUI() {
     this.renderProfileCircles();
     this.renderHeaders();
+    this.filters.render();
     this.updateToolbar();
   }
 
@@ -546,6 +555,7 @@ export class HeaderEditorPopup {
       responseHeaders: [],
       backgroundColor: '#4caf50',
       textColor: '#ffffff',
+      filters: defaultFilters(),
     };
     this.currentProfile = key;
     this.saveData();

@@ -243,6 +243,42 @@
           </div>
         </div>
 
+        <!-- Filters Section -->
+        <div class="section" id="filters-section">
+          <div class="section-header">
+            <span class="section-title">Filters</span>
+          </div>
+          <div class="section-content">
+            <div class="filter-item" id="domain-filter-item">
+              <input
+                type="checkbox"
+                class="header-checkbox"
+                id="domain-filter-enabled"
+                title="Limit this profile to these domains"
+              />
+              <span class="filter-label">Domains</span>
+              <input
+                type="text"
+                class="filter-domains-input"
+                id="domain-filter-input"
+                placeholder="example.com, api.example.com"
+              />
+            </div>
+            <div class="filter-item" id="tab-group-filter-item" style="display: none">
+              <input
+                type="checkbox"
+                class="header-checkbox"
+                id="tab-group-filter-enabled"
+                title="Limit this profile to a tab group"
+              />
+              <span class="filter-label">Tab group</span>
+              <select class="filter-group-select" id="tab-group-filter-select">
+                <option value="">Select a tab group…</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 

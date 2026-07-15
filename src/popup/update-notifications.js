@@ -1,3 +1,11 @@
+// One short line per release telling the user what's new and where to find it.
+// Keyed by exact manifest version; versions without an entry fall back to the
+// generic subtitle.
+export const RELEASE_HIGHLIGHTS = {
+  '2.4.0':
+    'New: profile Filters — scope headers to domains or a Chrome tab group. See the Filters section below Response headers.',
+};
+
 export class UpdateNotificationsManager {
   constructor(popup) {
     this.popup = popup;
@@ -64,13 +72,14 @@ export class UpdateNotificationsManager {
   }
 
   showUpdateTooltip(updateInfo) {
+    const highlight = RELEASE_HIGHLIGHTS[updateInfo.currentVersion];
     this.showTooltip({
       className: 'update-notification update-notification-slide-in',
       icon: '✨',
       title: 'Extension Updated!',
       body: `Updated from v${updateInfo.previousVersion} to v${updateInfo.currentVersion}`,
-      subtitle: 'Check latest features and improvements',
-      autoCloseMs: 6000,
+      subtitle: highlight || 'Check latest features and improvements',
+      autoCloseMs: highlight ? 10000 : 6000,
     });
   }
 

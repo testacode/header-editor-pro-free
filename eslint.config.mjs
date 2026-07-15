@@ -117,6 +117,7 @@ export default [
         // jsdom globals
         window: 'readonly',
         document: 'readonly',
+        Event: 'readonly',
       },
     },
     rules: {

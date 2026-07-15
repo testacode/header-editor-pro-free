@@ -20,6 +20,7 @@
 ⚡ **Real-time Header Modification** - Instant application of request and response headers via Chrome's declarativeNetRequest API  
 🎨 **Professional Dark UI** - Clean, modern interface designed for developers  
 ☑️ **Individual Header Controls** - Enable/disable each header independently  
+🎯 **Profile Filters** - Scope a profile to specific domains, or to a Chrome tab group so headers never leak outside it  
 ⏸️ **Pause Functionality** - Temporarily disable without losing configurations  
 🔒 **Privacy Focused** - All data stored locally, no tracking or analytics  
 
@@ -91,6 +92,11 @@
 - **Enable/disable**: Use checkboxes next to each header
 - **Delete headers**: Click the "✕" button
 
+### Profile Filters
+- **Domains filter**: Limit a profile to specific domains (comma-separated). Headers apply to requests going to those domains or initiated from pages on them. Works on Chrome and Firefox.
+- **Tab group filter** (Chrome only): Limit a profile to a tab group. Enabling it with the current tab inside a group picks that group automatically; new tabs added to the group inherit the headers. Perfect for keeping sandbox headers away from production tabs.
+- Both filters live in the **Filters** section below Response headers and can be toggled per profile.
+
 ### Toolbar Features
 - **Pause/Resume**: ⏸️/▶️ button to temporarily disable all modifications
 - **Profile name**: Shows current active profile
@@ -106,7 +112,7 @@
 ### Permissions Used
 - **declarativeNetRequest**: Modify HTTP headers efficiently
 - **storage**: Save configurations locally on your device  
-- **activeTab**: Apply headers to current tab
+- **tabGroups**: List your tab groups for the tab group filter (Chrome)
 - **host permissions**: Modify headers across all websites
 
 ### Data Privacy

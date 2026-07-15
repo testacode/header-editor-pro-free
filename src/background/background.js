@@ -58,6 +58,7 @@ export class HeaderEditorBackground {
   init() {
     this.setupMessageHandlers();
     this.setupUpdateNotifications();
+    this.setupTabGroupTracking();
     this.loadAndApplyRules();
   }
 
@@ -112,7 +113,7 @@ export class HeaderEditorBackground {
     });
   }
 
-  ruleStateSignature(data) {
+  ruleStateSignature(data, tabIds) {
     const profile = data.profiles?.[data.currentProfile];
     return JSON.stringify({
       enabled: data.enabled,
@@ -120,6 +121,8 @@ export class HeaderEditorBackground {
       currentProfile: data.currentProfile,
       requestHeaders: profile?.requestHeaders ?? null,
       responseHeaders: profile?.responseHeaders ?? null,
+      filters: profile?.filters ?? null,
+      tabIds: tabIds ?? null,
     });
   }
 
@@ -128,12 +131,15 @@ export class HeaderEditorBackground {
       const result = await chrome.storage.local.get(['headerEditorData']);
       const data = result.headerEditorData || defaultHeaderEditorData();
 
-      const signature = this.ruleStateSignature(data);
+      const profile = data.profiles?.[data.currentProfile];
+      const tabIds = await this.resolveTabIds(profile?.filters);
+
+      const signature = this.ruleStateSignature(data, tabIds);
       if (signature === this.lastAppliedSignature) {
         return;
       }
 
-      await this.applyHeaderRules(data);
+      await this.applyHeaderRules(data, tabIds);
       this.lastAppliedSignature = signature;
     } catch (error) {
       console.error('Failed to apply header rules, clearing all rules:', error);
@@ -142,12 +148,75 @@ export class HeaderEditorBackground {
     }
   }
 
-  async applyHeaderRules(data) {
+  supportsTabGroupFilter() {
+    // Firefox's declarativeNetRequest has no tabIds condition, and session-rule
+    // tab scoping is the only way to implement the filter — Chrome only.
+    return !this.isFirefox && Boolean(chrome.tabGroups) && Boolean(chrome.tabs);
+  }
+
+  // Resolve the tab group filter to the concrete tab ids it covers right now.
+  // Returns null when no tab scoping applies (filter off, unsupported browser)
+  // and an array (possibly empty = match nothing) when it does.
+  async resolveTabIds(filters) {
+    const tabGroup = filters?.tabGroup;
+    if (!tabGroup?.enabled || !tabGroup.group) {
+      return null;
+    }
+    if (!this.supportsTabGroupFilter()) {
+      console.warn('HeaderEditor: tab group filter is not supported in this browser; ignoring it');
+      return null;
+    }
+
+    try {
+      let groupId = tabGroup.group.id;
+      try {
+        await chrome.tabGroups.get(groupId);
+      } catch (_missingGroup) {
+        // Group ids do not survive a browser restart — re-match by title+color.
+        const candidates = await chrome.tabGroups.query({
+          title: tabGroup.group.title ?? '',
+          color: tabGroup.group.color,
+        });
+        if (candidates.length === 0) {
+          return [];
+        }
+        groupId = candidates[0].id;
+      }
+
+      const tabs = await chrome.tabs.query({ groupId });
+      return tabs.map(tab => tab.id);
+    } catch (error) {
+      console.error('HeaderEditor: failed to resolve tab group tabs:', error);
+      return [];
+    }
+  }
+
+  // Re-apply rules when tab group membership can have changed. The signature
+  // check in loadAndApplyRules makes redundant firings cheap.
+  setupTabGroupTracking() {
+    if (!this.supportsTabGroupFilter()) {
+      return;
+    }
+    const reapply = () => this.loadAndApplyRules();
+
+    chrome.tabs.onUpdated.addListener((_tabId, changeInfo) => {
+      if ('groupId' in changeInfo) {
+        reapply();
+      }
+    });
+    chrome.tabs.onRemoved.addListener(reapply);
+    chrome.tabGroups.onUpdated.addListener(reapply);
+    chrome.tabGroups.onRemoved.addListener(reapply);
+    chrome.runtime.onStartup.addListener(reapply);
+  }
+
+  async applyHeaderRules(data, tabIds = null) {
     console.log('HeaderEditor: Applying header rules', {
       enabled: data.enabled,
       paused: data.paused,
       currentProfile: data.currentProfile,
       isFirefox: this.isFirefox,
+      tabIds,
     });
 
     // Clear existing rules first
@@ -170,16 +239,23 @@ export class HeaderEditorBackground {
       return;
     }
 
+    // Tab group filter resolved to zero tabs (group empty or gone): the profile
+    // is scoped to nothing, so no rules at all.
+    if (tabIds !== null && tabIds.length === 0) {
+      console.log('HeaderEditor: Tab group filter matches no tabs - not applying rules');
+      return;
+    }
+
+    const conditions = this.buildConditions(currentProfile.filters, tabIds);
     const rules = [];
 
     // Process request headers - only enabled ones
     if (currentProfile.requestHeaders && currentProfile.requestHeaders.length > 0) {
       const enabledRequestHeaders = currentProfile.requestHeaders.filter(isHeaderEnabled);
       if (enabledRequestHeaders.length > 0) {
-        const requestHeaderRule = this.createRequestHeaderRule(enabledRequestHeaders);
-        if (requestHeaderRule) {
-          rules.push(requestHeaderRule);
-        }
+        rules.push(
+          ...this.createModifyHeadersRules(enabledRequestHeaders, 'requestHeaders', conditions)
+        );
       }
     }
 
@@ -187,13 +263,9 @@ export class HeaderEditorBackground {
     if (currentProfile.responseHeaders && currentProfile.responseHeaders.length > 0) {
       const enabledResponseHeaders = currentProfile.responseHeaders.filter(isHeaderEnabled);
       if (enabledResponseHeaders.length > 0) {
-        const responseHeaderRule = this.createModifyHeadersRule(
-          enabledResponseHeaders,
-          'responseHeaders'
+        rules.push(
+          ...this.createModifyHeadersRules(enabledResponseHeaders, 'responseHeaders', conditions)
         );
-        if (responseHeaderRule) {
-          rules.push(responseHeaderRule);
-        }
       }
     }
 
@@ -207,11 +279,57 @@ export class HeaderEditorBackground {
       }
 
       console.log('HeaderEditor: About to add rules:', rules);
-      await this.addRules(rules);
+      // tabIds conditions are only valid on session rules
+      await this.addRules(rules, { session: tabIds !== null });
       console.log('HeaderEditor: Rules added successfully');
     } else {
       console.log('HeaderEditor: No rules to apply');
     }
+  }
+
+  activeDomainList(filters) {
+    if (!filters?.domains?.enabled) {
+      return [];
+    }
+    // DNR requires lowercase domains
+    return (filters.domains.list || []).map(domain => domain.trim().toLowerCase()).filter(Boolean);
+  }
+
+  // Build the DNR conditions the profile's rules must carry. With a domain
+  // filter, a request should match when it goes TO one of the domains or is
+  // initiated FROM one of them; DNR ANDs fields inside a condition, so that OR
+  // takes one rule (condition) per field.
+  buildConditions(filters, tabIds) {
+    const base = {
+      urlFilter: '*',
+      resourceTypes: [
+        'main_frame',
+        'sub_frame',
+        'stylesheet',
+        'script',
+        'image',
+        'font',
+        'object',
+        'xmlhttprequest',
+        'ping',
+        'csp_report',
+        'media',
+        'websocket',
+        'other',
+      ],
+    };
+    if (tabIds !== null) {
+      base.tabIds = tabIds;
+    }
+
+    const domains = this.activeDomainList(filters);
+    if (domains.length === 0) {
+      return [base];
+    }
+    return [
+      { ...base, requestDomains: domains },
+      { ...base, initiatorDomains: domains },
+    ];
   }
 
   // Decide the DNR operation for a header: append (multi-value) when the user
@@ -234,12 +352,12 @@ export class HeaderEditorBackground {
     return header.value ? 'set' : 'remove';
   }
 
-  // Build one modifyHeaders rule for a header direction.
+  // Build the modifyHeaders rules for a header direction, one per condition.
   // `direction` is 'requestHeaders' or 'responseHeaders' — the DNR action field.
-  createModifyHeadersRule(headers, direction) {
+  createModifyHeadersRules(headers, direction, conditions) {
     const validHeaders = headers.filter(h => h.name && h.name.trim());
     if (validHeaders.length === 0) {
-      return null;
+      return [];
     }
 
     const modifications = validHeaders.map(header => {
@@ -251,43 +369,25 @@ export class HeaderEditorBackground {
       };
     });
 
-    return {
+    return conditions.map(condition => ({
       id: this.currentRuleId++,
       priority: 1,
       action: {
         type: 'modifyHeaders',
         [direction]: modifications,
       },
-      condition: {
-        urlFilter: '*',
-        resourceTypes: [
-          'main_frame',
-          'sub_frame',
-          'stylesheet',
-          'script',
-          'image',
-          'font',
-          'object',
-          'xmlhttprequest',
-          'ping',
-          'csp_report',
-          'media',
-          'websocket',
-          'other',
-        ],
-      },
-    };
+      condition,
+    }));
   }
 
-  createRequestHeaderRule(headers) {
-    return this.createModifyHeadersRule(headers, 'requestHeaders');
-  }
+  async addRules(rules, { session = false } = {}) {
+    const updateRules = options =>
+      session
+        ? chrome.declarativeNetRequest.updateSessionRules(options)
+        : chrome.declarativeNetRequest.updateDynamicRules(options);
 
-  async addRules(rules) {
     try {
-      await chrome.declarativeNetRequest.updateDynamicRules({
-        addRules: rules,
-      });
+      await updateRules({ addRules: rules });
 
       rules.forEach(rule => {
         this.activeRules.add(rule.id);
@@ -298,9 +398,7 @@ export class HeaderEditorBackground {
       for (const rule of rules) {
         try {
           // eslint-disable-next-line no-await-in-loop -- sequential is intentional: isolate which rule fails in the per-rule fallback
-          await chrome.declarativeNetRequest.updateDynamicRules({
-            addRules: [rule],
-          });
+          await updateRules({ addRules: [rule] });
           this.activeRules.add(rule.id);
         } catch (_ruleError) {
           // Skip invalid rules
@@ -309,8 +407,23 @@ export class HeaderEditorBackground {
     }
   }
 
+  async clearSessionRules() {
+    // Session rules (tab group scoping) live in a separate rule set
+    if (!chrome.declarativeNetRequest.getSessionRules) {
+      return;
+    }
+    const sessionRules = await chrome.declarativeNetRequest.getSessionRules();
+    if (sessionRules.length > 0) {
+      await chrome.declarativeNetRequest.updateSessionRules({
+        removeRuleIds: sessionRules.map(rule => rule.id),
+      });
+    }
+  }
+
   async clearAllRules() {
     try {
+      await this.clearSessionRules();
+
       // Always get current dynamic rules to ensure we remove everything
       const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
       const allRuleIds = existingRules.map(rule => rule.id);

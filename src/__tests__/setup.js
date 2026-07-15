@@ -36,6 +36,11 @@ const mockRuntime = {
     removeListener: vi.fn(),
     hasListener: vi.fn().mockReturnValue(false),
   },
+  onStartup: {
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    hasListener: vi.fn().mockReturnValue(false),
+  },
   sendMessage: vi.fn().mockResolvedValue(undefined),
   getManifest: vi.fn().mockReturnValue({
     version: '2.3.0',
@@ -54,6 +59,7 @@ const mockAction = {
 const mockDeclarativeNetRequest = {
   updateDynamicRules: vi.fn().mockResolvedValue(undefined),
   getDynamicRules: vi.fn().mockResolvedValue([]),
+  updateSessionRules: vi.fn().mockResolvedValue(undefined),
   getSessionRules: vi.fn().mockResolvedValue([]),
   RESOURCE_TYPE: {
     MAIN_FRAME: 'main_frame',
@@ -77,6 +83,15 @@ const mockTabs = {
   query: vi.fn().mockResolvedValue([]),
   update: vi.fn().mockResolvedValue({}),
   remove: vi.fn().mockResolvedValue(undefined),
+  onUpdated: { addListener: vi.fn(), removeListener: vi.fn() },
+  onRemoved: { addListener: vi.fn(), removeListener: vi.fn() },
+};
+
+const mockTabGroups = {
+  get: vi.fn().mockResolvedValue({ id: 1, title: '', color: 'grey' }),
+  query: vi.fn().mockResolvedValue([]),
+  onUpdated: { addListener: vi.fn(), removeListener: vi.fn() },
+  onRemoved: { addListener: vi.fn(), removeListener: vi.fn() },
 };
 
 const mockWindows = {
@@ -92,6 +107,7 @@ global.chrome = {
   action: mockAction,
   declarativeNetRequest: mockDeclarativeNetRequest,
   tabs: mockTabs,
+  tabGroups: mockTabGroups,
   windows: mockWindows,
 };
 

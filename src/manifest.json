@@ -3,7 +3,7 @@
   "description": "Professional HTTP header editor for web developers, API testing, and debugging - completely free with unlimited profiles",
   "version": "2.3.0",
   "manifest_version": 3,
-  "permissions": ["declarativeNetRequest", "storage"],
+  "permissions": ["declarativeNetRequest", "storage", "tabGroups"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "js/background.js",

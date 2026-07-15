@@ -565,6 +565,52 @@ body {
   background: #1a1a1a;
 }
 
+/* Filter items (Filters section) */
+.filter-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.filter-item:hover {
+  background: #252525;
+}
+
+.filter-label {
+  min-width: 80px;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.filter-domains-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 4px 0;
+  margin-left: 12px;
+  outline: none;
+}
+
+.filter-domains-input::placeholder {
+  color: #666;
+}
+
+.filter-group-select {
+  flex: 1;
+  margin-left: 12px;
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 4px 8px;
+  outline: none;
+  cursor: pointer;
+}
+
 /* Header items */
 .header-item {
   display: flex;

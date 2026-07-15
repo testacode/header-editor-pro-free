@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { HeaderEditorPopup } from '../popup.js';
 import { hexToHsl, hslToHex } from '../color-utils.js';
+import { RELEASE_HIGHLIGHTS } from '../update-notifications.js';
 
 const popupHtml = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
 
@@ -885,6 +886,29 @@ describe('HeaderEditorPopup', () => {
       document.querySelector('.update-close').click();
       vi.advanceTimersByTime(300);
       expect(document.querySelector('.update-notification')).toBeNull();
+    });
+
+    test('version with a release highlight shows it as subtitle', () => {
+      RELEASE_HIGHLIGHTS['9.9.9'] = 'New: something shiny — look under Response headers.';
+      try {
+        popup.updateNotifications.showUpdateTooltip({
+          previousVersion: '9.9.8',
+          currentVersion: '9.9.9',
+        });
+        expect(document.querySelector('.update-subtitle').textContent).toContain('something shiny');
+      } finally {
+        delete RELEASE_HIGHLIGHTS['9.9.9'];
+      }
+    });
+
+    test('version without highlight keeps the generic subtitle', () => {
+      popup.updateNotifications.showUpdateTooltip({
+        previousVersion: '1.0',
+        currentVersion: '2.0',
+      });
+      expect(document.querySelector('.update-subtitle').textContent).toContain(
+        'Check latest features'
+      );
     });
   });
 

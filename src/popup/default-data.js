@@ -4,6 +4,14 @@
  * Any new field of the persisted shape is added here — never inline.
  */
 
+export function defaultFilters() {
+  return {
+    domains: { enabled: false, list: [] },
+    // group: { id, title, color } of a Chrome tab group; null = none selected
+    tabGroup: { enabled: false, group: null },
+  };
+}
+
 export function defaultProfile() {
   return {
     name: 'Default',
@@ -12,6 +20,7 @@ export function defaultProfile() {
     responseHeaders: [],
     backgroundColor: '#4caf50',
     textColor: '#ffffff',
+    filters: defaultFilters(),
   };
 }
 
