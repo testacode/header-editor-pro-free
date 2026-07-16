@@ -837,6 +837,32 @@ describe('HeaderEditorBackground', () => {
       );
     });
 
+    test('concurrent loadAndApplyRules calls are serialized, not interleaved', async () => {
+      const order = [];
+      let releaseFirst;
+      vi.spyOn(background, 'doLoadAndApplyRules')
+        .mockImplementationOnce(async () => {
+          order.push('start1');
+          await new Promise(resolve => {
+            releaseFirst = resolve;
+          });
+          order.push('end1');
+        })
+        .mockImplementationOnce(async () => {
+          order.push('start2');
+        });
+
+      background.loadAndApplyRules();
+      const second = background.loadAndApplyRules();
+      await Promise.resolve();
+
+      expect(order).toEqual(['start1']); // la segunda espera a la primera
+
+      releaseFirst();
+      await second;
+      expect(order).toEqual(['start1', 'end1', 'start2']);
+    });
+
     test('updateBadges: global letter for selected profile, per-tab for scoped', async () => {
       const data = {
         enabled: true,

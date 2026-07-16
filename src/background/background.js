@@ -37,6 +37,7 @@ export class HeaderEditorBackground {
     this.activeRules = new Set();
     this.badgedTabIds = new Set();
     this.lastAppliedSignature = null;
+    this.applyQueue = Promise.resolve();
     this.isFirefox = this.detectFirefox();
     this.init();
   }
@@ -158,7 +159,15 @@ export class HeaderEditorBackground {
     return active;
   }
 
-  async loadAndApplyRules() {
+  // Concurrent triggers (storage change, tab/group events, startup) interleave
+  // their DNR clear/add calls and can leave rules duplicated or missing —
+  // serialize every application through a queue.
+  loadAndApplyRules() {
+    this.applyQueue = this.applyQueue.then(() => this.doLoadAndApplyRules());
+    return this.applyQueue;
+  }
+
+  async doLoadAndApplyRules() {
     try {
       const result = await chrome.storage.local.get(['headerEditorData']);
       const data = result.headerEditorData || defaultHeaderEditorData();
