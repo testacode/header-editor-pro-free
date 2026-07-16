@@ -6,6 +6,7 @@ export const RELEASE_HIGHLIGHTS = {
     'New: profile Filters — scope headers to domains or a Chrome tab group. See the Filters section below Response headers.',
   '2.4.1':
     'New: profile Filters — scope headers to domains or a Chrome tab group. See the Filters section below Response headers.',
+  '2.5.0': 'New: copy a header to another profile from the copy button on each header row.',
 };
 
 export class UpdateNotificationsManager {
