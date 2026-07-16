@@ -351,6 +351,137 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
+  describe('copyHeaderToProfile', () => {
+    beforeEach(() => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'X-Foo', value: 'bar', enabled: false },
+      ];
+      popup.profiles.other = {
+        name: 'Other',
+        description: '',
+        requestHeaders: [{ name: 'Existing', value: 'v', enabled: true }],
+        responseHeaders: [],
+      };
+    });
+
+    test('appends {name,value,enabled:true} to target profile same section and saves', async () => {
+      chrome.storage.local.set.mockClear();
+      await popup.copyHeaderToProfile('request', 0, 'other');
+
+      expect(popup.profiles.other.requestHeaders).toHaveLength(2);
+      expect(popup.profiles.other.requestHeaders[1]).toEqual({
+        name: 'X-Foo',
+        value: 'bar',
+        enabled: true,
+      });
+      expect(chrome.storage.local.set).toHaveBeenCalled();
+    });
+
+    test('source header is left untouched', async () => {
+      await popup.copyHeaderToProfile('request', 0, 'other');
+      expect(popup.profiles[popup.currentProfile].requestHeaders[0]).toEqual({
+        name: 'X-Foo',
+        value: 'bar',
+        enabled: false,
+      });
+    });
+
+    test('initializes missing headers array on target profile', async () => {
+      delete popup.profiles.other.responseHeaders;
+      popup.profiles[popup.currentProfile].responseHeaders = [
+        { name: 'X-Resp', value: 'r', enabled: true },
+      ];
+
+      await popup.copyHeaderToProfile('response', 0, 'other');
+
+      expect(popup.profiles.other.responseHeaders).toEqual([
+        { name: 'X-Resp', value: 'r', enabled: true },
+      ]);
+    });
+
+    test('unknown target profile is a no-op', async () => {
+      chrome.storage.local.set.mockClear();
+      await popup.copyHeaderToProfile('request', 0, 'ghost');
+      expect(chrome.storage.local.set).not.toHaveBeenCalled();
+    });
+
+    test('out-of-bounds index is a no-op', async () => {
+      chrome.storage.local.set.mockClear();
+      await popup.copyHeaderToProfile('request', 99, 'other');
+      expect(popup.profiles.other.requestHeaders).toHaveLength(1);
+      expect(chrome.storage.local.set).not.toHaveBeenCalled();
+    });
+
+    test('shows confirmation toast with target profile name', async () => {
+      await popup.copyHeaderToProfile('request', 0, 'other');
+      const toast = document.querySelector('.copy-toast');
+      expect(toast).not.toBeNull();
+      expect(toast.textContent).toBe('✓ Copied to "Other"');
+    });
+  });
+
+  describe('copy-to-profile UI', () => {
+    test('copy button hidden with a single profile', () => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'X-Foo', value: 'bar', enabled: true },
+      ];
+      popup.renderHeadersList('request');
+      expect(document.querySelector('.header-copy')).toBeNull();
+    });
+
+    test('copy button rendered when another profile exists', () => {
+      popup.profiles.other = { name: 'Other', requestHeaders: [], responseHeaders: [] };
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'X-Foo', value: 'bar', enabled: true },
+      ];
+      popup.renderHeadersList('request');
+      expect(document.querySelector('.header-copy')).not.toBeNull();
+    });
+
+    test('dropdown lists other profiles only and copies on click', async () => {
+      popup.profiles.other = {
+        name: 'Other',
+        requestHeaders: [],
+        responseHeaders: [],
+        backgroundColor: '#2196f3',
+      };
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'X-Foo', value: 'bar', enabled: true },
+      ];
+      popup.renderHeadersList('request');
+
+      document.querySelector('.header-copy').click();
+
+      const items = document.querySelectorAll('.copy-dropdown .dropdown-item');
+      expect(items).toHaveLength(1);
+      expect(items[0].textContent).toContain('Other');
+
+      items[0].click();
+      await vi.waitFor(() => expect(popup.profiles.other.requestHeaders).toHaveLength(1));
+      expect(popup.profiles.other.requestHeaders[0]).toEqual({
+        name: 'X-Foo',
+        value: 'bar',
+        enabled: true,
+      });
+      // Dropdown closes after copying
+      expect(document.querySelector('.copy-dropdown')).toBeNull();
+    });
+
+    test('clicking the copy button twice toggles the dropdown closed', () => {
+      popup.profiles.other = { name: 'Other', requestHeaders: [], responseHeaders: [] };
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'X-Foo', value: 'bar', enabled: true },
+      ];
+      popup.renderHeadersList('request');
+
+      const copyBtn = document.querySelector('.header-copy');
+      copyBtn.click();
+      expect(document.querySelector('.copy-dropdown')).not.toBeNull();
+      copyBtn.click();
+      expect(document.querySelector('.copy-dropdown')).toBeNull();
+    });
+  });
+
   // ─── Pause / Pin ─────────────────────────────────────────────────────────────
 
   describe('togglePause', () => {

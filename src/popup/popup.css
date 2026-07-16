@@ -618,6 +618,7 @@ body {
   padding: 8px 16px;
   border-bottom: 1px solid #2d2d2d;
   transition: background 0.1s;
+  position: relative; /* anchor for .copy-dropdown */
 }
 
 .header-item:hover {
@@ -738,6 +739,76 @@ body {
   background: #4caf50;
   border-color: #4caf50;
   color: #fff;
+}
+
+.header-copy {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.header-copy:hover {
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.copy-dropdown {
+  position: absolute;
+  top: 34px;
+  right: 12px;
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  min-width: 180px;
+  overflow: hidden;
+}
+
+.copy-dropdown-label {
+  padding: 8px 16px 6px;
+  font-size: 11px;
+  color: #888;
+  border-bottom: 1px solid #404040;
+}
+
+.copy-dropdown .dropdown-item {
+  padding: 10px 16px;
+}
+
+.mini-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex: 0 0 auto;
+  background: #4caf50;
+  color: #fff;
+}
+
+.copy-toast {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2d2d2d;
+  border: 1px solid #4caf50;
+  color: #4caf50;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 2000;
 }
 
 .add-header-btn {

@@ -186,9 +186,10 @@ export class HeaderEditorPopup {
       this.closeDropdown();
     });
 
-    // Close dropdown when clicking outside
+    // Close dropdowns when clicking outside
     document.addEventListener('click', () => {
       this.closeDropdown();
+      this.closeCopyDropdowns();
     });
 
     // Modal event listeners
@@ -418,6 +419,20 @@ export class HeaderEditorPopup {
     const actions = document.createElement('div');
     actions.className = 'header-actions';
 
+    // Copy-to-profile button (only useful when there is another profile to copy to)
+    if (Object.keys(this.profiles).length > 1) {
+      const copyButton = document.createElement('button');
+      copyButton.className = 'header-copy';
+      copyButton.innerHTML =
+        '<svg viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M208 0L332.1 0c12.7 0 24.9 5.1 33.9 14.1l67.9 67.9c9 9 14.1 21.2 14.1 33.9L448 336c0 26.5-21.5 48-48 48l-192 0c-26.5 0-48-21.5-48-48l0-288c0-26.5 21.5-48 48-48zM48 128l80 0 0 64-64 0 0 256 192 0 0-32 64 0 0 48c0 26.5-21.5 48-48 48L48 512c-26.5 0-48-21.5-48-48L0 176c0-26.5 21.5-48 48-48z"/></svg>';
+      copyButton.title = 'Copy to profile…';
+      copyButton.addEventListener('click', e => {
+        e.stopPropagation();
+        this.toggleCopyDropdown(div, type, index);
+      });
+      actions.appendChild(copyButton);
+    }
+
     // Delete button
     const deleteButton = document.createElement('button');
     deleteButton.className = 'header-delete';
@@ -534,6 +549,83 @@ export class HeaderEditorPopup {
     headers.splice(index, 1);
     await this.saveData();
     this.renderHeadersList(type);
+  }
+
+  toggleCopyDropdown(headerItem, type, index) {
+    const wasOpen = headerItem.querySelector('.copy-dropdown');
+    this.closeCopyDropdowns();
+    if (wasOpen) {
+      return;
+    }
+
+    const dropdown = document.createElement('div');
+    dropdown.className = 'copy-dropdown';
+
+    const label = document.createElement('div');
+    label.className = 'copy-dropdown-label';
+    label.textContent = 'Copy to profile';
+    dropdown.appendChild(label);
+
+    Object.entries(this.profiles)
+      .filter(([key]) => key !== this.currentProfile)
+      .forEach(([key, profile]) => {
+        const item = document.createElement('div');
+        item.className = 'dropdown-item';
+
+        const circle = document.createElement('span');
+        circle.className = 'mini-circle';
+        circle.textContent = profile.name.charAt(0).toUpperCase();
+        if (profile.backgroundColor) {
+          circle.style.backgroundColor = profile.backgroundColor;
+        }
+        if (profile.textColor) {
+          circle.style.color = profile.textColor;
+        }
+
+        const name = document.createElement('span');
+        name.textContent = profile.name;
+
+        item.appendChild(circle);
+        item.appendChild(name);
+        item.addEventListener('click', e => {
+          e.stopPropagation();
+          this.copyHeaderToProfile(type, index, key);
+          this.closeCopyDropdowns();
+        });
+        dropdown.appendChild(item);
+      });
+
+    headerItem.appendChild(dropdown);
+  }
+
+  closeCopyDropdowns() {
+    document.querySelectorAll('.copy-dropdown').forEach(dropdown => dropdown.remove());
+  }
+
+  async copyHeaderToProfile(type, index, targetProfileKey) {
+    const header = this.profiles[this.currentProfile]?.[`${type}Headers`]?.[index];
+    const target = this.profiles[targetProfileKey];
+    if (!header || !target) {
+      return;
+    }
+
+    const key = `${type}Headers`;
+    // Pre-existing profiles in storage may lack responseHeaders — init on demand.
+    if (!target[key]) {
+      target[key] = [];
+    }
+    target[key].push({ name: header.name, value: header.value, enabled: true });
+    await this.saveData();
+    this.showCopyToast(target.name);
+  }
+
+  showCopyToast(profileName) {
+    document.querySelectorAll('.copy-toast').forEach(toast => toast.remove());
+    const toast = document.createElement('div');
+    toast.className = 'copy-toast';
+    toast.textContent = `✓ Copied to "${profileName}"`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
   }
 
   createNewProfile() {
