@@ -851,6 +851,39 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
+  // ─── auto-close on blur ───────────────────────────────────────────────────────
+
+  describe('auto-close on blur (handleWindowBlur)', () => {
+    test('no modal/dropdown/drag → closes the popup', () => {
+      window.close.mockClear();
+      popup.handleWindowBlur();
+      expect(window.close).toHaveBeenCalled();
+    });
+
+    test('during a header drag does NOT close (Linux fires blur on dragstart)', () => {
+      window.close.mockClear();
+      popup.handleDragStart(
+        { target: document.createElement('div'), dataTransfer: { setData: vi.fn() } },
+        'request',
+        0
+      );
+
+      popup.handleWindowBlur();
+      expect(window.close).not.toHaveBeenCalled();
+
+      popup.handleDragEnd({});
+      popup.handleWindowBlur();
+      expect(window.close).toHaveBeenCalled();
+    });
+
+    test('while pinned does NOT close', () => {
+      window.close.mockClear();
+      popup.isPinned = true;
+      popup.handleWindowBlur();
+      expect(window.close).not.toHaveBeenCalled();
+    });
+  });
+
   // ─── showUpdateTooltip / showWelcomeTooltip ───────────────────────────────────
 
   describe('showUpdateTooltip', () => {

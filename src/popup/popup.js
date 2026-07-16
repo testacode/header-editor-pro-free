@@ -16,6 +16,7 @@ export class HeaderEditorPopup {
     this.isPaused = false;
     this.isPinned = false;
     this.colorPickerInteractionsSetup = false;
+    this.isDraggingHeader = false;
     this.infoLinksSetup = false;
     this.profileCounter = 1;
     this.importExport = new ImportExportManager(this);
@@ -243,17 +244,7 @@ export class HeaderEditorPopup {
 
     // Close popup when clicking outside (blur event)
     window.addEventListener('blur', () => {
-      // Only close if not pinned and no modal is open
-      const modalOverlay = document.getElementById('modal-overlay');
-      const dropdown = document.getElementById('profile-dropdown');
-
-      if (
-        !this.isPinned &&
-        modalOverlay.style.display === 'none' &&
-        dropdown.style.display === 'none'
-      ) {
-        window.close();
-      }
+      this.handleWindowBlur();
     });
 
     // Profile management
@@ -721,8 +712,26 @@ export class HeaderEditorPopup {
     });
   }
 
+  // Only close if not pinned, no modal is open, and no drag in progress
+  // (on Linux, starting an HTML5 drag blurs the popup window — closing
+  // here would abort every reorder attempt)
+  handleWindowBlur() {
+    const modalOverlay = document.getElementById('modal-overlay');
+    const dropdown = document.getElementById('profile-dropdown');
+
+    if (
+      !this.isPinned &&
+      !this.isDraggingHeader &&
+      modalOverlay.style.display === 'none' &&
+      dropdown.style.display === 'none'
+    ) {
+      window.close();
+    }
+  }
+
   handleDragStart(e, type, index) {
     this.dragData = { type, index };
+    this.isDraggingHeader = true;
     e.target.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', e.target.outerHTML);
@@ -767,6 +776,7 @@ export class HeaderEditorPopup {
   handleDragEnd(_e) {
     this.clearDragStyles();
     this.dragData = null;
+    this.isDraggingHeader = false;
   }
 
   clearDragStyles() {
