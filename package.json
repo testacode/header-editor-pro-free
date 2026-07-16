@@ -20,7 +20,7 @@
     "code-quality": "npm run lint && npm run format:check && npm run test",
     "get-version": "node -p \"JSON.parse(require('fs').readFileSync('src/manifest.json', 'utf8')).version\"",
     "create-source-package": "VERSION=$(npm run get-version --silent) && zip -r \"header-editor-pro-free-source-v${VERSION}.zip\" src/ package*.json rspack.config.js BUILD_INSTRUCTIONS.md README.md",
-    "package": "npm run build && npm run create-source-package && VERSION=$(npm run get-version --silent) && cd dist && zip -r \"../header-editor-pro-free-extension-v${VERSION}.zip\" .",
+    "package": "rm -f header-editor-pro-free-*.zip && npm run build && npm run create-source-package && VERSION=$(npm run get-version --silent) && cd dist && zip -r \"../header-editor-pro-free-extension-v${VERSION}.zip\" .",
     "clean": "rm -rf dist/ && rm -f *.zip",
     "release": "bash scripts/release.sh"
   },
