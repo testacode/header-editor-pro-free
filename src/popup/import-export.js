@@ -3,6 +3,7 @@ import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normali
 export class ImportExportManager {
   constructor(popup) {
     this.popup = popup;
+    this.exportScopeListenersSetup = false;
   }
 
   // ── Modal UI ──────────────────────────────────────────────────────────────
@@ -46,12 +47,15 @@ export class ImportExportManager {
     // Generate initial export based on current selection
     this.updateExportData();
 
-    // Add event listener for export scope changes
-    document.querySelectorAll('input[name="export-scope"]').forEach(radio => {
-      radio.addEventListener('change', () => {
-        this.updateExportData();
+    // Add event listener for export scope changes (bind once)
+    if (!this.exportScopeListenersSetup) {
+      this.exportScopeListenersSetup = true;
+      document.querySelectorAll('input[name="export-scope"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          this.updateExportData();
+        });
       });
-    });
+    }
 
     document.getElementById('modal-overlay').style.display = 'flex';
 

@@ -1034,6 +1034,25 @@ describe('HeaderEditorPopup', () => {
       popup.importExport.showExportModal();
       expect(document.getElementById('modal-download').style.display).toBe('block');
     });
+
+    test('export-scope radio listeners bound once, not per open (plan 040)', () => {
+      // Open modal twice
+      popup.importExport.showExportModal();
+      popup.importExport.closeModal();
+      popup.importExport.showExportModal();
+
+      // Spy on updateExportData and clear any calls from the opens
+      const updateSpy = vi.spyOn(popup.importExport, 'updateExportData');
+      updateSpy.mockClear();
+
+      // Dispatch one change event on an export-scope radio
+      const radio = document.querySelector('input[name="export-scope"]');
+      radio.dispatchEvent(new Event('change'));
+
+      // Assert updateExportData was called exactly once (not twice)
+      expect(updateSpy).toHaveBeenCalledTimes(1);
+      updateSpy.mockRestore();
+    });
   });
 
   describe('closeModal', () => {
