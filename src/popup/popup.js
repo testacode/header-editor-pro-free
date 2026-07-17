@@ -614,7 +614,7 @@ export class HeaderEditorPopup {
     if (!target[key]) {
       target[key] = [];
     }
-    target[key].push({ name: header.name, value: header.value, enabled: true });
+    target[key].push(normalizeHeader(header));
     await this.saveData();
     this.showCopyToast(target.name);
   }

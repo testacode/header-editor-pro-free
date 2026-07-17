@@ -364,7 +364,7 @@ describe('HeaderEditorPopup', () => {
       };
     });
 
-    test('appends {name,value,enabled:true} to target profile same section and saves', async () => {
+    test('appends a normalized copy preserving enabled/appendMode', async () => {
       chrome.storage.local.set.mockClear();
       await popup.copyHeaderToProfile('request', 0, 'other');
 
@@ -372,7 +372,8 @@ describe('HeaderEditorPopup', () => {
       expect(popup.profiles.other.requestHeaders[1]).toEqual({
         name: 'X-Foo',
         value: 'bar',
-        enabled: true,
+        enabled: false,
+        appendMode: false,
       });
       expect(chrome.storage.local.set).toHaveBeenCalled();
     });
@@ -395,8 +396,22 @@ describe('HeaderEditorPopup', () => {
       await popup.copyHeaderToProfile('response', 0, 'other');
 
       expect(popup.profiles.other.responseHeaders).toEqual([
-        { name: 'X-Resp', value: 'r', enabled: true },
+        { name: 'X-Resp', value: 'r', enabled: true, appendMode: false },
       ]);
+    });
+
+    test('preserves appendMode when copying header', async () => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'Accept', value: 'x', enabled: true, appendMode: true },
+      ];
+      await popup.copyHeaderToProfile('request', 0, 'other');
+
+      expect(popup.profiles.other.requestHeaders).toContainEqual({
+        name: 'Accept',
+        value: 'x',
+        enabled: true,
+        appendMode: true,
+      });
     });
 
     test('unknown target profile is a no-op', async () => {
@@ -462,6 +477,7 @@ describe('HeaderEditorPopup', () => {
         name: 'X-Foo',
         value: 'bar',
         enabled: true,
+        appendMode: false,
       });
       // Dropdown closes after copying
       expect(document.querySelector('.copy-dropdown')).toBeNull();
