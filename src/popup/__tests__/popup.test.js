@@ -575,6 +575,140 @@ describe('HeaderEditorPopup', () => {
     test('invalid format (no array, no profiles key) throws', async () => {
       await expect(popup.importExport.importProfileFromData({ invalid: true })).rejects.toThrow();
     });
+
+    test('round-trip preserves filters and colors (plan 032)', async () => {
+      // Set up a profile with filters and custom colors
+      popup.profiles[popup.currentProfile] = {
+        name: 'TestProfile',
+        description: 'Test',
+        requestHeaders: [{ name: 'X-Test', value: 'val', enabled: true }],
+        responseHeaders: [],
+        filters: {
+          domains: { enabled: true, list: ['example.com'] },
+          tabGroup: { enabled: false, group: null },
+        },
+        backgroundColor: '#123456',
+        textColor: '#ffffff',
+      };
+
+      // Export all profiles
+      popup.importExport.showExportModal();
+      document.querySelector('input[name="export-scope"][value="all"]').checked = true;
+      popup.importExport.updateExportData();
+
+      // Get the exported data
+      const exportedJson = JSON.parse(document.getElementById('json-textarea').value);
+
+      // Verify the export contains filters and colors
+      const exportedProfile = Object.values(exportedJson.profiles)[0];
+      expect(exportedProfile.filters).toBeDefined();
+      expect(exportedProfile.filters.domains.enabled).toBe(true);
+      expect(exportedProfile.backgroundColor).toBe('#123456');
+      expect(exportedProfile.textColor).toBe('#ffffff');
+
+      // Create a new profile and import the exported data
+      popup.createNewProfile();
+
+      await popup.importExport.importMultipleProfiles(exportedJson);
+
+      // Find the imported profile (should be the new current profile)
+      const importedProfile = popup.profiles[popup.currentProfile];
+      expect(importedProfile.filters).toEqual({
+        domains: { enabled: true, list: ['example.com'] },
+        tabGroup: { enabled: false, group: null },
+      });
+      expect(importedProfile.backgroundColor).toBe('#123456');
+      expect(importedProfile.textColor).toBe('#ffffff');
+    });
+
+    test('old backup without filters field still imports (plan 032)', async () => {
+      const oldExport = {
+        profiles: {
+          p1: {
+            name: 'OldProfile',
+            description: 'From old backup',
+            requestHeaders: [{ name: 'X-Old', value: 'v', enabled: true }],
+            responseHeaders: [],
+            // Note: no filters, backgroundColor, or textColor
+          },
+        },
+      };
+
+      const profilesBefore = Object.keys(popup.profiles).length;
+      await popup.importExport.importMultipleProfiles(oldExport);
+      expect(Object.keys(popup.profiles).length).toBe(profilesBefore + 1);
+
+      // Verify the imported profile doesn't have colors set (filters gets defaults by design in migrateProfileFormat)
+      const importedProfile = popup.profiles[popup.currentProfile];
+      expect(importedProfile.name).toBe('OldProfile');
+      // backgroundColor and textColor should not be added from old backups that don't have them
+      expect(importedProfile).not.toHaveProperty('backgroundColor');
+      expect(importedProfile).not.toHaveProperty('textColor');
+    });
+  });
+
+  describe('replaceCurrentProfile (plan 032)', () => {
+    test('rejects ModHeader profile exports with error', async () => {
+      const modHeaderExport = [
+        {
+          title: 'ModHeaderProfile',
+          headers: [{ name: 'X-Test', value: 'v', enabled: true }],
+        },
+      ];
+
+      // Store initial headers
+      const initialHeaders = popup.profiles[popup.currentProfile].requestHeaders;
+
+      // Attempt to replace with ModHeader export should throw
+      await expect(popup.importExport.replaceCurrentProfile(modHeaderExport)).rejects.toThrow(
+        'This is a ModHeader profile export'
+      );
+
+      // Verify the current profile's requestHeaders are unchanged
+      expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual(initialHeaders);
+    });
+
+    test('replaces with single-profile full export and restores filters', async () => {
+      // Set up initial profile state
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'X-Initial', value: 'initial', enabled: true },
+      ];
+      popup.profiles[popup.currentProfile].filters = {
+        domains: { enabled: false, list: [] },
+        tabGroup: { enabled: false, group: null },
+      };
+
+      // Create replacement data with filters and colors
+      const replacementData = {
+        profiles: {
+          replacement: {
+            name: 'ReplacementProfile',
+            description: 'To replace',
+            requestHeaders: [{ name: 'X-New', value: 'new', enabled: true }],
+            responseHeaders: [],
+            filters: {
+              domains: { enabled: true, list: ['newdomain.com'] },
+              tabGroup: { enabled: false, group: null },
+            },
+            backgroundColor: '#abcdef',
+            textColor: '#000000',
+          },
+        },
+      };
+
+      await popup.importExport.replaceCurrentProfile(replacementData);
+
+      // Verify headers were replaced
+      const currentProfile = popup.profiles[popup.currentProfile];
+      expect(currentProfile.requestHeaders).toHaveLength(1);
+      expect(currentProfile.requestHeaders[0].name).toBe('X-New');
+
+      // Verify filters and colors were restored
+      expect(currentProfile.filters.domains.enabled).toBe(true);
+      expect(currentProfile.filters.domains.list).toEqual(['newdomain.com']);
+      expect(currentProfile.backgroundColor).toBe('#abcdef');
+      expect(currentProfile.textColor).toBe('#000000');
+    });
   });
 
   // ─── renderUI DOM smoke test ──────────────────────────────────────────────────

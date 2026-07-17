@@ -83,6 +83,9 @@ export class ImportExportManager {
           description: profile.description,
           requestHeaders: profile.requestHeaders || [],
           responseHeaders: profile.responseHeaders || [],
+          filters: profile.filters,
+          backgroundColor: profile.backgroundColor,
+          textColor: profile.textColor,
         };
       });
     }
@@ -189,6 +192,11 @@ export class ImportExportManager {
 
   async replaceCurrentProfile(importData) {
     const popup = this.popup;
+    if (this.isModHeaderProfileExport(importData)) {
+      throw new Error(
+        'This is a ModHeader profile export. Use "Create new profile" mode to import it.'
+      );
+    }
     // Handle different import formats
     if (Array.isArray(importData)) {
       // ModHeader format - array of headers
@@ -206,6 +214,15 @@ export class ImportExportManager {
         popup.profiles[popup.currentProfile].responseHeaders = this.sanitizeHeaders(
           profileData.responseHeaders
         );
+        if (profileData.filters && typeof profileData.filters === 'object') {
+          popup.profiles[popup.currentProfile].filters = profileData.filters;
+        }
+        if (profileData.backgroundColor) {
+          popup.profiles[popup.currentProfile].backgroundColor = profileData.backgroundColor;
+        }
+        if (profileData.textColor) {
+          popup.profiles[popup.currentProfile].textColor = profileData.textColor;
+        }
       } else {
         throw new Error(
           'Cannot replace current profile with multiple profiles. Use "Create new profile" mode instead.'
@@ -344,7 +361,7 @@ export class ImportExportManager {
       const result = await this.importModHeaderProfiles(importData);
       if (result.skippedFeatures > 0) {
         alert(
-          `Note: ${result.skippedFeatures} profile(s) contained URL filters, which are not supported and were not imported.`
+          `Note: ${result.skippedFeatures} profile(s) contained ModHeader URL filters, which are not auto-converted. Recreate them with this extension's domain filters if needed.`
         );
       }
     } else if (Array.isArray(importData)) {
@@ -394,6 +411,11 @@ export class ImportExportManager {
         description: profileData.description || 'Imported from JSON - click to edit',
         requestHeaders: this.sanitizeHeaders(profileData.requestHeaders),
         responseHeaders: this.sanitizeHeaders(profileData.responseHeaders),
+        ...(profileData.filters && typeof profileData.filters === 'object'
+          ? { filters: profileData.filters }
+          : {}),
+        ...(profileData.backgroundColor ? { backgroundColor: profileData.backgroundColor } : {}),
+        ...(profileData.textColor ? { textColor: profileData.textColor } : {}),
       };
 
       importedCount++;
