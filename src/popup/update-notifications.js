@@ -7,6 +7,8 @@ export const RELEASE_HIGHLIGHTS = {
   '2.4.1':
     'New: profile Filters — scope headers to domains or a Chrome tab group. See the Filters section below Response headers.',
   '2.5.0': 'New: copy a header to another profile from the copy button on each header row.',
+  '2.5.1':
+    'Fixes: backups now keep profile filters & colors, copied headers keep their append/enabled state, and invalid domain filters are flagged inline.',
 };
 
 export class UpdateNotificationsManager {
