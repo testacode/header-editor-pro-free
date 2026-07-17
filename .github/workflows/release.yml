@@ -45,18 +45,9 @@ jobs:
       env:
         VERSION: ${{ steps.get_version.outputs.version }}
       run: |
-        # Build extension for both browsers
-        npm run build
         echo "Building version: $VERSION"
+        npm run package
 
-        # Create packages with version in filename
-        npm run create-source-package
-        
-        # Create extension ZIP (works for both Chrome and Firefox)
-        cd dist
-        zip -r "../header-editor-pro-free-extension-v${VERSION}.zip" .
-        cd ..
-        
         # Verify ZIP contents
         echo "Extension package contents:"
         unzip -l "header-editor-pro-free-extension-v${VERSION}.zip"
