@@ -18,6 +18,22 @@ const mockStorage = {
     remove: vi.fn().mockResolvedValue(undefined),
     clear: vi.fn().mockResolvedValue(undefined),
   },
+  session: {
+    get: vi.fn().mockImplementation(keys => {
+      // Default return empty data
+      if (Array.isArray(keys)) {
+        const result = {};
+        keys.forEach(key => {
+          result[key] = undefined;
+        });
+        return Promise.resolve(result);
+      }
+      return Promise.resolve({});
+    }),
+    set: vi.fn().mockResolvedValue(undefined),
+    remove: vi.fn().mockResolvedValue(undefined),
+    clear: vi.fn().mockResolvedValue(undefined),
+  },
   onChanged: {
     addListener: vi.fn(),
     removeListener: vi.fn(),

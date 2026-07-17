@@ -989,6 +989,55 @@ describe('HeaderEditorBackground', () => {
       expect(chrome.action.setBadgeText).not.toHaveBeenCalledWith({ text: 'D' });
     });
 
+    test('updateBadges: restart recovery — persist restores and clears stale badges', async () => {
+      // Simulate SW restart: storage.session has [42] but in-memory set is empty
+      chrome.storage.session.get.mockResolvedValue({ badgedTabIds: [42] });
+      const data = {
+        enabled: true,
+        paused: false,
+        currentProfile: 'default',
+        profiles: { default: { name: 'Default' } },
+      };
+
+      await background.updateBadges(data, []);
+
+      // Should have cleared tab 42 (restored from persisted list)
+      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ tabId: 42, text: '' });
+    });
+
+    test('updateBadges: persistence — badged tabs written to storage.session', async () => {
+      const data = {
+        enabled: true,
+        paused: false,
+        currentProfile: 'default',
+        profiles: {
+          default: { name: 'Default', backgroundColor: '#4caf50' },
+          sandbox: { name: 'Sandbox', backgroundColor: '#ff9800' },
+        },
+      };
+      const active = [
+        { profile: data.profiles.default, tabIds: null },
+        { profile: data.profiles.sandbox, tabIds: [7, 9] },
+      ];
+
+      await background.updateBadges(data, active);
+
+      // Assert persisted set includes painted tabs
+      expect(chrome.storage.session.set).toHaveBeenCalledWith({ badgedTabIds: [7, 9] });
+    });
+
+    test('updateBadges: paused clears storage', async () => {
+      // Simulate persisted list from previous session
+      chrome.storage.session.get.mockResolvedValue({ badgedTabIds: [7] });
+      const data = { enabled: true, paused: true, currentProfile: 'default', profiles: {} };
+
+      await background.updateBadges(data, []);
+
+      // Should clear tab 7 and persist empty list
+      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ tabId: 7, text: '' });
+      expect(chrome.storage.session.set).toHaveBeenCalledWith({ badgedTabIds: [] });
+    });
+
     test('storage with profile with headers → updateDynamicRules addRules called', async () => {
       chrome.storage.local.get.mockResolvedValue({
         headerEditorData: {

@@ -348,6 +348,14 @@ export class HeaderEditorBackground {
       const { updateNotification } = await chrome.storage.local.get(['updateNotification']);
       const pendingUpdateBadge = Boolean(updateNotification) && !updateNotification.shown;
 
+      // Restore persisted badged-tab list (survives SW restart but not browser restart)
+      if (chrome.storage.session) {
+        const { badgedTabIds = [] } = await chrome.storage.session.get(['badgedTabIds']);
+        for (const tabId of badgedTabIds) {
+          this.badgedTabIds.add(tabId);
+        }
+      }
+
       // Clear per-tab badges from the previous application (closed tabs throw — fine)
       for (const tabId of this.badgedTabIds) {
         // eslint-disable-next-line no-await-in-loop -- small set; sequential keeps error handling per tab
@@ -358,6 +366,10 @@ export class HeaderEditorBackground {
       if (!data.enabled || data.paused) {
         if (!pendingUpdateBadge) {
           await chrome.action.setBadgeText({ text: '' });
+        }
+        // Persist the (now empty) badged-tab list
+        if (chrome.storage.session) {
+          await chrome.storage.session.set({ badgedTabIds: Array.from(this.badgedTabIds) });
         }
         return;
       }
@@ -388,6 +400,11 @@ export class HeaderEditorBackground {
           });
           this.badgedTabIds.add(tabId);
         }
+      }
+
+      // Persist badged-tab list (survives SW restart but not browser restart)
+      if (chrome.storage.session) {
+        await chrome.storage.session.set({ badgedTabIds: Array.from(this.badgedTabIds) });
       }
     } catch (error) {
       console.error('HeaderEditor: failed to update badges:', error);
