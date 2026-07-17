@@ -2,6 +2,7 @@ import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { HeaderEditorPopup } from '../popup.js';
+import { normalizeDomainEntry } from '../filters.js';
 
 const popupHtml = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
 
@@ -72,6 +73,37 @@ describe('FiltersManager', () => {
       expect(chrome.storage.local.set).toHaveBeenCalled();
     });
 
+    describe('normalization', () => {
+      test('normalizeDomainEntry converts scheme + path + port to bare hostname', () => {
+        expect(normalizeDomainEntry('https://api.example.com/path?q=1')).toBe('api.example.com');
+        expect(normalizeDomainEntry('example.com:8080')).toBe('example.com');
+        expect(normalizeDomainEntry('http://localhost/api')).toBe('localhost');
+      });
+
+      test('normalizeDomainEntry strips leading wildcard', () => {
+        expect(normalizeDomainEntry('*.example.com')).toBe('example.com');
+        expect(normalizeDomainEntry('*.Example.COM')).toBe('example.com');
+      });
+
+      test('normalizeDomainEntry lowercases and trims', () => {
+        expect(normalizeDomainEntry('  EXAMPLE.COM  ')).toBe('example.com');
+      });
+
+      test('normalizeDomainEntry returns null for invalid entries', () => {
+        expect(normalizeDomainEntry('foo bar')).toBeNull();
+        expect(normalizeDomainEntry('  ')).toBeNull();
+        expect(normalizeDomainEntry('')).toBeNull();
+      });
+
+      test('normalizeDomainEntry accepts localhost', () => {
+        expect(normalizeDomainEntry('localhost')).toBe('localhost');
+      });
+
+      test('normalizeDomainEntry strips trailing dot', () => {
+        expect(normalizeDomainEntry('example.com.')).toBe('example.com');
+      });
+    });
+
     test('input blur parses comma-separated domains', () => {
       const input = document.getElementById('domain-filter-input');
       input.value = ' api.example.com,  hub.io , ,';
@@ -81,6 +113,54 @@ describe('FiltersManager', () => {
         'api.example.com',
         'hub.io',
       ]);
+    });
+
+    test('input blur normalizes URLs to bare hostnames', () => {
+      const input = document.getElementById('domain-filter-input');
+      input.value = 'https://api.example.com/path?q=1, example.com:8080, hub.io';
+      input.dispatchEvent(new Event('blur'));
+
+      expect(popup.profiles[popup.currentProfile].filters.domains.list).toEqual([
+        'api.example.com',
+        'example.com',
+        'hub.io',
+      ]);
+    });
+
+    test('input blur rewrites input value to show what was saved', () => {
+      const input = document.getElementById('domain-filter-input');
+      input.value = 'https://a.com, not@valid, not a domain, b.com';
+      input.dispatchEvent(new Event('blur'));
+
+      expect(input.value).toBe('a.com, b.com');
+    });
+
+    test('input blur deduplicates domains', () => {
+      const input = document.getElementById('domain-filter-input');
+      input.value = 'a.com, b.com, a.com, B.COM';
+      input.dispatchEvent(new Event('blur'));
+
+      expect(popup.profiles[popup.currentProfile].filters.domains.list).toEqual(['a.com', 'b.com']);
+    });
+
+    test('input blur shows hint for rejected entries', () => {
+      const input = document.getElementById('domain-filter-input');
+      input.value = 'https://a.com, not@valid, not a domain, b.com';
+      input.dispatchEvent(new Event('blur'));
+
+      const hint = document.getElementById('domain-filter-hint');
+      expect(hint.textContent).toContain('Ignored (not valid domains):');
+      expect(hint.textContent).toContain('not@valid');
+      expect(hint.textContent).toContain('not a domain');
+    });
+
+    test('input blur clears hint when all entries are valid', () => {
+      const input = document.getElementById('domain-filter-input');
+      input.value = 'a.com, b.com';
+      input.dispatchEvent(new Event('blur'));
+
+      const hint = document.getElementById('domain-filter-hint');
+      expect(hint.textContent).toBe('');
     });
 
     test('render shows saved list joined by commas', () => {

@@ -449,6 +449,13 @@ body {
   color: #f44336;
 }
 
+.filter-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #f44336;
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;

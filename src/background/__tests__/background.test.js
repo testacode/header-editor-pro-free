@@ -1244,5 +1244,37 @@ describe('HeaderEditorBackground', () => {
 
       await expect(background.addRules([{ id: 77, priority: 1 }])).resolves.not.toThrow();
     });
+
+    test('individual rule fails during fallback → console.error with rule id and headers', async () => {
+      chrome.declarativeNetRequest.updateDynamicRules
+        .mockRejectedValueOnce(new Error('batch fail'))
+        .mockRejectedValueOnce(new Error('rule 88 invalid'));
+
+      const rules = [
+        {
+          id: 88,
+          priority: 1,
+          action: {
+            requestHeaders: [
+              { header: 'X-Test', operation: 'set', value: 'test' },
+              { header: 'Authorization', operation: 'set', value: 'Bearer token' },
+            ],
+          },
+        },
+      ];
+
+      await background.addRules(rules);
+
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('HeaderEditor: dropping rule 88'),
+        expect.any(Error)
+      );
+      // The dropping rule message is the second console.error call (first is batch failure)
+      const dropMessage = console.error.mock.calls.find(call =>
+        call[0].includes('HeaderEditor: dropping rule 88')
+      )?.[0];
+      expect(dropMessage).toContain('X-Test');
+      expect(dropMessage).toContain('Authorization');
+    });
   });
 });

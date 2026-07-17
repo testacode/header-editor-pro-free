@@ -1,5 +1,23 @@
 import { defaultFilters } from './default-data.js';
 
+// Normalize one user-typed domain entry to a bare lowercase hostname.
+// Returns the hostname, or null when the entry can't be a valid DNR domain.
+export function normalizeDomainEntry(raw) {
+  let entry = raw.trim().toLowerCase();
+  if (!entry) {
+    return null;
+  }
+  entry = entry.replace(/^[a-z][a-z0-9+.-]*:\/\//, ''); // scheme
+  entry = entry.replace(/^\*\./, ''); // wildcard prefix (implicit in DNR)
+  entry = entry.split('/')[0].split('?')[0].split('#')[0]; // path/query/hash
+  entry = entry.replace(/:\d+$/, ''); // port
+  entry = entry.replace(/\.$/, ''); // trailing dot
+  // Valid DNR domain: ASCII letters/digits/hyphens in dot-separated labels.
+  const label = '[a-z0-9]([a-z0-9-]*[a-z0-9])?';
+  const valid = new RegExp(`^${label}(\\.${label})*$`);
+  return valid.test(entry) ? entry : null;
+}
+
 // Chrome tab group colors → something a native <option> can show
 const GROUP_COLOR_DOTS = {
   grey: '⚪',
@@ -44,10 +62,34 @@ export class FiltersManager {
     });
 
     document.getElementById('domain-filter-input').addEventListener('blur', e => {
-      this.currentFilters().domains.list = e.target.value
-        .split(',')
-        .map(domain => domain.trim())
-        .filter(Boolean);
+      const rawEntries = e.target.value.split(',');
+      const normalized = [];
+      const rejected = [];
+
+      rawEntries.forEach(raw => {
+        const cleaned = normalizeDomainEntry(raw);
+        if (cleaned) {
+          normalized.push(cleaned);
+        } else if (raw.trim()) {
+          rejected.push(raw.trim());
+        }
+      });
+
+      // Deduplicate
+      const uniqueList = [...new Set(normalized)];
+      this.currentFilters().domains.list = uniqueList;
+      e.target.value = uniqueList.join(', ');
+
+      // Show hint for rejected entries
+      const hintEl = document.getElementById('domain-filter-hint');
+      if (hintEl) {
+        if (rejected.length > 0) {
+          hintEl.textContent = `Ignored (not valid domains): ${rejected.join(', ')}`;
+        } else {
+          hintEl.textContent = '';
+        }
+      }
+
       this.popup.saveData();
     });
 

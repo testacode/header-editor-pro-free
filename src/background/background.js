@@ -506,8 +506,17 @@ export class HeaderEditorBackground {
           // eslint-disable-next-line no-await-in-loop -- sequential is intentional: isolate which rule fails in the per-rule fallback
           await updateRules({ addRules: [rule] });
           this.activeRules.add(rule.id);
-        } catch (_ruleError) {
-          // Skip invalid rules
+        } catch (ruleError) {
+          console.error(
+            `HeaderEditor: dropping rule ${rule.id} (headers: ${(
+              rule.action?.requestHeaders ||
+              rule.action?.responseHeaders ||
+              []
+            )
+              .map(h => h.header)
+              .join(', ')}):`,
+            ruleError
+          );
         }
       }
     }
