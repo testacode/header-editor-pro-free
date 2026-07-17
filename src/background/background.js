@@ -218,7 +218,12 @@ export class HeaderEditorBackground {
           title: tabGroup.group.title ?? '',
           color: tabGroup.group.color,
         });
-        if (candidates.length === 0) {
+        if (candidates.length !== 1) {
+          if (candidates.length > 1) {
+            console.warn(
+              `HeaderEditor: ${candidates.length} tab groups match "${tabGroup.group.title}" (${tabGroup.group.color}); not applying the tab group filter to avoid scoping headers to the wrong tabs`
+            );
+          }
           return [];
         }
         groupId = candidates[0].id;

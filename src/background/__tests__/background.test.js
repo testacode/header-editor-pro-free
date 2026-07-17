@@ -305,6 +305,21 @@ describe('HeaderEditorBackground', () => {
       expect(await background.resolveTabIds(groupFilters)).toEqual([]);
     });
 
+    test('ambiguous re-match (multiple candidates) → empty array, warning logged, tabs.query NOT called', async () => {
+      background.isFirefox = false;
+      chrome.tabGroups.get.mockRejectedValue(new Error('gone'));
+      chrome.tabGroups.query.mockResolvedValue([
+        { id: 77, title: 'SANDBOX', color: 'purple' },
+        { id: 88, title: 'SANDBOX', color: 'purple' },
+      ]);
+
+      expect(await background.resolveTabIds(groupFilters)).toEqual([]);
+      expect(console.warn).toHaveBeenCalledWith(
+        'HeaderEditor: 2 tab groups match "SANDBOX" (purple); not applying the tab group filter to avoid scoping headers to the wrong tabs'
+      );
+      expect(chrome.tabs.query).not.toHaveBeenCalled();
+    });
+
     test('tabs.query failure → empty array, error logged', async () => {
       background.isFirefox = false;
       chrome.tabGroups.get.mockResolvedValue({ id: 42 });
