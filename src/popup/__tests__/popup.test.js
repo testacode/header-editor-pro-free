@@ -1151,6 +1151,92 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
+  // ─── drag-and-drop guards ──────────────────────────────────────────────────────
+
+  describe('handleDrop', () => {
+    test('same-section drop reorders headers', () => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'H1', value: 'v1', enabled: true },
+        { name: 'H2', value: 'v2', enabled: true },
+        { name: 'H3', value: 'v3', enabled: true },
+      ];
+      popup.dragData = { type: 'request', index: 0 };
+      const reorderSpy = vi.spyOn(popup, 'reorderHeaders').mockResolvedValue(undefined);
+
+      popup.handleDrop({ preventDefault: vi.fn() }, 'request', 2);
+
+      expect(reorderSpy).toHaveBeenCalledWith('request', 0, 2);
+      reorderSpy.mockRestore();
+    });
+
+    test('cross-section drop is a no-op (request to response)', () => {
+      popup.dragData = { type: 'request', index: 0 };
+      const reorderSpy = vi.spyOn(popup, 'reorderHeaders').mockResolvedValue(undefined);
+
+      popup.handleDrop({ preventDefault: vi.fn() }, 'response', 0);
+
+      expect(reorderSpy).not.toHaveBeenCalled();
+      reorderSpy.mockRestore();
+    });
+
+    test('same-index drop is a no-op', () => {
+      popup.dragData = { type: 'request', index: 1 };
+      const reorderSpy = vi.spyOn(popup, 'reorderHeaders').mockResolvedValue(undefined);
+      const preventDefaultSpy = vi.fn();
+
+      popup.handleDrop({ preventDefault: preventDefaultSpy }, 'request', 1);
+
+      expect(reorderSpy).not.toHaveBeenCalled();
+      expect(preventDefaultSpy).toHaveBeenCalled();
+      reorderSpy.mockRestore();
+    });
+
+    test('no dragData is a no-op', () => {
+      popup.dragData = null;
+      const reorderSpy = vi.spyOn(popup, 'reorderHeaders').mockResolvedValue(undefined);
+
+      popup.handleDrop({ preventDefault: vi.fn() }, 'request', 0);
+
+      expect(reorderSpy).not.toHaveBeenCalled();
+      reorderSpy.mockRestore();
+    });
+  });
+
+  describe('handleDragOver', () => {
+    test('adds drop-target class to non-dragging header item and prevents default', () => {
+      // Create two header-item elements
+      const draggingItem = document.createElement('div');
+      draggingItem.classList.add('header-item', 'dragging');
+
+      const targetItem = document.createElement('div');
+      targetItem.classList.add('header-item');
+
+      // Create a child element inside targetItem to simulate nested target
+      const innerElement = document.createElement('div');
+      targetItem.appendChild(innerElement);
+
+      document.body.appendChild(draggingItem);
+      document.body.appendChild(targetItem);
+
+      const preventDefaultSpy = vi.fn();
+      const event = {
+        preventDefault: preventDefaultSpy,
+        dataTransfer: { dropEffect: 'move' },
+        target: innerElement,
+      };
+
+      popup.handleDragOver(event);
+
+      expect(targetItem.classList.contains('drop-target')).toBe(true);
+      expect(draggingItem.classList.contains('drop-target')).toBe(false);
+      expect(preventDefaultSpy).toHaveBeenCalled();
+
+      // Clean up
+      document.body.removeChild(draggingItem);
+      document.body.removeChild(targetItem);
+    });
+  });
+
   // ─── auto-close on blur ───────────────────────────────────────────────────────
 
   describe('auto-close on blur (handleWindowBlur)', () => {
