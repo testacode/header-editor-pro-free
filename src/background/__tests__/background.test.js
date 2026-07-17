@@ -55,9 +55,11 @@ describe('HeaderEditorBackground', () => {
       expect(background.currentRuleId).toBe(1);
     });
 
-    test('initializes activeRules as empty Set', () => {
-      expect(background.activeRules).toBeInstanceOf(Set);
-      expect(background.activeRules.size).toBe(0);
+    test('initializes activeDynamicRuleIds and activeSessionRuleIds as empty Sets', () => {
+      expect(background.activeDynamicRuleIds).toBeInstanceOf(Set);
+      expect(background.activeDynamicRuleIds.size).toBe(0);
+      expect(background.activeSessionRuleIds).toBeInstanceOf(Set);
+      expect(background.activeSessionRuleIds.size).toBe(0);
     });
 
     test('calls init on construction', () => {
@@ -476,17 +478,18 @@ describe('HeaderEditorBackground', () => {
   // ─── clearAllRules ───────────────────────────────────────────────────────
 
   describe('clearAllRules', () => {
-    test('removes all existing rule ids and clears activeRules', async () => {
+    test('removes all existing rule ids and clears tracking sets', async () => {
       chrome.declarativeNetRequest.getDynamicRules.mockResolvedValue([{ id: 1 }, { id: 5 }]);
-      background.activeRules.add(1);
-      background.activeRules.add(5);
+      background.activeDynamicRuleIds.add(1);
+      background.activeDynamicRuleIds.add(5);
 
       await settle(background.clearAllRules());
 
       expect(chrome.declarativeNetRequest.updateDynamicRules).toHaveBeenCalledWith(
         expect.objectContaining({ removeRuleIds: [1, 5] })
       );
-      expect(background.activeRules.size).toBe(0);
+      expect(background.activeDynamicRuleIds.size).toBe(0);
+      expect(background.activeSessionRuleIds.size).toBe(0);
     });
 
     test('does not call updateDynamicRules when getDynamicRules returns empty', async () => {
@@ -498,29 +501,83 @@ describe('HeaderEditorBackground', () => {
       // calls getDynamicRules a second time for the Firefox double-check.
       // Neither call yields rules, so updateDynamicRules should never be called.
       expect(chrome.declarativeNetRequest.updateDynamicRules).not.toHaveBeenCalled();
-      expect(background.activeRules.size).toBe(0);
+      expect(background.activeDynamicRuleIds.size).toBe(0);
+      expect(background.activeSessionRuleIds.size).toBe(0);
     });
 
-    test('falls back to tracked rules when getDynamicRules throws', async () => {
+    test('falls back to tracked dynamic rules when getDynamicRules throws', async () => {
       chrome.declarativeNetRequest.getDynamicRules.mockRejectedValue(new Error('fail'));
       chrome.declarativeNetRequest.updateDynamicRules.mockResolvedValue(undefined);
-      background.activeRules.add(3);
+      background.activeDynamicRuleIds.add(3);
 
       await settle(background.clearAllRules());
 
       expect(chrome.declarativeNetRequest.updateDynamicRules).toHaveBeenCalledWith(
         expect.objectContaining({ removeRuleIds: [3] })
       );
-      expect(background.activeRules.size).toBe(0);
+      expect(background.activeDynamicRuleIds.size).toBe(0);
+      expect(background.activeSessionRuleIds.size).toBe(0);
     });
 
     test('does not throw when both getDynamicRules and fallback fail', async () => {
       chrome.declarativeNetRequest.getDynamicRules.mockRejectedValue(new Error('fail'));
       chrome.declarativeNetRequest.updateDynamicRules.mockRejectedValue(new Error('also fail'));
-      background.activeRules.add(9);
+      background.activeDynamicRuleIds.add(9);
 
       await expect(settle(background.clearAllRules())).resolves.not.toThrow();
-      expect(background.activeRules.size).toBe(0);
+      expect(background.activeDynamicRuleIds.size).toBe(0);
+      expect(background.activeSessionRuleIds.size).toBe(0);
+    });
+
+    test('fallback removes tracked session rules when primary path fails', async () => {
+      chrome.declarativeNetRequest.getDynamicRules.mockRejectedValue(new Error('fail'));
+      chrome.declarativeNetRequest.updateSessionRules.mockResolvedValue(undefined);
+      chrome.declarativeNetRequest.updateDynamicRules.mockResolvedValue(undefined);
+      background.activeSessionRuleIds.add(11);
+      background.activeSessionRuleIds.add(12);
+
+      await settle(background.clearAllRules());
+
+      expect(chrome.declarativeNetRequest.updateSessionRules).toHaveBeenCalledWith(
+        expect.objectContaining({ removeRuleIds: [11, 12] })
+      );
+      expect(background.activeSessionRuleIds.size).toBe(0);
+    });
+
+    test('fallback independently handles session and dynamic rule failures', async () => {
+      chrome.declarativeNetRequest.getDynamicRules.mockRejectedValue(new Error('fail'));
+      chrome.declarativeNetRequest.updateSessionRules.mockRejectedValue(new Error('session fail'));
+      chrome.declarativeNetRequest.updateDynamicRules.mockResolvedValue(undefined);
+      background.activeSessionRuleIds.add(15);
+      background.activeDynamicRuleIds.add(16);
+
+      await expect(settle(background.clearAllRules())).resolves.not.toThrow();
+
+      // Both session and dynamic fallbacks should be attempted despite session failure
+      expect(chrome.declarativeNetRequest.updateSessionRules).toHaveBeenCalledWith(
+        expect.objectContaining({ removeRuleIds: [15] })
+      );
+      expect(chrome.declarativeNetRequest.updateDynamicRules).toHaveBeenCalledWith(
+        expect.objectContaining({ removeRuleIds: [16] })
+      );
+      expect(background.activeSessionRuleIds.size).toBe(0);
+      expect(background.activeDynamicRuleIds.size).toBe(0);
+    });
+
+    test('tracking split: session:true adds to activeSessionRuleIds, session:false adds to activeDynamicRuleIds', async () => {
+      const sessionRules = [{ id: 20, priority: 2 }];
+      const dynamicRules = [{ id: 21, priority: 1 }];
+
+      chrome.declarativeNetRequest.updateSessionRules.mockResolvedValue(undefined);
+      chrome.declarativeNetRequest.updateDynamicRules.mockResolvedValue(undefined);
+
+      await background.addRules(sessionRules, { session: true });
+      await background.addRules(dynamicRules, { session: false });
+
+      expect(background.activeSessionRuleIds.has(20)).toBe(true);
+      expect(background.activeDynamicRuleIds.has(20)).toBe(false);
+      expect(background.activeDynamicRuleIds.has(21)).toBe(true);
+      expect(background.activeSessionRuleIds.has(21)).toBe(false);
     });
   });
 
@@ -1217,14 +1274,14 @@ describe('HeaderEditorBackground', () => {
   // ─── addRules ────────────────────────────────────────────────────────────
 
   describe('addRules', () => {
-    test('calls updateDynamicRules with addRules and tracks id in activeRules', async () => {
+    test('calls updateDynamicRules with addRules and tracks id in activeDynamicRuleIds', async () => {
       const rules = [{ id: 42, priority: 1 }];
       await background.addRules(rules);
 
       expect(chrome.declarativeNetRequest.updateDynamicRules).toHaveBeenCalledWith({
         addRules: rules,
       });
-      expect(background.activeRules.has(42)).toBe(true);
+      expect(background.activeDynamicRuleIds.has(42)).toBe(true);
     });
 
     test('batch failure → falls back to per-rule addition', async () => {
@@ -1236,7 +1293,7 @@ describe('HeaderEditorBackground', () => {
       await background.addRules(rules);
 
       expect(chrome.declarativeNetRequest.updateDynamicRules).toHaveBeenCalledTimes(2);
-      expect(background.activeRules.has(99)).toBe(true);
+      expect(background.activeDynamicRuleIds.has(99)).toBe(true);
     });
 
     test('both batch and individual fail → does not throw', async () => {

@@ -34,7 +34,8 @@ const APPEND_ALLOWED_REQUEST_HEADERS = new Set([
 export class HeaderEditorBackground {
   constructor() {
     this.currentRuleId = 1;
-    this.activeRules = new Set();
+    this.activeDynamicRuleIds = new Set();
+    this.activeSessionRuleIds = new Set();
     this.badgedTabIds = new Set();
     this.lastAppliedSignature = null;
     this.applyQueue = Promise.resolve();
@@ -492,11 +493,13 @@ export class HeaderEditorBackground {
         ? chrome.declarativeNetRequest.updateSessionRules(options)
         : chrome.declarativeNetRequest.updateDynamicRules(options);
 
+    const tracked = session ? this.activeSessionRuleIds : this.activeDynamicRuleIds;
+
     try {
       await updateRules({ addRules: rules });
 
       rules.forEach(rule => {
-        this.activeRules.add(rule.id);
+        tracked.add(rule.id);
       });
     } catch (error) {
       console.error('Batch addRules failed, retrying rules individually:', error);
@@ -505,7 +508,7 @@ export class HeaderEditorBackground {
         try {
           // eslint-disable-next-line no-await-in-loop -- sequential is intentional: isolate which rule fails in the per-rule fallback
           await updateRules({ addRules: [rule] });
-          this.activeRules.add(rule.id);
+          tracked.add(rule.id);
         } catch (ruleError) {
           console.error(
             `HeaderEditor: dropping rule ${rule.id} (headers: ${(
@@ -555,7 +558,8 @@ export class HeaderEditorBackground {
       }
 
       // Clear our tracking
-      this.activeRules.clear();
+      this.activeDynamicRuleIds.clear();
+      this.activeSessionRuleIds.clear();
 
       // Firefox: Double-check and clear any remaining rules
       if (this.isFirefox) {
@@ -570,21 +574,30 @@ export class HeaderEditorBackground {
       }
     } catch (error) {
       console.error('clearAllRules primary path failed, falling back to tracked rules:', error);
-      // Fallback: try to remove tracked rules
       try {
-        if (this.activeRules.size > 0) {
-          await chrome.declarativeNetRequest.updateDynamicRules({
-            removeRuleIds: Array.from(this.activeRules),
+        if (this.activeSessionRuleIds.size > 0 && chrome.declarativeNetRequest.updateSessionRules) {
+          await chrome.declarativeNetRequest.updateSessionRules({
+            removeRuleIds: Array.from(this.activeSessionRuleIds),
           });
-
+        }
+        this.activeSessionRuleIds.clear();
+      } catch (sessionFallbackError) {
+        console.error('clearAllRules session fallback failed:', sessionFallbackError);
+        this.activeSessionRuleIds.clear();
+      }
+      try {
+        if (this.activeDynamicRuleIds.size > 0) {
+          await chrome.declarativeNetRequest.updateDynamicRules({
+            removeRuleIds: Array.from(this.activeDynamicRuleIds),
+          });
           if (this.isFirefox) {
             await this.delay(50);
           }
         }
-        this.activeRules.clear();
-      } catch (_fallbackError) {
-        // Reset rule tracking if all else fails
-        this.activeRules.clear();
+        this.activeDynamicRuleIds.clear();
+      } catch (dynamicFallbackError) {
+        console.error('clearAllRules dynamic fallback failed:', dynamicFallbackError);
+        this.activeDynamicRuleIds.clear();
       }
     }
   }
