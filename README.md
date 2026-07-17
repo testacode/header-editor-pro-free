@@ -20,7 +20,9 @@
 ⚡ **Real-time Header Modification** - Instant application of request and response headers via Chrome's declarativeNetRequest API  
 🎨 **Professional Dark UI** - Clean, modern interface designed for developers  
 ☑️ **Individual Header Controls** - Enable/disable each header independently  
+📋 **Copy to Another Profile** - Per-row dropdown button to quickly copy a header to another profile's same section  
 🎯 **Profile Filters** - Scope a profile to specific domains, or to a Chrome tab group so headers never leak outside it  
+🔄 **Drag & Drop Reordering** - Easily reorganize headers by dragging them to new positions  
 ⏸️ **Pause Functionality** - Temporarily disable without losing configurations  
 🔒 **Privacy Focused** - All data stored locally, no tracking or analytics  
 

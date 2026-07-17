@@ -7,8 +7,8 @@ This directory contains automated workflows for building and releasing the Heade
 ### 1. `build.yml` - Development Builds
 
 **Triggers:**
-- Every push to `main` or `master` branch
-- Every pull request to `main` or `master` branch
+- Every push to `master` branch
+- Every pull request to `master` branch
 
 **What it does:**
 - Creates a clean ZIP package with only extension files
@@ -28,8 +28,8 @@ This directory contains automated workflows for building and releasing the Heade
 ### 2. `release.yml` - Official Releases
 
 **Triggers:**
-- When you push a version tag (e.g., `v1.0.0`, `v1.1.0`)
-- Manual trigger from GitHub Actions UI
+- When you push a version tag (e.g., `v1.0.0`, `v1.1.0`) — creates GitHub release only
+- Manual trigger from GitHub Actions UI with `publish_firefox` option (`skip`, `dry-run`, or `publish`)
 
 **What it does:**
 - Creates a professional GitHub release
@@ -111,6 +111,10 @@ git push origin master --tags
 4. **Submit** for review
 
 ### Firefox Add-ons (AMO)
+
+**Automated (Recommended):** See "Publishing to Stores from CI" section below — use `workflow_dispatch` with `publish_firefox: publish` to auto-upload directly from CI.
+
+**Manual:** If you prefer manual upload:
 1. **Download** `header-editor-pro-free-extension-vX.X.X.zip` from GitHub release
 2. **Download** `header-editor-pro-free-source-vX.X.X.zip` (required for review)
 3. **Upload extension ZIP** to Firefox Add-ons Developer Hub
@@ -130,15 +134,30 @@ Modify the `on:` section in each workflow file:
 ```yaml
 on:
   push:
-    branches: [ main, develop ]  # Add more branches
+    branches: [ master, develop ]  # Add more branches
 ```
 
-### Auto-Publishing to Chrome Web Store
-The `release.yml` has a placeholder for Chrome Web Store auto-publishing. To enable:
-1. Get Chrome Web Store API credentials
-2. Add them as GitHub Secrets
-3. Change `if: false` to `if: true` in the upload step
-4. Implement the upload script
+### Publishing to Stores from CI
+
+**Firefox Add-ons (AMO) - Automated via Workflow Dispatch:**
+Firefox publishing is automated and triggered manually via `workflow_dispatch` in the `release.yml`:
+
+1. Create a release by pushing a tag (e.g., `git tag v2.5.0 && git push origin --tags`)
+2. Go to **Actions** tab → **"Build and Release Extension"** workflow
+3. Click **"Run workflow"** and select your desired option for `publish_firefox`:
+   - **`skip`** (default) - Build extension ZIP and create GitHub Release only; no store upload
+   - **`dry-run`** - Validate credentials and verify both ZIPs without publishing to AMO
+   - **`publish`** - Upload to Firefox Add-ons production (goes live immediately)
+
+**Required Secrets** (stored in GitHub repository settings):
+- `FIREFOX_EXTENSION_ID` - Your extension ID on AMO
+- `FIREFOX_JWT_ISSUER` - AMO API credentials (issuer)
+- `FIREFOX_JWT_SECRET` - AMO API credentials (secret)
+
+**Important:** A tag push alone never publishes to any store; you must manually dispatch the workflow with `publish_firefox` set to `publish` or `dry-run`.
+
+**Chrome Web Store - Manual by Design:**
+Chrome Web Store publishing stays manual (upload via dashboard) by design. Download the `header-editor-pro-free-extension-vX.X.X.zip` from your GitHub release and submit it directly to the Chrome Web Store Developer Dashboard.
 
 ## 📊 Workflow Status
 
