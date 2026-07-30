@@ -701,6 +701,12 @@ export class HeaderEditorPopup {
 
   showInfoTooltip() {
     const tooltip = document.getElementById('info-tooltip');
+
+    // Read from the manifest rather than hardcoding, so releases don't have to
+    // bump a fifth place.
+    document.getElementById('info-version').textContent =
+      `Version ${chrome.runtime.getManifest().version}`;
+
     tooltip.style.display = 'block';
 
     // Only add event listeners once

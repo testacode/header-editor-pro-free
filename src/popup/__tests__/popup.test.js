@@ -1453,6 +1453,32 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
+  describe('info tooltip', () => {
+    test('shows the version from the manifest', () => {
+      popup.showInfoTooltip();
+
+      const { version } = chrome.runtime.getManifest();
+      expect(document.getElementById('info-version').textContent).toBe(`Version ${version}`);
+    });
+
+    test('version tracks the manifest instead of a hardcoded string', () => {
+      chrome.runtime.getManifest.mockReturnValueOnce({ version: '9.9.9' });
+      popup.showInfoTooltip();
+
+      expect(document.getElementById('info-version').textContent).toBe('Version 9.9.9');
+    });
+
+    test('toggle opens and closes it', () => {
+      const tooltip = document.getElementById('info-tooltip');
+
+      popup.toggleInfoTooltip();
+      expect(tooltip.style.display).toBe('block');
+
+      popup.toggleInfoTooltip();
+      expect(tooltip.style.display).toBe('none');
+    });
+  });
+
   describe('showWelcomeTooltip', () => {
     beforeEach(() => vi.useFakeTimers());
     afterEach(() => vi.useRealTimers());
