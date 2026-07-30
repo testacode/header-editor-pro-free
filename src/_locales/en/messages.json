@@ -24,6 +24,14 @@
   },
   "toolbarProfileColor": { "message": "Profile Color" },
   "toolbarMenu": { "message": "Menu" },
+  "toolbarLanguage": {
+    "message": "Language",
+    "description": "Tooltip on the language selector button."
+  },
+  "languageAuto": {
+    "message": "Auto",
+    "description": "Language menu entry meaning 'follow the browser's language'. Keep it short — it sits beside a flag."
+  },
   "toolbarDescriptionPlaceholder": {
     "message": "Click to add description...",
     "description": "Placeholder in the profile description field when it is empty."

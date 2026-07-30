@@ -15,9 +15,13 @@ const CATALOGS = { en };
 
 export const DEFAULT_LOCALE = 'en';
 
+// Where the chosen language is remembered. Absent means "follow the browser".
+export const LOCALE_STORAGE_KEY = 'uiLocale';
+
 // Order drives the language menu. `nativeName` is what a speaker of that
 // language calls it — an English label is useless to someone who cannot read
-// the UI they are trying to escape.
+// the UI they are trying to escape. The flag is decoration: flags are countries,
+// not languages, so the name is what actually identifies the entry.
 export const SUPPORTED_LOCALES = [{ code: 'en', nativeName: 'English', flag: '🇬🇧' }];
 
 // chrome.i18n caps each substitution at 1024 chars and returns an empty string
@@ -61,6 +65,34 @@ export function setActiveLocale(locale) {
 export function detectBrowserLocale() {
   const uiLanguage = chrome.i18n?.getUILanguage?.();
   return resolveLocale(uiLanguage) || DEFAULT_LOCALE;
+}
+
+/**
+ * Read the saved choice and make it active. `null` means the user never chose,
+ * so we follow the browser. Returns the stored preference, not the resolved
+ * locale — the menu needs to know "Auto" from an explicit pick.
+ */
+export async function loadStoredLocale() {
+  try {
+    const stored = await chrome.storage.local.get([LOCALE_STORAGE_KEY]);
+    const preference = stored[LOCALE_STORAGE_KEY] || null;
+    setActiveLocale(preference || detectBrowserLocale());
+    return preference;
+  } catch (error) {
+    console.error('Failed to read the language preference:', error);
+    setActiveLocale(detectBrowserLocale());
+    return null;
+  }
+}
+
+/** Persist a choice. `null` clears it, going back to following the browser. */
+export async function storeLocale(preference) {
+  setActiveLocale(preference || detectBrowserLocale());
+  if (preference) {
+    await chrome.storage.local.set({ [LOCALE_STORAGE_KEY]: preference });
+  } else {
+    await chrome.storage.local.remove(LOCALE_STORAGE_KEY);
+  }
 }
 
 /**

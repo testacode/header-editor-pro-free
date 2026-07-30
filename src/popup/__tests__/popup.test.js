@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { HeaderEditorPopup } from '../popup.js';
 import { LEGACY_PLACEHOLDER_DESCRIPTION } from '../default-data.js';
+import { SUPPORTED_LOCALES } from '../i18n.js';
 import { hexToHsl, hslToHex } from '../color-utils.js';
 
 const popupHtml = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
@@ -1403,6 +1404,87 @@ describe('HeaderEditorPopup', () => {
   });
 
   // ─── showWelcomeTooltip ───────────────────────────────────────────────────────
+
+  describe('language selector', () => {
+    test('the menu lists Auto plus every shipped locale', () => {
+      popup.toggleLanguageDropdown();
+
+      const items = [...document.querySelectorAll('#language-dropdown .language-item')];
+      expect(items).toHaveLength(SUPPORTED_LOCALES.length + 1);
+      expect(items[0].querySelector('.language-name').textContent).toBe('Auto');
+    });
+
+    test('each entry shows the language in its own name', () => {
+      popup.toggleLanguageDropdown();
+
+      const names = [...document.querySelectorAll('#language-dropdown .language-name')].map(
+        el => el.textContent
+      );
+      SUPPORTED_LOCALES.forEach(locale => expect(names).toContain(locale.nativeName));
+    });
+
+    test('with no preference stored, Auto is the one ticked', () => {
+      popup.toggleLanguageDropdown();
+
+      const active = document.querySelector('#language-dropdown .language-item.active');
+      expect(active.dataset.locale).toBe('');
+      expect(active.querySelector('.language-check').textContent).toBe('✓');
+    });
+
+    test('choosing a language persists it', async () => {
+      chrome.storage.local.set.mockClear();
+      await popup.selectLanguage('en');
+
+      expect(chrome.storage.local.set).toHaveBeenCalledWith({ uiLocale: 'en' });
+      expect(popup.localePreference).toBe('en');
+    });
+
+    test('choosing Auto clears the stored preference', async () => {
+      await popup.selectLanguage('en');
+      await popup.selectLanguage(null);
+
+      expect(chrome.storage.local.remove).toHaveBeenCalledWith('uiLocale');
+      expect(popup.localePreference).toBeNull();
+    });
+
+    test('choosing a language re-translates in place, without a reload', async () => {
+      const applySpy = vi.spyOn(popup, 'renderUI');
+      await popup.selectLanguage('en');
+
+      // A reload would lose whatever the user was editing.
+      expect(applySpy).toHaveBeenCalled();
+      expect(document.querySelector('[data-i18n="sectionFilters"]').textContent).toBe('Filters');
+    });
+
+    test('the menu closes after picking', async () => {
+      popup.toggleLanguageDropdown();
+      await popup.selectLanguage('en');
+
+      expect(document.getElementById('language-dropdown').style.display).toBe('none');
+    });
+
+    test('opening the language menu closes the profile menu', () => {
+      popup.toggleDropdown();
+      popup.toggleLanguageDropdown();
+
+      expect(document.getElementById('profile-dropdown').style.display).toBe('none');
+      expect(document.getElementById('language-dropdown').style.display).toBe('block');
+    });
+
+    test('a stored preference is restored on open', async () => {
+      chrome.storage.local.get.mockImplementation(keys => {
+        if (Array.isArray(keys) && keys.includes('uiLocale')) {
+          return Promise.resolve({ uiLocale: 'en' });
+        }
+        return Promise.resolve({});
+      });
+
+      document.documentElement.innerHTML = popupHtml;
+      const p = await createPopup();
+
+      expect(p.localePreference).toBe('en');
+    });
+  });
 
   describe('info tooltip', () => {
     test('shows the version from the manifest', () => {

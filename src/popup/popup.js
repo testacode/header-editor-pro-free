@@ -11,7 +11,14 @@ import { ImportExportManager } from './import-export.js';
 import { UpdateNotificationsManager } from './update-notifications.js';
 import { ColorPickerManager } from './color-picker.js';
 import { FiltersManager } from './filters.js';
-import { applyI18n, t } from './i18n.js';
+import {
+  applyI18n,
+  t,
+  SUPPORTED_LOCALES,
+  loadStoredLocale,
+  storeLocale,
+  getActiveLocale,
+} from './i18n.js';
 
 // Typing only mutated memory and the write happened on blur, so closing the popup
 // could tear down the page before the storage write reached the browser process —
@@ -41,7 +48,12 @@ export class HeaderEditorPopup {
 
   async init() {
     // Before the first await: the popup paints translated, and every test that
-    // constructs the popup exercises this path.
+    // constructs the popup exercises this path. This first pass uses the
+    // browser's language; a saved preference is applied below, once storage
+    // answers. applyI18n is idempotent, so the second pass is just a reassign.
+    applyI18n(document);
+
+    this.localePreference = await loadStoredLocale();
     applyI18n(document);
 
     await this.loadData();
@@ -212,6 +224,12 @@ export class HeaderEditorPopup {
       }
     });
 
+    // Language menu
+    document.getElementById('language-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      this.toggleLanguageDropdown();
+    });
+
     // Dropdown menu functionality
     document.getElementById('menu-btn').addEventListener('click', e => {
       e.stopPropagation();
@@ -229,6 +247,7 @@ export class HeaderEditorPopup {
     // Close dropdowns when clicking outside
     document.addEventListener('click', () => {
       this.closeDropdown();
+      this.closeLanguageDropdown();
       this.closeCopyDropdowns();
     });
 
@@ -823,6 +842,84 @@ export class HeaderEditorPopup {
   closeDropdown() {
     const dropdown = document.getElementById('profile-dropdown');
     dropdown.style.display = 'none';
+  }
+
+  // ── Language menu ─────────────────────────────────────────────────────────
+
+  // `null` preference = follow the browser, which is also the default.
+  renderLanguageMenu() {
+    const dropdown = document.getElementById('language-dropdown');
+    dropdown.innerHTML = '';
+
+    const entries = [
+      { code: null, flag: '🌐', nativeName: t('languageAuto') },
+      ...SUPPORTED_LOCALES,
+    ];
+
+    entries.forEach(({ code, flag, nativeName }) => {
+      const item = document.createElement('div');
+      item.className = 'dropdown-item language-item';
+      item.dataset.locale = code || '';
+
+      const isActive = (this.localePreference || null) === code;
+      if (isActive) {
+        item.classList.add('active');
+      }
+
+      const flagSpan = document.createElement('span');
+      flagSpan.className = 'language-flag';
+      flagSpan.textContent = flag;
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'language-name';
+      nameSpan.textContent = nativeName;
+
+      const check = document.createElement('span');
+      check.className = 'language-check';
+      check.textContent = isActive ? '✓' : '';
+
+      item.append(flagSpan, nameSpan, check);
+      item.addEventListener('click', e => {
+        e.stopPropagation();
+        this.selectLanguage(code);
+      });
+      dropdown.appendChild(item);
+    });
+
+    // The button shows the active language, not the preference: on "Auto" that
+    // is whatever the browser resolved to.
+    const active = SUPPORTED_LOCALES.find(locale => locale.code === getActiveLocale());
+    document.getElementById('language-flag').textContent = this.localePreference
+      ? active?.flag || '🌐'
+      : '🌐';
+  }
+
+  toggleLanguageDropdown() {
+    const dropdown = document.getElementById('language-dropdown');
+    const isOpen = dropdown.style.display === 'block';
+
+    this.closeDropdown();
+    if (isOpen) {
+      dropdown.style.display = 'none';
+      return;
+    }
+    this.renderLanguageMenu();
+    dropdown.style.display = 'block';
+  }
+
+  closeLanguageDropdown() {
+    document.getElementById('language-dropdown').style.display = 'none';
+  }
+
+  async selectLanguage(code) {
+    this.localePreference = code;
+    await storeLocale(code);
+
+    // Re-translate in place: no reload, so nothing the user was doing is lost.
+    applyI18n(document);
+    this.renderUI();
+    this.renderLanguageMenu();
+    this.closeLanguageDropdown();
   }
 
   addDragListeners(element, type, index) {

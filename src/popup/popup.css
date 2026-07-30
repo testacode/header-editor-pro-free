@@ -261,6 +261,43 @@ body {
   overflow: hidden;
 }
 
+/* Sits under the language button rather than the menu button at the far right */
+.language-menu {
+  right: 48px;
+  min-width: 180px;
+}
+
+/* The flag stands in for an icon, so match the sizing of the SVG buttons */
+.language-flag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.language-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.language-item .language-flag {
+  flex-shrink: 0;
+}
+
+.language-item .language-name {
+  flex: 1;
+}
+
+.language-item.active {
+  color: #4caf50;
+}
+
+/* Reserve the tick's width on every row so the labels line up either way */
+.language-item .language-check {
+  flex-shrink: 0;
+  width: 12px;
+  text-align: right;
+}
+
 .dropdown-item {
   display: flex;
   align-items: center;
