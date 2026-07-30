@@ -176,8 +176,7 @@ print_success "Synced package-lock.json"
 
 # Create commit
 print_step "Creating commit..."
-git add src/manifest.json package.json src/__tests__/setup.js package-lock.json \
-    src/popup/update-notifications.js
+git add src/manifest.json package.json src/__tests__/setup.js package-lock.json
 git commit -m "release: bump version to $new_version
 
 $release_notes"

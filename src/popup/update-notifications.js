@@ -11,6 +11,8 @@ export const RELEASE_HIGHLIGHTS = {
     'Fixes: backups now keep profile filters & colors, copied headers keep their append/enabled state, and invalid domain filters are flagged inline.',
   '2.5.2':
     'Fix: edits are now saved as you type — changing a header value and closing the popup no longer loses the change.',
+  '2.5.3':
+    'Domain filters are now saved as you type too, and the info tooltip shows the extension version.',
 };
 
 export class UpdateNotificationsManager {
