@@ -55,30 +55,42 @@ export class FiltersManager {
     return !isFirefox && typeof chrome.tabGroups !== 'undefined';
   }
 
+  // Split the raw field into the domains we keep and the entries we drop.
+  parseDomainInput(raw) {
+    const normalized = [];
+    const rejected = [];
+
+    raw.split(',').forEach(entry => {
+      const cleaned = normalizeDomainEntry(entry);
+      if (cleaned) {
+        normalized.push(cleaned);
+      } else if (entry.trim()) {
+        rejected.push(entry.trim());
+      }
+    });
+
+    return { list: [...new Set(normalized)], rejected };
+  }
+
   setupEventListeners() {
     document.getElementById('domain-filter-enabled').addEventListener('change', e => {
       this.currentFilters().domains.enabled = e.target.checked;
       this.popup.saveData();
     });
 
+    // Persist while typing so a close without blur (Esc, toolbar icon) keeps the
+    // domains. Only the state is updated here — rewriting the field or showing
+    // the hint mid-word would fight the user as they type.
+    document.getElementById('domain-filter-input').addEventListener('input', e => {
+      this.currentFilters().domains.list = this.parseDomainInput(e.target.value).list;
+      this.popup.scheduleSave();
+    });
+
     document.getElementById('domain-filter-input').addEventListener('blur', e => {
-      const rawEntries = e.target.value.split(',');
-      const normalized = [];
-      const rejected = [];
+      const { list, rejected } = this.parseDomainInput(e.target.value);
 
-      rawEntries.forEach(raw => {
-        const cleaned = normalizeDomainEntry(raw);
-        if (cleaned) {
-          normalized.push(cleaned);
-        } else if (raw.trim()) {
-          rejected.push(raw.trim());
-        }
-      });
-
-      // Deduplicate
-      const uniqueList = [...new Set(normalized)];
-      this.currentFilters().domains.list = uniqueList;
-      e.target.value = uniqueList.join(', ');
+      this.currentFilters().domains.list = list;
+      e.target.value = list.join(', ');
 
       // Show hint for rejected entries
       const hintEl = document.getElementById('domain-filter-hint');
@@ -90,7 +102,7 @@ export class FiltersManager {
         }
       }
 
-      this.popup.saveData();
+      this.popup.flushSave();
     });
 
     document.getElementById('tab-group-filter-enabled').addEventListener('change', async e => {

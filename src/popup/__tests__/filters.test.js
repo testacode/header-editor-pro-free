@@ -163,6 +163,38 @@ describe('FiltersManager', () => {
       expect(hint.textContent).toBe('');
     });
 
+    test('typed domains survive a close that never fires blur', () => {
+      chrome.storage.local.set.mockClear();
+      const input = document.getElementById('domain-filter-input');
+      input.value = 'api.example.com, hub.io';
+      input.dispatchEvent(new Event('input'));
+
+      // Esc / toolbar icon: the browser tears the popup down with no blur.
+      window.dispatchEvent(new Event('pagehide'));
+
+      const saved = chrome.storage.local.set.mock.calls.at(-1)[0].headerEditorData;
+      expect(saved.profiles[popup.currentProfile].filters.domains.list).toEqual([
+        'api.example.com',
+        'hub.io',
+      ]);
+    });
+
+    test('typing does NOT rewrite the field mid-word', () => {
+      const input = document.getElementById('domain-filter-input');
+      input.value = 'https://api.exa';
+      input.dispatchEvent(new Event('input'));
+
+      expect(input.value).toBe('https://api.exa');
+    });
+
+    test('typing does NOT show the rejected-entries hint', () => {
+      const input = document.getElementById('domain-filter-input');
+      input.value = 'not@valid';
+      input.dispatchEvent(new Event('input'));
+
+      expect(document.getElementById('domain-filter-hint').textContent).toBe('');
+    });
+
     test('render shows saved list joined by commas', () => {
       popup.profiles[popup.currentProfile].filters.domains = {
         enabled: true,
