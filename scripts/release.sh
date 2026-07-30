@@ -193,9 +193,13 @@ git push origin "$current_branch" --tags
 
 print_success "Tag v$new_version pushed successfully"
 
+# owner/repo from the remote. Matching on "github.com" breaks with an SSH host
+# alias (git@github.com-account:owner/repo.git), so take the last two segments.
+repo_slug=$(git remote get-url origin | sed -E 's#.*[:/]([^/:]+/[^/]+)$#\1#; s#\.git$##')
+
 # Wait a moment and check GitHub Actions
 print_step "GitHub Actions should now be building the release..."
-print_step "You can monitor progress at: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]\([^.]*\).*/\1/')/actions"
+print_step "You can monitor progress at: https://github.com/$repo_slug/actions"
 
 echo ""
 print_success "🚀 Release v$new_version initiated successfully!"
@@ -206,4 +210,4 @@ echo "  2. Check the release page for the generated ZIP file"
 echo "  3. Download and test the ZIP package"
 echo "  4. Submit to Chrome Web Store if ready"
 echo ""
-echo "Release page: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]\([^.]*\).*/\1/')/releases"
+echo "Release page: https://github.com/$repo_slug/releases"
