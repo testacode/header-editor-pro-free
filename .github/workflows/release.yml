@@ -20,20 +20,20 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Required for creating releases
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v5
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v5
       with:
         node-version: '22'
         cache: 'npm'
-        
+
     - name: Install dependencies
       run: npm ci
-      
+
     - name: Get version from manifest
       id: get_version
       run: |
@@ -54,7 +54,7 @@ jobs:
         echo ""
         echo "Source package contents:"
         unzip -l "header-editor-pro-free-source-v${VERSION}.zip"
-        
+
     - name: Create Release with GitHub CLI
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -116,7 +116,7 @@ jobs:
             "header-editor-pro-free-extension-v${VERSION}.zip" \
             "header-editor-pro-free-source-v${VERSION}.zip"
         fi
-        
+
     # Firefox AMO auto-publish. Only runs on manual workflow_dispatch with
     # publish_firefox != skip, so a tag push never ships to production.
     # Chrome Web Store stays manual (dashboard upload) by design.
