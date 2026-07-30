@@ -50,7 +50,7 @@
   "sectionRequestHeaders": { "message": "请求头" },
   "sectionResponseHeaders": { "message": "响应头" },
   "sectionFilters": { "message": "过滤条件" },
-  "sectionAddHeader": { "message": "添加请求头" },
+  "sectionAddHeader": { "message": "添加标头" },
 
   "headerNamePlaceholder": { "message": "名称" },
   "headerValuePlaceholder": { "message": "值" },
