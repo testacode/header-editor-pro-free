@@ -102,6 +102,20 @@ fi
 
 print_step "New version will be: $new_version"
 
+# The version lives in four places that must agree; RELEASE_HIGHLIGHTS is the
+# only one needing human-written text, so require it up front rather than
+# leaving a half-bumped tree behind.
+if ! grep -q "'$new_version':" src/popup/update-notifications.js; then
+    print_error "No RELEASE_HIGHLIGHTS entry for $new_version"
+    echo ""
+    echo "Add one line to src/popup/update-notifications.js describing what the"
+    echo "user gets in this release, then re-run:"
+    echo ""
+    echo "  '$new_version':"
+    echo "    'Fix: ...',"
+    exit 1
+fi
+
 # Ask for release notes
 echo ""
 read -p "Enter release notes (optional, press Enter to skip): " release_notes
@@ -112,7 +126,9 @@ fi
 # Confirmation
 echo ""
 print_warning "This will:"
-echo "  • Update src/manifest.json version to $new_version"
+echo "  • Update the version to $new_version in src/manifest.json, package.json"
+echo "    and the getManifest mock in src/__tests__/setup.js"
+echo "  • Run npm install so package-lock.json follows the new version"
 echo "  • Create a commit: 'release: bump version to $new_version'"
 echo "  • Create and push tag: v$new_version" 
 echo "  • Trigger GitHub Action to create release with ZIP file"
@@ -125,28 +141,43 @@ fi
 
 print_step "Starting release process..."
 
-# Update version in src/manifest.json
-print_step "Updating src/manifest.json version..."
+# sed -i takes an argument on BSD (macOS) and none on GNU (Linux)
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    sed -i '' "s/\"version\": *\"[^\"]*\"/\"version\": \"$new_version\"/" src/manifest.json
+    sed_inplace=(sed -i '')
 else
-    # Linux
-    sed -i "s/\"version\": *\"[^\"]*\"/\"version\": \"$new_version\"/" src/manifest.json
+    sed_inplace=(sed -i)
 fi
 
-# Verify the change
-updated_version=$(grep '"version"' src/manifest.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
-if [[ "$updated_version" != "$new_version" ]]; then
-    print_error "Failed to update version in src/manifest.json"
-    exit 1
-fi
+print_step "Updating version in src/manifest.json..."
+"${sed_inplace[@]}" "s/\"version\": *\"[^\"]*\"/\"version\": \"$new_version\"/" src/manifest.json
 
-print_success "Updated src/manifest.json version to $new_version"
+print_step "Updating version in package.json..."
+"${sed_inplace[@]}" "1,10s/\"version\": *\"[^\"]*\"/\"version\": \"$new_version\"/" package.json
+
+print_step "Updating the getManifest mock in src/__tests__/setup.js..."
+"${sed_inplace[@]}" "s/version: *'[^']*'/version: '$new_version'/" src/__tests__/setup.js
+
+# Verify all three landed — a silent sed miss here ships a mismatched build
+for file in src/manifest.json package.json src/__tests__/setup.js; do
+    if ! grep -q "$new_version" "$file"; then
+        print_error "Failed to update version in $file"
+        exit 1
+    fi
+done
+
+print_success "Updated version to $new_version in all three files"
+
+# package-lock.json carries the version too; CI runs `npm ci`, which is strict
+# about it. Without this the lock silently drifts behind for releases.
+print_step "Syncing package-lock.json..."
+npm install --package-lock-only --silent
+
+print_success "Synced package-lock.json"
 
 # Create commit
 print_step "Creating commit..."
-git add src/manifest.json
+git add src/manifest.json package.json src/__tests__/setup.js package-lock.json \
+    src/popup/update-notifications.js
 git commit -m "release: bump version to $new_version
 
 $release_notes"
