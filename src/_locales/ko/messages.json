@@ -1,0 +1,118 @@
+{
+  "zzMachineTranslated": {
+    "message": "unreviewed",
+    "description": "MACHINE-TRANSLATED, NOT reviewed by a native speaker. Delete this key once someone has checked the file. See docs/i18n.md."
+  },
+
+  "appDesc": {
+    "message": "웹 개발, API 테스트, 디버깅을 위한 전문 HTTP 헤더 편집기 — 완전 무료, 프로필 수 제한 없음"
+  },
+  "appTitle": { "message": "Header Editor Pro - Free" },
+
+  "sidebarAddProfile": { "message": "프로필 추가" },
+  "sidebarInfo": { "message": "확장 프로그램 정보" },
+
+  "toolbarRefresh": { "message": "새로고침" },
+  "toolbarPause": { "message": "일시중지" },
+  "toolbarResume": { "message": "다시 시작" },
+  "toolbarPin": { "message": "고정 (자동 닫기 끔)" },
+  "toolbarUnpin": { "message": "고정 해제 (자동 닫기 켬)" },
+  "toolbarProfileColor": { "message": "프로필 색상" },
+  "toolbarMenu": { "message": "메뉴" },
+  "toolbarLanguage": { "message": "언어" },
+  "languageAuto": { "message": "자동" },
+  "toolbarDescriptionPlaceholder": { "message": "클릭하여 설명 추가…" },
+
+  "menuImport": { "message": "설정 가져오기" },
+  "menuExport": { "message": "설정 내보내기" },
+  "menuDeleteProfile": { "message": "프로필 삭제" },
+  "menuCannotDeleteDefault": { "message": "기본 프로필은 삭제할 수 없습니다" },
+
+  "modalExportScope": { "message": "내보낼 범위:" },
+  "modalScopeCurrent": { "message": "현재 프로필만" },
+  "modalScopeAll": { "message": "모든 프로필" },
+  "modalImportMode": { "message": "가져오기 방식:" },
+  "modalModeNew": { "message": "새 프로필 만들기" },
+  "modalModeReplace": { "message": "현재 프로필 바꾸기" },
+  "modalCancel": { "message": "취소" },
+  "modalImport": { "message": "가져오기" },
+  "modalCopy": { "message": "복사" },
+  "modalCopied": { "message": "복사했습니다!" },
+  "modalDownload": { "message": "다운로드" },
+  "modalJsonPlaceholder": { "message": "여기에 JSON 설정을 붙여넣으세요…" },
+
+  "colorPickerTitle": { "message": "프로필 색상" },
+  "colorPickerPreview": { "message": "미리보기:" },
+  "colorPickerBackground": { "message": "배경" },
+  "colorPickerText": { "message": "글자 색" },
+  "colorPickerSave": { "message": "저장" },
+
+  "sectionRequestHeaders": { "message": "요청 헤더" },
+  "sectionResponseHeaders": { "message": "응답 헤더" },
+  "sectionFilters": { "message": "필터" },
+  "sectionAddHeader": { "message": "헤더 추가" },
+
+  "headerNamePlaceholder": { "message": "이름" },
+  "headerValuePlaceholder": { "message": "값" },
+  "headerDragToReorder": { "message": "끌어서 순서 변경" },
+  "headerAppendMode": { "message": "덮어쓰지 않고 추가" },
+  "headerCopyToProfile": { "message": "다른 프로필로 복사…" },
+  "headerCopyDropdownLabel": { "message": "다른 프로필로 복사" },
+  "headerDelete": { "message": "삭제" },
+  "headerCopiedToast": { "message": "'$1'(으)로 복사했습니다" },
+
+  "filtersDomains": { "message": "도메인" },
+  "filtersDomainsTooltip": { "message": "이 프로필을 지정한 도메인에만 적용" },
+  "filtersDomainsPlaceholder": { "message": "example.com, api.example.com" },
+  "filtersDomainsIgnored": { "message": "무시됨 (올바르지 않은 도메인): $1" },
+  "filtersTabGroup": { "message": "탭 그룹" },
+  "filtersTabGroupTooltip": { "message": "이 프로필을 특정 탭 그룹에만 적용" },
+  "filtersTabGroupSelect": { "message": "탭 그룹 선택…" },
+  "filtersTabGroupUnnamed": { "message": "(이름 없음)" },
+  "filtersTabGroupNotOpen": { "message": " (열려 있지 않음)" },
+
+  "profileDefaultName": { "message": "기본" },
+  "profileNewName": { "message": "프로필 $1" },
+  "profileDeleteConfirm": { "message": "'$1'을(를) 삭제할까요? 되돌릴 수 없습니다." },
+  "profileThisProfile": { "message": "이 프로필" },
+
+  "infoGitHub": { "message": "GitHub" },
+  "infoWebsite": { "message": "웹사이트" },
+  "infoAuthor": { "message": "만든 사람: CharlyBrown" },
+  "infoVersion": { "message": "버전 $1" },
+
+  "welcomeTitle": { "message": "Header Editor Pro에 오신 것을 환영합니다!" },
+  "welcomeBody": { "message": "v$1 설치해 주셔서 감사합니다" },
+  "welcomeSubtitle": { "message": "프로필을 제한 없이 만들고 HTTP 헤더를 간편하게 수정하세요" },
+
+  "validReadyToCopyCurrent": { "message": "복사할 준비 완료 (현재 프로필)" },
+  "validReadyToCopyProfiles": { "message": "복사할 준비 완료 — 프로필 수: $1" },
+  "validJson": { "message": "올바른 JSON" },
+  "validJsonProfiles": { "message": "올바른 JSON — 프로필 수: $1" },
+  "validJsonHeaders": { "message": "올바른 JSON — 헤더 수: $1" },
+  "validImportFailed": { "message": "가져오기 실패: $1" },
+
+  "errHeaderMissingName": { "message": "헤더 $1: name 필드가 없거나 올바르지 않습니다" },
+  "errInvalidJsonFormat": {
+    "message": "JSON 형식이 올바르지 않습니다. 헤더 배열 또는 프로필 객체여야 합니다."
+  },
+  "errModHeaderExport": {
+    "message": "ModHeader 프로필 내보내기 파일입니다. '새 프로필 만들기'로 가져오세요."
+  },
+  "errCannotReplaceMultiple": {
+    "message": "여러 프로필로 현재 프로필을 바꿀 수 없습니다. '새 프로필 만들기'를 사용하세요."
+  },
+  "errInvalidImportFormat": { "message": "가져오기 형식이 올바르지 않습니다" },
+  "errFailedToReadFile": { "message": "파일을 읽지 못했습니다" },
+  "errSelectJsonFile": { "message": "JSON 파일을 선택하세요" },
+  "errImportingFile": { "message": "파일을 가져오는 중 오류: $1" },
+
+  "importSuccess": { "message": "'$1' 프로필로 가져왔습니다" },
+  "importModHeaderUrlFilters": {
+    "message": "ModHeader의 URL 필터는 변환되지 않았습니다. 해당 프로필 수: $1. 필요하면 이 확장 프로그램의 도메인 필터로 다시 만드세요."
+  },
+  "importedProfileName": { "message": "가져온 프로필 $1" },
+  "importedFromModHeader": { "message": "ModHeader에서 가져옴 - 클릭하여 편집" },
+  "exportFilenameFallback": { "message": "profile" },
+  "importedFromJson": { "message": "JSON에서 가져옴 - 클릭하여 편집" }
+}

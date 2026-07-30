@@ -1,0 +1,120 @@
+{
+  "zzMachineTranslated": {
+    "message": "unreviewed",
+    "description": "MACHINE-TRANSLATED, NOT reviewed by a native speaker. Delete this key once someone has checked the file. See docs/i18n.md."
+  },
+
+  "appDesc": {
+    "message": "Web 開発・API テスト・デバッグのためのプロ向け HTTP ヘッダーエディター。完全無料、プロファイル数は無制限"
+  },
+  "appTitle": { "message": "Header Editor Pro - Free" },
+
+  "sidebarAddProfile": { "message": "プロファイルを追加" },
+  "sidebarInfo": { "message": "拡張機能の情報" },
+
+  "toolbarRefresh": { "message": "再読み込み" },
+  "toolbarPause": { "message": "一時停止" },
+  "toolbarResume": { "message": "再開" },
+  "toolbarPin": { "message": "固定（自動で閉じない）" },
+  "toolbarUnpin": { "message": "固定を解除（自動で閉じる）" },
+  "toolbarProfileColor": { "message": "プロファイルの色" },
+  "toolbarMenu": { "message": "メニュー" },
+  "toolbarLanguage": { "message": "言語" },
+  "languageAuto": { "message": "自動" },
+  "toolbarDescriptionPlaceholder": { "message": "クリックして説明を追加…" },
+
+  "menuImport": { "message": "設定をインポート" },
+  "menuExport": { "message": "設定をエクスポート" },
+  "menuDeleteProfile": { "message": "プロファイルを削除" },
+  "menuCannotDeleteDefault": { "message": "既定のプロファイルは削除できません" },
+
+  "modalExportScope": { "message": "エクスポート範囲：" },
+  "modalScopeCurrent": { "message": "現在のプロファイルのみ" },
+  "modalScopeAll": { "message": "すべてのプロファイル" },
+  "modalImportMode": { "message": "インポート方法：" },
+  "modalModeNew": { "message": "新しいプロファイルを作成" },
+  "modalModeReplace": { "message": "現在のプロファイルを置き換え" },
+  "modalCancel": { "message": "キャンセル" },
+  "modalImport": { "message": "インポート" },
+  "modalCopy": { "message": "コピー" },
+  "modalCopied": { "message": "コピーしました" },
+  "modalDownload": { "message": "ダウンロード" },
+  "modalJsonPlaceholder": { "message": "ここに JSON 設定を貼り付け…" },
+
+  "colorPickerTitle": { "message": "プロファイルの色" },
+  "colorPickerPreview": { "message": "プレビュー：" },
+  "colorPickerBackground": { "message": "背景" },
+  "colorPickerText": { "message": "文字色" },
+  "colorPickerSave": { "message": "保存" },
+
+  "sectionRequestHeaders": { "message": "リクエストヘッダー" },
+  "sectionResponseHeaders": { "message": "レスポンスヘッダー" },
+  "sectionFilters": { "message": "フィルター" },
+  "sectionAddHeader": { "message": "ヘッダーを追加" },
+
+  "headerNamePlaceholder": { "message": "名前" },
+  "headerValuePlaceholder": { "message": "値" },
+  "headerDragToReorder": { "message": "ドラッグで並べ替え" },
+  "headerAppendMode": { "message": "上書きせずに追加" },
+  "headerCopyToProfile": { "message": "別のプロファイルにコピー…" },
+  "headerCopyDropdownLabel": { "message": "別のプロファイルにコピー" },
+  "headerDelete": { "message": "削除" },
+  "headerCopiedToast": { "message": "「$1」にコピーしました" },
+
+  "filtersDomains": { "message": "ドメイン" },
+  "filtersDomainsTooltip": { "message": "このプロファイルを指定ドメインだけに適用" },
+  "filtersDomainsPlaceholder": { "message": "example.com, api.example.com" },
+  "filtersDomainsIgnored": { "message": "無視しました（無効なドメイン）：$1" },
+  "filtersTabGroup": { "message": "タブグループ" },
+  "filtersTabGroupTooltip": { "message": "このプロファイルをタブグループだけに適用" },
+  "filtersTabGroupSelect": { "message": "タブグループを選択…" },
+  "filtersTabGroupUnnamed": { "message": "（名前なし）" },
+  "filtersTabGroupNotOpen": { "message": "（未オープン）" },
+
+  "profileDefaultName": { "message": "既定" },
+  "profileNewName": { "message": "プロファイル $1" },
+  "profileDeleteConfirm": { "message": "「$1」を削除しますか？この操作は取り消せません。" },
+  "profileThisProfile": { "message": "このプロファイル" },
+
+  "infoGitHub": { "message": "GitHub" },
+  "infoWebsite": { "message": "ウェブサイト" },
+  "infoAuthor": { "message": "作者：CharlyBrown" },
+  "infoVersion": { "message": "バージョン $1" },
+
+  "welcomeTitle": { "message": "Header Editor Pro へようこそ！" },
+  "welcomeBody": { "message": "v$1 をインストールいただきありがとうございます" },
+  "welcomeSubtitle": {
+    "message": "プロファイルを無制限に作成し、HTTP ヘッダーを手軽に変更できます"
+  },
+
+  "validReadyToCopyCurrent": { "message": "コピーできます（現在のプロファイル）" },
+  "validReadyToCopyProfiles": { "message": "コピーできます — プロファイル数：$1" },
+  "validJson": { "message": "JSON は有効です" },
+  "validJsonProfiles": { "message": "JSON は有効です — プロファイル数：$1" },
+  "validJsonHeaders": { "message": "JSON は有効です — ヘッダー数：$1" },
+  "validImportFailed": { "message": "インポートに失敗しました：$1" },
+
+  "errHeaderMissingName": { "message": "ヘッダー $1：name フィールドがないか無効です" },
+  "errInvalidJsonFormat": {
+    "message": "JSON の形式が無効です。ヘッダーの配列かプロファイルのオブジェクトが必要です。"
+  },
+  "errModHeaderExport": {
+    "message": "これは ModHeader のプロファイルです。「新しいプロファイルを作成」でインポートしてください。"
+  },
+  "errCannotReplaceMultiple": {
+    "message": "複数のプロファイルで現在のプロファイルを置き換えることはできません。「新しいプロファイルを作成」を使ってください。"
+  },
+  "errInvalidImportFormat": { "message": "インポート形式が無効です" },
+  "errFailedToReadFile": { "message": "ファイルを読み込めませんでした" },
+  "errSelectJsonFile": { "message": "JSON ファイルを選択してください" },
+  "errImportingFile": { "message": "ファイルのインポート中にエラー：$1" },
+
+  "importSuccess": { "message": "プロファイル「$1」にインポートしました" },
+  "importModHeaderUrlFilters": {
+    "message": "ModHeader の URL フィルターは変換されませんでした。対象プロファイル数：$1。必要ならこの拡張機能のドメインフィルターで作り直してください。"
+  },
+  "importedProfileName": { "message": "インポートしたプロファイル $1" },
+  "importedFromModHeader": { "message": "ModHeader からインポート - クリックで編集" },
+  "exportFilenameFallback": { "message": "profile" },
+  "importedFromJson": { "message": "JSON からインポート - クリックで編集" }
+}

@@ -1,0 +1,120 @@
+{
+  "zzMachineTranslated": {
+    "message": "unreviewed",
+    "description": "MACHINE-TRANSLATED, NOT reviewed by a native speaker. Delete this key once someone has checked the file. See docs/i18n.md."
+  },
+
+  "appDesc": {
+    "message": "Editor profesional de cabeceras HTTP para desarrollo web, pruebas de API y depuración: totalmente gratis y sin límite de perfiles"
+  },
+  "appTitle": { "message": "Header Editor Pro - Free" },
+
+  "sidebarAddProfile": { "message": "Añadir perfil" },
+  "sidebarInfo": { "message": "Información de la extensión" },
+
+  "toolbarRefresh": { "message": "Actualizar" },
+  "toolbarPause": { "message": "Pausar extensión" },
+  "toolbarResume": { "message": "Reanudar extensión" },
+  "toolbarPin": { "message": "Fijar (desactivar cierre automático)" },
+  "toolbarUnpin": { "message": "Dejar de fijar (activar cierre automático)" },
+  "toolbarProfileColor": { "message": "Color del perfil" },
+  "toolbarMenu": { "message": "Menú" },
+  "toolbarLanguage": { "message": "Idioma" },
+  "languageAuto": { "message": "Auto" },
+  "toolbarDescriptionPlaceholder": { "message": "Haz clic para añadir una descripción…" },
+
+  "menuImport": { "message": "Importar configuración" },
+  "menuExport": { "message": "Exportar configuración" },
+  "menuDeleteProfile": { "message": "Eliminar perfil" },
+  "menuCannotDeleteDefault": { "message": "No se puede eliminar el perfil predeterminado" },
+
+  "modalExportScope": { "message": "Qué exportar:" },
+  "modalScopeCurrent": { "message": "Solo el perfil actual" },
+  "modalScopeAll": { "message": "Todos los perfiles" },
+  "modalImportMode": { "message": "Modo de importación:" },
+  "modalModeNew": { "message": "Crear perfil nuevo" },
+  "modalModeReplace": { "message": "Reemplazar el perfil actual" },
+  "modalCancel": { "message": "Cancelar" },
+  "modalImport": { "message": "Importar" },
+  "modalCopy": { "message": "Copiar" },
+  "modalCopied": { "message": "¡Copiado!" },
+  "modalDownload": { "message": "Descargar" },
+  "modalJsonPlaceholder": { "message": "Pega aquí tu configuración JSON…" },
+
+  "colorPickerTitle": { "message": "Color del perfil" },
+  "colorPickerPreview": { "message": "Vista previa:" },
+  "colorPickerBackground": { "message": "FONDO" },
+  "colorPickerText": { "message": "TEXTO" },
+  "colorPickerSave": { "message": "Guardar" },
+
+  "sectionRequestHeaders": { "message": "Cabeceras de petición" },
+  "sectionResponseHeaders": { "message": "Cabeceras de respuesta" },
+  "sectionFilters": { "message": "Filtros" },
+  "sectionAddHeader": { "message": "Añadir cabecera" },
+
+  "headerNamePlaceholder": { "message": "Nombre" },
+  "headerValuePlaceholder": { "message": "Valor" },
+  "headerDragToReorder": { "message": "Arrastra para reordenar" },
+  "headerAppendMode": { "message": "Añadir en vez de reemplazar" },
+  "headerCopyToProfile": { "message": "Copiar a otro perfil…" },
+  "headerCopyDropdownLabel": { "message": "Copiar a otro perfil" },
+  "headerDelete": { "message": "Eliminar" },
+  "headerCopiedToast": { "message": "Copiada a «$1»" },
+
+  "filtersDomains": { "message": "Dominios" },
+  "filtersDomainsTooltip": { "message": "Aplicar este perfil solo a estos dominios" },
+  "filtersDomainsPlaceholder": { "message": "example.com, api.example.com" },
+  "filtersDomainsIgnored": { "message": "Ignorado (dominios no válidos): $1" },
+  "filtersTabGroup": { "message": "Grupo de pestañas" },
+  "filtersTabGroupTooltip": { "message": "Aplicar este perfil solo a un grupo de pestañas" },
+  "filtersTabGroupSelect": { "message": "Elige un grupo de pestañas…" },
+  "filtersTabGroupUnnamed": { "message": "(sin nombre)" },
+  "filtersTabGroupNotOpen": { "message": " (no abierto)" },
+
+  "profileDefaultName": { "message": "Predeterminado" },
+  "profileNewName": { "message": "Perfil $1" },
+  "profileDeleteConfirm": { "message": "¿Seguro que quieres eliminar «$1»? No se puede deshacer." },
+  "profileThisProfile": { "message": "este perfil" },
+
+  "infoGitHub": { "message": "GitHub" },
+  "infoWebsite": { "message": "Sitio web" },
+  "infoAuthor": { "message": "Autor: CharlyBrown" },
+  "infoVersion": { "message": "Versión $1" },
+
+  "welcomeTitle": { "message": "¡Bienvenido a Header Editor Pro!" },
+  "welcomeBody": { "message": "Gracias por instalar la v$1" },
+  "welcomeSubtitle": {
+    "message": "Crea perfiles sin límite y modifica cabeceras HTTP fácilmente"
+  },
+
+  "validReadyToCopyCurrent": { "message": "Listo para copiar (perfil actual)" },
+  "validReadyToCopyProfiles": { "message": "Listo para copiar — perfiles: $1" },
+  "validJson": { "message": "JSON válido" },
+  "validJsonProfiles": { "message": "JSON válido — perfiles: $1" },
+  "validJsonHeaders": { "message": "JSON válido — cabeceras: $1" },
+  "validImportFailed": { "message": "Error al importar: $1" },
+
+  "errHeaderMissingName": { "message": "Cabecera $1: falta el campo «name» o no es válido" },
+  "errInvalidJsonFormat": {
+    "message": "Formato JSON no válido. Se esperaba un array de cabeceras o un objeto de perfiles."
+  },
+  "errModHeaderExport": {
+    "message": "Esto es una exportación de perfil de ModHeader. Impórtala con «Crear perfil nuevo»."
+  },
+  "errCannotReplaceMultiple": {
+    "message": "No se puede reemplazar el perfil actual por varios perfiles. Usa «Crear perfil nuevo»."
+  },
+  "errInvalidImportFormat": { "message": "Formato de importación no válido" },
+  "errFailedToReadFile": { "message": "No se pudo leer el archivo" },
+  "errSelectJsonFile": { "message": "Selecciona un archivo JSON" },
+  "errImportingFile": { "message": "Error al importar el archivo: $1" },
+
+  "importSuccess": { "message": "Importado correctamente al perfil «$1»" },
+  "importModHeaderUrlFilters": {
+    "message": "Los filtros de URL de ModHeader no se convirtieron. Perfiles afectados: $1. Vuelve a crearlos con los filtros por dominio de esta extensión si los necesitas."
+  },
+  "importedProfileName": { "message": "Perfil importado $1" },
+  "importedFromModHeader": { "message": "Importado de ModHeader: haz clic para editar" },
+  "exportFilenameFallback": { "message": "profile" },
+  "importedFromJson": { "message": "Importado de JSON: haz clic para editar" }
+}

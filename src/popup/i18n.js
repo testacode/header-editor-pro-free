@@ -10,8 +10,14 @@
  * stay a single source of truth for both consumers.
  */
 import en from '../_locales/en/messages.json';
+import es from '../_locales/es/messages.json';
+import ja from '../_locales/ja/messages.json';
+import ko from '../_locales/ko/messages.json';
+import ru from '../_locales/ru/messages.json';
+import zhCN from '../_locales/zh_CN/messages.json';
+import zhTW from '../_locales/zh_TW/messages.json';
 
-const CATALOGS = { en };
+const CATALOGS = { en, es, ja, ko, ru, zh_CN: zhCN, zh_TW: zhTW };
 
 export const DEFAULT_LOCALE = 'en';
 
@@ -22,7 +28,15 @@ export const LOCALE_STORAGE_KEY = 'uiLocale';
 // language calls it — an English label is useless to someone who cannot read
 // the UI they are trying to escape. The flag is decoration: flags are countries,
 // not languages, so the name is what actually identifies the entry.
-export const SUPPORTED_LOCALES = [{ code: 'en', nativeName: 'English', flag: '🇬🇧' }];
+export const SUPPORTED_LOCALES = [
+  { code: 'en', nativeName: 'English', flag: '🇬🇧' },
+  { code: 'zh_CN', nativeName: '简体中文', flag: '🇨🇳' },
+  { code: 'zh_TW', nativeName: '繁體中文', flag: '🇹🇼' },
+  { code: 'ja', nativeName: '日本語', flag: '🇯🇵' },
+  { code: 'ko', nativeName: '한국어', flag: '🇰🇷' },
+  { code: 'ru', nativeName: 'Русский', flag: '🇷🇺' },
+  { code: 'es', nativeName: 'Español', flag: '🇪🇸' },
+];
 
 // chrome.i18n caps each substitution at 1024 chars and returns an empty string
 // when one is longer. Blank UI is far harder to diagnose than truncated text.
