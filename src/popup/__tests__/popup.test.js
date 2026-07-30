@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { HeaderEditorPopup } from '../popup.js';
 import { hexToHsl, hslToHex } from '../color-utils.js';
-import { RELEASE_HIGHLIGHTS } from '../update-notifications.js';
 
 const popupHtml = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
 
@@ -1392,66 +1391,7 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
-  // ─── showUpdateTooltip / showWelcomeTooltip ───────────────────────────────────
-
-  describe('showUpdateTooltip', () => {
-    beforeEach(() => vi.useFakeTimers());
-    afterEach(() => vi.useRealTimers());
-
-    test('appends a tooltip with interpolated versions', () => {
-      popup.updateNotifications.showUpdateTooltip({
-        previousVersion: '1.0',
-        currentVersion: '2.0',
-      });
-      const tooltip = document.querySelector('.update-notification');
-      expect(tooltip).not.toBeNull();
-      expect(tooltip.textContent).toContain('1.0');
-      expect(tooltip.textContent).toContain('2.0');
-    });
-
-    test('auto-closes after 6s then slide-out', () => {
-      popup.updateNotifications.showUpdateTooltip({
-        previousVersion: '1.0',
-        currentVersion: '2.0',
-      });
-      expect(document.querySelector('.update-notification')).not.toBeNull();
-      vi.advanceTimersByTime(6000 + 300);
-      expect(document.querySelector('.update-notification')).toBeNull();
-    });
-
-    test('close button removes the tooltip', () => {
-      popup.updateNotifications.showUpdateTooltip({
-        previousVersion: '1.0',
-        currentVersion: '2.0',
-      });
-      document.querySelector('.update-close').click();
-      vi.advanceTimersByTime(300);
-      expect(document.querySelector('.update-notification')).toBeNull();
-    });
-
-    test('version with a release highlight shows it as subtitle', () => {
-      RELEASE_HIGHLIGHTS['9.9.9'] = 'New: something shiny — look under Response headers.';
-      try {
-        popup.updateNotifications.showUpdateTooltip({
-          previousVersion: '9.9.8',
-          currentVersion: '9.9.9',
-        });
-        expect(document.querySelector('.update-subtitle').textContent).toContain('something shiny');
-      } finally {
-        delete RELEASE_HIGHLIGHTS['9.9.9'];
-      }
-    });
-
-    test('version without highlight keeps the generic subtitle', () => {
-      popup.updateNotifications.showUpdateTooltip({
-        previousVersion: '1.0',
-        currentVersion: '2.0',
-      });
-      expect(document.querySelector('.update-subtitle').textContent).toContain(
-        'Check latest features'
-      );
-    });
-  });
+  // ─── showWelcomeTooltip ───────────────────────────────────────────────────────
 
   describe('info tooltip', () => {
     test('shows the version from the manifest', () => {
@@ -1840,25 +1780,6 @@ describe('HeaderEditorPopup', () => {
   // ─── checkForUpdateNotification ──────────────────────────────────────────────
 
   describe('checkForUpdateNotification', () => {
-    test('shows update tooltip when updateNotification.shown is false', async () => {
-      const updateNotification = {
-        previousVersion: '2.0.0',
-        currentVersion: '2.1.0',
-        shown: false,
-      };
-      chrome.storage.local.get.mockResolvedValue({ updateNotification });
-      const spy = vi
-        .spyOn(popup.updateNotifications, 'showUpdateTooltip')
-        .mockImplementation(() => {});
-
-      await popup.updateNotifications.checkForUpdateNotification();
-
-      expect(spy).toHaveBeenCalledWith(updateNotification);
-      expect(chrome.storage.local.set).toHaveBeenCalledWith({
-        updateNotification: { ...updateNotification, shown: true },
-      });
-    });
-
     test('shows welcome tooltip for new installs', async () => {
       const welcomeNotification = { version: '2.1.0', shown: false };
       chrome.storage.local.get.mockResolvedValue({ welcomeNotification });
@@ -1872,14 +1793,28 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('does not show tooltip if already shown', async () => {
-      chrome.storage.local.get.mockResolvedValue({ updateNotification: { shown: true } });
+      chrome.storage.local.get.mockResolvedValue({ welcomeNotification: { shown: true } });
       const spy = vi
-        .spyOn(popup.updateNotifications, 'showUpdateTooltip')
+        .spyOn(popup.updateNotifications, 'showWelcomeTooltip')
         .mockImplementation(() => {});
 
       await popup.updateNotifications.checkForUpdateNotification();
 
       expect(spy).not.toHaveBeenCalled();
+    });
+
+    test('an update no longer notifies anything', async () => {
+      chrome.storage.local.get.mockResolvedValue({
+        updateNotification: { previousVersion: '2.0.0', currentVersion: '2.1.0', shown: false },
+      });
+      const spy = vi
+        .spyOn(popup.updateNotifications, 'showWelcomeTooltip')
+        .mockImplementation(() => {});
+
+      await popup.updateNotifications.checkForUpdateNotification();
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(document.querySelector('.update-notification')).toBeNull();
     });
 
     test('handles storage errors silently', async () => {

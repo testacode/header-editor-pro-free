@@ -73,27 +73,9 @@ export class HeaderEditorBackground {
   setupUpdateNotifications() {
     chrome.runtime.onInstalled.addListener(details => {
       if (details.reason === 'update') {
-        const currentVersion = chrome.runtime.getManifest().version;
-
-        // Reloading an unpacked extension fires 'update' with the same version;
-        // only notify when the version actually changed.
-        if (details.previousVersion === currentVersion) {
-          return;
-        }
-
-        // Show "NEW" badge on extension icon
-        chrome.action.setBadgeText({ text: 'NEW' });
-        chrome.action.setBadgeBackgroundColor({ color: '#4caf50' });
-
-        // Store update notification data
-        chrome.storage.local.set({
-          updateNotification: {
-            previousVersion: details.previousVersion,
-            currentVersion: currentVersion,
-            shown: false,
-            timestamp: Date.now(),
-          },
-        });
+        // The post-update tooltip and its "NEW" badge were removed; drop the key
+        // so installs updating from <=2.5.3 don't keep an orphan around.
+        chrome.storage.local.remove('updateNotification');
       } else if (details.reason === 'install') {
         // Welcome message for first-time installation
         chrome.storage.local.set({
@@ -108,15 +90,6 @@ export class HeaderEditorBackground {
   }
 
   setupMessageHandlers() {
-    chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
-      if (message.action === 'clearUpdateBadge') {
-        chrome.action.setBadgeText({ text: '' });
-        // Re-apply so the profile letter badge replaces the cleared "NEW"
-        this.lastAppliedSignature = null;
-        this.loadAndApplyRules();
-      }
-    });
-
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area === 'local' && changes.headerEditorData) {
         this.loadAndApplyRules();
@@ -344,10 +317,6 @@ export class HeaderEditorBackground {
       return;
     }
     try {
-      // Don't clobber the "NEW" update badge before the user has seen it
-      const { updateNotification } = await chrome.storage.local.get(['updateNotification']);
-      const pendingUpdateBadge = Boolean(updateNotification) && !updateNotification.shown;
-
       // Restore persisted badged-tab list (survives SW restart but not browser restart)
       if (chrome.storage.session) {
         const { badgedTabIds = [] } = await chrome.storage.session.get(['badgedTabIds']);
@@ -364,9 +333,7 @@ export class HeaderEditorBackground {
       this.badgedTabIds.clear();
 
       if (!data.enabled || data.paused) {
-        if (!pendingUpdateBadge) {
-          await chrome.action.setBadgeText({ text: '' });
-        }
+        await chrome.action.setBadgeText({ text: '' });
         // Persist the (now empty) badged-tab list
         if (chrome.storage.session) {
           await chrome.storage.session.set({ badgedTabIds: Array.from(this.badgedTabIds) });
@@ -376,14 +343,12 @@ export class HeaderEditorBackground {
 
       const initialOf = profile => (profile.name || '').trim().charAt(0).toUpperCase() || '•';
 
-      if (!pendingUpdateBadge) {
-        const current = data.profiles[data.currentProfile];
-        if (current) {
-          await chrome.action.setBadgeText({ text: initialOf(current) });
-          await chrome.action.setBadgeBackgroundColor({
-            color: current.backgroundColor || '#4caf50',
-          });
-        }
+      const current = data.profiles[data.currentProfile];
+      if (current) {
+        await chrome.action.setBadgeText({ text: initialOf(current) });
+        await chrome.action.setBadgeBackgroundColor({
+          color: current.backgroundColor || '#4caf50',
+        });
       }
 
       for (const { profile, tabIds } of activeProfiles) {

@@ -973,7 +973,8 @@ describe('HeaderEditorBackground', () => {
       expect(background.badgedTabIds.size).toBe(0);
     });
 
-    test('updateBadges: pending NEW badge is not overwritten', async () => {
+    test('updateBadges: a stale updateNotification no longer suppresses the profile badge', async () => {
+      // <=2.5.3 left this key behind; it must not gate the badge any more.
       chrome.storage.local.get.mockResolvedValue({
         updateNotification: { shown: false },
       });
@@ -986,7 +987,7 @@ describe('HeaderEditorBackground', () => {
 
       await background.updateBadges(data, []);
 
-      expect(chrome.action.setBadgeText).not.toHaveBeenCalledWith({ text: 'D' });
+      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: 'D' });
     });
 
     test('updateBadges: restart recovery — persist restores and clears stale badges', async () => {
@@ -1216,32 +1217,11 @@ describe('HeaderEditorBackground', () => {
   // ─── setupMessageHandlers ────────────────────────────────────────────────
 
   describe('setupMessageHandlers', () => {
-    test('registers onMessage and storage.onChanged listeners', () => {
+    test('registers storage.onChanged only — no runtime message handlers left', () => {
       background.setupMessageHandlers();
 
-      expect(chrome.runtime.onMessage.addListener).toHaveBeenCalledWith(expect.any(Function));
       expect(chrome.storage.onChanged.addListener).toHaveBeenCalledWith(expect.any(Function));
-    });
-
-    test('updateHeaders message → no longer triggers applyHeaderRules (removed handler)', async () => {
-      const applySpy = vi.spyOn(background, 'applyHeaderRules').mockResolvedValue(undefined);
-      background.setupMessageHandlers();
-
-      const listener = chrome.runtime.onMessage.addListener.mock.calls[0][0];
-      const testData = { enabled: true, paused: false, profiles: {}, currentProfile: 'p' };
-      listener({ action: 'updateHeaders', data: testData }, {}, vi.fn());
-      await Promise.resolve();
-
-      expect(applySpy).not.toHaveBeenCalled();
-    });
-
-    test('clearUpdateBadge message → action.setBadgeText with empty string', () => {
-      background.setupMessageHandlers();
-
-      const listener = chrome.runtime.onMessage.addListener.mock.calls[0][0];
-      listener({ action: 'clearUpdateBadge' }, {}, vi.fn());
-
-      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
+      expect(chrome.runtime.onMessage.addListener).not.toHaveBeenCalled();
     });
 
     test('storage.onChanged with headerEditorData in local area → loadAndApplyRules', async () => {
@@ -1276,34 +1256,17 @@ describe('HeaderEditorBackground', () => {
       expect(chrome.runtime.onInstalled.addListener).toHaveBeenCalledWith(expect.any(Function));
     });
 
-    test('reason update → badge NEW + stores updateNotification', () => {
+    test('reason update → no badge, no notification, clears the legacy key', () => {
       background.setupUpdateNotifications();
 
       const listener = chrome.runtime.onInstalled.addListener.mock.calls[0][0];
       listener({ reason: 'update', previousVersion: '2.0.0' });
 
-      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: 'NEW' });
-      expect(chrome.action.setBadgeBackgroundColor).toHaveBeenCalledWith({ color: '#4caf50' });
-      expect(chrome.storage.local.set).toHaveBeenCalledWith(
-        expect.objectContaining({
-          updateNotification: expect.objectContaining({
-            previousVersion: '2.0.0',
-            shown: false,
-          }),
-        })
-      );
-    });
-
-    test('reason update with same version (unpacked reload) → no badge, no notification', () => {
-      background.setupUpdateNotifications();
-
-      const listener = chrome.runtime.onInstalled.addListener.mock.calls[0][0];
-      listener({ reason: 'update', previousVersion: chrome.runtime.getManifest().version });
-
       expect(chrome.action.setBadgeText).not.toHaveBeenCalled();
       expect(chrome.storage.local.set).not.toHaveBeenCalledWith(
         expect.objectContaining({ updateNotification: expect.anything() })
       );
+      expect(chrome.storage.local.remove).toHaveBeenCalledWith('updateNotification');
     });
 
     test('reason install → stores welcomeNotification', () => {
