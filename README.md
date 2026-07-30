@@ -22,6 +22,7 @@
 ☑️ **Individual Header Controls** - Enable/disable each header independently  
 📋 **Copy to Another Profile** - Per-row dropdown button to quickly copy a header to another profile's same section  
 🎯 **Profile Filters** - Scope a profile to specific domains, or to a Chrome tab group so headers never leak outside it  
+🌐 **7 Languages** - English, 简体中文, 繁體中文, 日本語, 한국어, Русский and Español, switchable from the toolbar  
 🔄 **Drag & Drop Reordering** - Easily reorganize headers by dragging them to new positions  
 ⏸️ **Pause Functionality** - Temporarily disable without losing configurations  
 🔒 **Privacy Focused** - All data stored locally, no tracking or analytics  
@@ -102,8 +103,13 @@
 - Both filters live in the **Filters** section below Response headers and can be toggled per profile.
 
 ### Toolbar Features
+- **Refresh**: 🔄 reload the profile from storage
 - **Pause/Resume**: ⏸️/▶️ button to temporarily disable all modifications
-- **Profile name**: Shows current active profile
+- **Pin**: 📌 keep the popup open when you click elsewhere
+- **Profile Color**: 🎨 pick the colour of the profile circle and its badge
+- **Language**: 🌐 switch the interface language, or follow the browser ("Auto")
+- **Menu**: ⋮ import, export and delete profile
+- **Profile name**: Shows current active profile, editable inline
 - **Quick add**: "+" button to add request or response headers
 
 ## 🔧 Technical Details
@@ -141,12 +147,14 @@
 ```
 ├── src/                  # Source code (Rspack bundling)
 │   ├── manifest.json    # Unified config for Chrome & Firefox
-│   ├── popup/           # UI components (HTML, CSS, JS)
+│   ├── _locales/        # Translation catalogs (7 locales)
+│   ├── popup/           # UI components (HTML, CSS, JS, i18n)
 │   ├── background/      # Service worker logic
 │   └── assets/icons/    # Extension icons (16px-128px)
 ├── dist/                # Built extension (gitignored)
 ├── rspack.config.js     # Rspack bundler configuration
 ├── package.json         # Dependencies and build scripts
+├── docs/                # Contributor docs (i18n, gotchas)
 ├── scripts/             # Release automation scripts
 ├── .github/workflows/   # GitHub Actions for automated builds
 ├── screenshots/         # Extension screenshots
@@ -187,7 +195,8 @@ node scripts/release.js
 ```
 
 **The script will:**
-- Update version in manifest.json
+- Update the version in `src/manifest.json`, `package.json` and the
+  `getManifest` mock in `src/__tests__/setup.js`, and sync `package-lock.json`
 - Create proper git commit and tag
 - Push to GitHub (triggers automated ZIP build)
 - Generate versioned files: `header-editor-pro-free-extension-vX.X.X.zip`
@@ -195,7 +204,10 @@ node scripts/release.js
 
 #### Option 2: Manual Process
 ```bash
-# Update version in manifest.json first, then:
+# Bump the version in all four places first — CI runs `npm ci`, which fails if
+# package-lock.json disagrees:
+#   src/manifest.json, package.json, src/__tests__/setup.js
+#   then: npm install --package-lock-only
 git add .
 git commit -m "release: bump version to 1.1.0"
 git tag v1.1.0

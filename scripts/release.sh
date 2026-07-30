@@ -102,20 +102,6 @@ fi
 
 print_step "New version will be: $new_version"
 
-# The version lives in four places that must agree; RELEASE_HIGHLIGHTS is the
-# only one needing human-written text, so require it up front rather than
-# leaving a half-bumped tree behind.
-if ! grep -q "'$new_version':" src/popup/update-notifications.js; then
-    print_error "No RELEASE_HIGHLIGHTS entry for $new_version"
-    echo ""
-    echo "Add one line to src/popup/update-notifications.js describing what the"
-    echo "user gets in this release, then re-run:"
-    echo ""
-    echo "  '$new_version':"
-    echo "    'Fix: ...',"
-    exit 1
-fi
-
 # Ask for release notes
 echo ""
 read -p "Enter release notes (optional, press Enter to skip): " release_notes

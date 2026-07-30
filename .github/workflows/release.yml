@@ -92,10 +92,11 @@ jobs:
 
         ### 🌟 Features
         - ✅ Unlimited profiles
-        - ✅ Real-time header modification
+        - ✅ Real-time request & response header modification
+        - ✅ 7 languages, switchable from the toolbar
+        - ✅ Profile filters by domain or Chrome tab group
         - ✅ Professional dark UI
-        - ✅ Individual header controls
-        - ✅ Privacy-focused (local storage only)
+        - ✅ Privacy-focused (local storage only, no tracking)
 
         **Support this project:** [Buy me a coffee](https://buymeacoffee.com/charlybrown) ☕
         EOF

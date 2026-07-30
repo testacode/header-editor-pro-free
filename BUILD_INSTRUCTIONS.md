@@ -15,8 +15,14 @@ npm run build
 The production extension is generated in `dist/`. The bundler is Rspack
 (`rspack.config.js`): it bundles `src/popup/popup.js` and
 `src/background/background.js` into `dist/js/`, extracts CSS to `dist/css/`,
-and copies `src/manifest.json` and the icons. Output is minified but NOT
-obfuscated.
+and copies `src/manifest.json`, the icons and `src/_locales/` (the translation
+catalogs, one directory per locale). Output is minified but NOT obfuscated.
+
+Note on translations: the popup imports the same `_locales/*/messages.json`
+files that Chrome reads for the manifest's `__MSG_appDesc__`, so they are
+bundled into `dist/js/popup.js` **and** copied verbatim to `dist/_locales/`.
+That duplication is intentional — the extension has an in-popup language
+selector, and `chrome.i18n` can only resolve the browser's own language.
 
 ## Loading the built extension
 

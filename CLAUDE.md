@@ -10,6 +10,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 
 **Current Structure (Rspack bundled):**
 - `src/manifest.json` - Unified manifest v3 (Chrome + Firefox compatibility)
+- `src/_locales/<locale>/messages.json` - Translation catalogs (en, es, ja, ko, ru, zh_CN, zh_TW)
 - `src/popup/` - UI components (HTML, CSS, JS) 
 - `src/background/` - Service worker for header modification
 - `src/assets/icons/` - Extension icons (16-128px)
@@ -21,6 +22,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - **Header Modification**: Request and response header support with individual enable/disable checkboxes
 - **Copy Header to Profile**: Per-row 📋 button (shown when >1 profile) opens a dropdown to append the header (full header: name, value, enabled state, append mode) to another profile's same section, with toast confirmation
 - **Profile Filters**: Per-profile scoping by domains (cross-browser, requestDomains/initiatorDomains OR'd via two DNR rules) and by Chrome tab group (session rules with tabIds + tab tracking; ignored on Firefox). Tab-group-scoped profiles apply CONCURRENTLY with the selected profile (priority 2 vs 1 on conflicts); the toolbar badge shows the governing profile's initial+color per tab
+- **Internationalization**: 7 languages with an in-popup selector (🌐 in the toolbar) that switches without reloading. Preference in `chrome.storage.local.uiLocale`; absent = follow the browser. Strings live in `src/_locales/`, never hardcoded — see `docs/i18n.md`
 - **Professional UI**: Dark theme matching original ModHeader with left sidebar navigation
 - **Pause Functionality**: Global pause/resume without losing configurations
 - **Pin Functionality**: Toggle button to disable/enable auto-close on outside click
@@ -52,6 +54,8 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 
 **Key UI Elements:**
 - Profile circles: Click to switch, right-click to delete (except default)
+- Toolbar buttons, left to right: refresh, pause, pin, profile colour, language, menu
+- Language button: 🌐 opens a menu of flag + native name, plus "Auto"
 - Pause button: ⏸ (pause) / ▶ (resume) in toolbar
 - Pin button: 📌 toggle to disable/enable auto-close on outside click
 - Header checkboxes: Individual enable/disable per header
@@ -61,11 +65,16 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 
 **Storage Format:**
 ```javascript
+// chrome.storage.local.headerEditorData
 {
   profiles: {
     'profile_id': {
       name: 'Profile Name',
-      requestHeaders: [{ name: 'header', value: 'value', enabled: true }],
+      description: '',            // '' means "none" — the placeholder is the hint
+      requestHeaders: [{ name: 'header', value: 'value', enabled: true, appendMode: false }],
+      responseHeaders: [],
+      backgroundColor: '#4caf50',
+      textColor: '#ffffff',
       filters: {
         domains: { enabled: false, list: ['example.com'] },
         tabGroup: { enabled: false, group: { id: 5, title: 'SANDBOX', color: 'purple' } }
@@ -78,6 +87,10 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
   pinned: false,
   profileCounter: 1
 }
+
+// Separate keys in chrome.storage.local
+// uiLocale: 'zh_CN'  — chosen language; absent means follow the browser
+// welcomeNotification: { version, shown }  — first-install tooltip
 ```
 
 ## Build & Release
@@ -97,7 +110,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Testing:**
 - Vitest framework with jsdom environment (modern Jest alternative)
 - Custom Chrome API mocking for Manifest V3 compatibility
-- Unit tests covering the background service worker (declarativeNetRequest rule building, pause/resume) and popup logic (profiles, headers CRUD, import/export). Run `npm test`; coverage via `npm run test:coverage`.
+- 366 tests across 7 files: background service worker (declarativeNetRequest rule building, pause/resume), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, and `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 catalogs. Run `npm test`; coverage via `npm run test:coverage`.
 - Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**

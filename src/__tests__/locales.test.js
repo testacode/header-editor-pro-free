@@ -116,6 +116,14 @@ describe('message catalogs', () => {
       expect(empty).toEqual([]);
     });
   });
+
+  // The manifest resolves __MSG_appDesc__ per locale, so every catalog has to
+  // clear the store's limit — not just the default one.
+  describe.each(locales)('%s appDesc', locale => {
+    test('fits the 132-character store limit', () => {
+      expect(readCatalog(locale).appDesc.message.length).toBeLessThanOrEqual(132);
+    });
+  });
 });
 
 describe('manifest', () => {

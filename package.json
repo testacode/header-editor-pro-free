@@ -1,7 +1,7 @@
 {
   "name": "header-editor-pro-free",
   "version": "2.5.3",
-  "description": "Professional HTTP header editor for web developers, API testing, and debugging - completely free with unlimited profiles",
+  "description": "Professional HTTP header editor for web development, API testing and debugging. Unlimited profiles, 7 languages, always free.",
   "engines": {
     "node": ">=22.0.0"
   },

@@ -5,7 +5,7 @@
   },
 
   "appDesc": {
-    "message": "面向 Web 开发者的专业 HTTP 请求头编辑器，适用于 API 测试与调试——完全免费，配置文件数量不限"
+    "message": "面向 Web 开发、API 测试与调试的 HTTP 标头编辑器。配置数量不限，支持 7 种语言，永久免费。"
   },
   "appTitle": { "message": "Header Editor Pro - Free" },
 
