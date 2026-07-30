@@ -1,3 +1,4 @@
+import { t, LocalizedError, describeError } from './i18n.js';
 import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normalize.js';
 
 export class ImportExportManager {
@@ -10,10 +11,10 @@ export class ImportExportManager {
 
   showImportModal() {
     this.popup.currentModalMode = 'import';
-    document.getElementById('modal-title').textContent = 'Import Configuration';
+    document.getElementById('modal-title').textContent = t('menuImport');
     document.getElementById('json-textarea').value = '';
-    document.getElementById('json-textarea').placeholder = 'Paste your JSON configuration here...';
-    document.getElementById('modal-action').textContent = 'Import';
+    document.getElementById('json-textarea').placeholder = t('modalJsonPlaceholder');
+    document.getElementById('modal-action').textContent = t('modalImport');
     document.getElementById('modal-action').style.display = 'block';
     document.getElementById('modal-copy').style.display = 'none';
     document.getElementById('modal-download').style.display = 'none';
@@ -34,7 +35,7 @@ export class ImportExportManager {
   showExportModal() {
     this.popup.currentModalMode = 'export';
 
-    document.getElementById('modal-title').textContent = 'Export Configuration';
+    document.getElementById('modal-title').textContent = t('menuExport');
     document.getElementById('json-textarea').placeholder = '';
     document.getElementById('modal-action').style.display = 'none';
     document.getElementById('modal-copy').style.display = 'block';
@@ -99,7 +100,9 @@ export class ImportExportManager {
 
     this.setValidationMessage(
       'success',
-      `✓ Ready to copy (${exportScope === 'current' ? 'current profile' : `${Object.keys(popup.profiles).length} profiles`})`
+      exportScope === 'current'
+        ? `✓ ${t('validReadyToCopyCurrent')}`
+        : `✓ ${t('validReadyToCopyProfiles', Object.keys(popup.profiles).length)}`
     );
   }
 
@@ -138,32 +141,32 @@ export class ImportExportManager {
       // Validate structure for import
       if (popup.currentModalMode === 'import') {
         if (Array.isArray(parsed) && this.isModHeaderProfileExport(parsed)) {
-          this.setValidationMessage('success', `✓ Valid JSON (${parsed.length} profiles)`);
+          this.setValidationMessage('success', `✓ ${t('validJsonProfiles', parsed.length)}`);
         } else if (Array.isArray(parsed)) {
           // Check if headers have required structure
           for (let i = 0; i < parsed.length; i++) {
             const header = parsed[i];
             if (!header.name || typeof header.name !== 'string') {
-              throw new Error(`Header ${i + 1}: missing or invalid 'name' field`);
+              throw new LocalizedError('errHeaderMissingName', i + 1);
             }
           }
 
-          this.setValidationMessage('success', `✓ Valid JSON (${parsed.length} headers)`);
+          this.setValidationMessage('success', `✓ ${t('validJsonHeaders', parsed.length)}`);
         } else if (parsed && typeof parsed === 'object' && parsed.profiles) {
           this.setValidationMessage(
             'success',
-            `✓ Valid JSON (${Object.keys(parsed.profiles).length} profiles)`
+            `✓ ${t('validJsonProfiles', Object.keys(parsed.profiles).length)}`
           );
         } else {
-          throw new Error('Invalid JSON format. Expected array of headers or profiles object.');
+          throw new LocalizedError('errInvalidJsonFormat');
         }
       } else {
-        this.setValidationMessage('success', '✓ Valid JSON');
+        this.setValidationMessage('success', `✓ ${t('validJson')}`);
       }
 
       actionBtn.disabled = false;
     } catch (_error) {
-      this.setValidationMessage('error', `✗ ${_error.message}`);
+      this.setValidationMessage('error', `✗ ${describeError(_error)}`);
       actionBtn.disabled = true;
     }
   }
@@ -190,16 +193,14 @@ export class ImportExportManager {
 
       this.closeModal();
     } catch (_error) {
-      this.setValidationMessage('error', `✗ Import failed: ${_error.message}`);
+      this.setValidationMessage('error', `✗ ${t('validImportFailed', describeError(_error))}`);
     }
   }
 
   async replaceCurrentProfile(importData) {
     const popup = this.popup;
     if (this.isModHeaderProfileExport(importData)) {
-      throw new Error(
-        'This is a ModHeader profile export. Use "Create new profile" mode to import it.'
-      );
+      throw new LocalizedError('errModHeaderExport');
     }
     // Handle different import formats
     if (Array.isArray(importData)) {
@@ -228,12 +229,10 @@ export class ImportExportManager {
           popup.profiles[popup.currentProfile].textColor = profileData.textColor;
         }
       } else {
-        throw new Error(
-          'Cannot replace current profile with multiple profiles. Use "Create new profile" mode instead.'
-        );
+        throw new LocalizedError('errCannotReplaceMultiple');
       }
     } else {
-      throw new Error('Invalid import format');
+      throw new LocalizedError('errInvalidImportFormat');
     }
 
     await popup.saveData();
@@ -259,7 +258,7 @@ export class ImportExportManager {
     try {
       await navigator.clipboard.writeText(textarea.value);
       const originalText = copyBtn.textContent;
-      copyBtn.textContent = '✓ Copied!';
+      copyBtn.textContent = `✓ ${t('modalCopied')}`;
       copyBtn.style.background = '#4CAF50';
 
       setTimeout(() => {
@@ -270,7 +269,7 @@ export class ImportExportManager {
       // Fallback for older browsers
       textarea.select();
       document.execCommand('copy');
-      copyBtn.textContent = '✓ Copied!';
+      copyBtn.textContent = `✓ ${t('modalCopied')}`;
     }
   }
 
@@ -288,7 +287,7 @@ export class ImportExportManager {
     }
 
     if (!file.name.endsWith('.json')) {
-      alert('Please select a JSON file');
+      alert(t('errSelectJsonFile'));
       return;
     }
 
@@ -300,7 +299,7 @@ export class ImportExportManager {
       // Clear the file input
       event.target.value = '';
     } catch (_error) {
-      alert(`Error importing file: ${_error.message}`);
+      alert(t('errImportingFile', describeError(_error)));
       event.target.value = '';
     }
   }
@@ -309,16 +308,14 @@ export class ImportExportManager {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = e => resolve(e.target.result);
-      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.onerror = () => reject(new LocalizedError('errFailedToReadFile'));
       reader.readAsText(file);
     });
   }
 
   async importProfile(importData) {
     await this.importProfileFromData(importData);
-    alert(
-      `Successfully imported to profile "${this.popup.profiles[this.popup.currentProfile].name}"`
-    );
+    alert(t('importSuccess', this.popup.profiles[this.popup.currentProfile].name));
   }
 
   // ── Import logic ──────────────────────────────────────────────────────────
@@ -345,8 +342,8 @@ export class ImportExportManager {
         skippedFeatures++;
       }
       popup.profiles[newKey] = {
-        name: mhProfile.title || `Imported Profile ${popup.profileCounter}`,
-        description: 'Imported from ModHeader - click to edit',
+        name: mhProfile.title || t('importedProfileName', popup.profileCounter),
+        description: t('importedFromModHeader'),
         requestHeaders: this.extractHeadersFromArray(mhProfile.headers),
         responseHeaders: this.sanitizeHeaders(mhProfile.respHeaders),
       };
@@ -364,9 +361,7 @@ export class ImportExportManager {
       // ModHeader profile export format: array of profile objects with headers[]
       const result = await this.importModHeaderProfiles(importData);
       if (result.skippedFeatures > 0) {
-        alert(
-          `Note: ${result.skippedFeatures} profile(s) contained ModHeader URL filters, which are not auto-converted. Recreate them with this extension's domain filters if needed.`
-        );
+        alert(t('importModHeaderUrlFilters', result.skippedFeatures));
       }
     } else if (Array.isArray(importData)) {
       // Plain headers array format
@@ -375,7 +370,7 @@ export class ImportExportManager {
       // Full export format - multiple profiles
       await this.importMultipleProfiles(importData);
     } else {
-      throw new Error('Invalid JSON format. Expected array of headers or profiles object.');
+      throw new LocalizedError('errInvalidJsonFormat');
     }
   }
 
@@ -386,8 +381,8 @@ export class ImportExportManager {
     popup.profileCounter++;
     const key = `profile_${Date.now()}`;
     popup.profiles[key] = {
-      name: `Imported Profile ${popup.profileCounter}`,
-      description: 'Imported from JSON - click to edit',
+      name: t('importedProfileName', popup.profileCounter),
+      description: t('importedFromJson'),
       requestHeaders: headers,
       responseHeaders: [],
     };
@@ -411,8 +406,8 @@ export class ImportExportManager {
       }
 
       popup.profiles[newKey] = {
-        name: profileData.name || `Imported Profile ${popup.profileCounter}`,
-        description: profileData.description || 'Imported from JSON - click to edit',
+        name: profileData.name || t('importedProfileName', popup.profileCounter),
+        description: profileData.description || t('importedFromJson'),
         requestHeaders: this.sanitizeHeaders(profileData.requestHeaders),
         responseHeaders: this.sanitizeHeaders(profileData.responseHeaders),
         ...(profileData.filters && typeof profileData.filters === 'object'
@@ -445,7 +440,7 @@ export class ImportExportManager {
     try {
       data = JSON.parse(jsonText);
     } catch (error) {
-      this.setValidationMessage('error', `✗ ${error.message}`);
+      this.setValidationMessage('error', `✗ ${describeError(error)}`);
       return;
     }
 

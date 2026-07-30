@@ -11,6 +11,7 @@ import { ImportExportManager } from './import-export.js';
 import { UpdateNotificationsManager } from './update-notifications.js';
 import { ColorPickerManager } from './color-picker.js';
 import { FiltersManager } from './filters.js';
+import { applyI18n, t } from './i18n.js';
 
 // Typing only mutated memory and the write happened on blur, so closing the popup
 // could tear down the page before the storage write reached the browser process —
@@ -39,6 +40,10 @@ export class HeaderEditorPopup {
   }
 
   async init() {
+    // Before the first await: the popup paints translated, and every test that
+    // constructs the popup exercises this path.
+    applyI18n(document);
+
     await this.loadData();
     await this.updateNotifications.checkForUpdateNotification();
     this.setupEventListeners();
@@ -400,7 +405,7 @@ export class HeaderEditorPopup {
     dragHandle.className = 'drag-handle';
     dragHandle.innerHTML =
       '<svg viewBox="0 0 320 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M40 352l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40zm192 0l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40zM40 320c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0zM232 192l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40zM40 160c-22.1 0-40-17.9-40-40L0 72C0 49.9 17.9 32 40 32l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0zM232 32l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40z"/></svg>';
-    dragHandle.title = 'Drag to reorder';
+    dragHandle.title = t('headerDragToReorder');
 
     // Checkbox for enable/disable
     const checkbox = document.createElement('input');
@@ -415,7 +420,7 @@ export class HeaderEditorPopup {
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.className = 'header-name';
-    nameInput.placeholder = 'Header name';
+    nameInput.placeholder = t('headerNamePlaceholder');
     nameInput.value = header.name || '';
     nameInput.addEventListener('input', e => {
       this.updateHeader(type, index, 'name', e.target.value);
@@ -428,7 +433,7 @@ export class HeaderEditorPopup {
     const valueInput = document.createElement('input');
     valueInput.type = 'text';
     valueInput.className = 'header-value';
-    valueInput.placeholder = 'Header value';
+    valueInput.placeholder = t('headerValuePlaceholder');
     valueInput.value = header.value || '';
     valueInput.addEventListener('input', e => {
       this.updateHeader(type, index, 'value', e.target.value);
@@ -441,7 +446,7 @@ export class HeaderEditorPopup {
     const appendToggle = document.createElement('button');
     appendToggle.className = 'header-append-toggle';
     appendToggle.textContent = 'A';
-    appendToggle.title = 'Append instead of set';
+    appendToggle.title = t('headerAppendMode');
     if (isAppendMode(header)) {
       appendToggle.classList.add('active');
     }
@@ -462,7 +467,7 @@ export class HeaderEditorPopup {
       copyButton.className = 'header-copy';
       copyButton.innerHTML =
         '<svg viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M208 0L332.1 0c12.7 0 24.9 5.1 33.9 14.1l67.9 67.9c9 9 14.1 21.2 14.1 33.9L448 336c0 26.5-21.5 48-48 48l-192 0c-26.5 0-48-21.5-48-48l0-288c0-26.5 21.5-48 48-48zM48 128l80 0 0 64-64 0 0 256 192 0 0-32 64 0 0 48c0 26.5-21.5 48-48 48L48 512c-26.5 0-48-21.5-48-48L0 176c0-26.5 21.5-48 48-48z"/></svg>';
-      copyButton.title = 'Copy to profile…';
+      copyButton.title = t('headerCopyToProfile');
       copyButton.addEventListener('click', e => {
         e.stopPropagation();
         this.toggleCopyDropdown(div, type, index);
@@ -474,7 +479,7 @@ export class HeaderEditorPopup {
     const deleteButton = document.createElement('button');
     deleteButton.className = 'header-delete';
     deleteButton.innerHTML = '✕';
-    deleteButton.title = 'Delete header';
+    deleteButton.title = t('headerDelete');
     deleteButton.addEventListener('click', () => {
       this.removeHeader(type, index);
     });
@@ -497,7 +502,7 @@ export class HeaderEditorPopup {
   updateToolbar() {
     // Update profile name input
     const profileNameInput = document.getElementById('profile-name-input');
-    profileNameInput.value = this.profiles[this.currentProfile]?.name || 'Default';
+    profileNameInput.value = this.profiles[this.currentProfile]?.name || t('profileDefaultName');
 
     // Update profile description
     const currentProfile = this.profiles[this.currentProfile];
@@ -513,12 +518,12 @@ export class HeaderEditorPopup {
     const pauseBtn = document.getElementById('pause-btn');
     if (this.isPaused) {
       pauseBtn.classList.add('paused');
-      pauseBtn.title = 'Resume Extension';
+      pauseBtn.title = t('toolbarResume');
       pauseBtn.innerHTML =
         '<svg viewBox="0 0 384 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80L0 432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg>';
     } else {
       pauseBtn.classList.remove('paused');
-      pauseBtn.title = 'Pause Extension';
+      pauseBtn.title = t('toolbarPause');
       pauseBtn.innerHTML =
         '<svg viewBox="0 0 320 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M48 64C21.5 64 0 85.5 0 112L0 400c0 26.5 21.5 48 48 48l32 0c26.5 0 48-21.5 48-48l0-288c0-26.5-21.5-48-48-48L48 64zm192 0c-26.5 0-48 21.5-48 48l0 288c0 26.5 21.5 48 48 48l32 0c26.5 0 48-21.5 48-48l0-288c0-26.5-21.5-48-48-48l-32 0z"/></svg>';
     }
@@ -527,10 +532,10 @@ export class HeaderEditorPopup {
     const pinBtn = document.getElementById('pin-btn');
     if (this.isPinned) {
       pinBtn.classList.add('pinned');
-      pinBtn.title = 'Unpin (Enable auto-close)';
+      pinBtn.title = t('toolbarUnpin');
     } else {
       pinBtn.classList.remove('pinned');
-      pinBtn.title = 'Pin (Disable auto-close)';
+      pinBtn.title = t('toolbarPin');
     }
   }
 
@@ -598,7 +603,7 @@ export class HeaderEditorPopup {
 
     const label = document.createElement('div');
     label.className = 'copy-dropdown-label';
-    label.textContent = 'Copy to profile';
+    label.textContent = t('headerCopyDropdownLabel');
     dropdown.appendChild(label);
 
     Object.entries(this.profiles)
@@ -658,7 +663,7 @@ export class HeaderEditorPopup {
     document.querySelectorAll('.copy-toast').forEach(toast => toast.remove());
     const toast = document.createElement('div');
     toast.className = 'copy-toast';
-    toast.textContent = `✓ Copied to "${profileName}"`;
+    toast.textContent = `✓ ${t('headerCopiedToast', profileName)}`;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
   }
@@ -667,7 +672,7 @@ export class HeaderEditorPopup {
     this.profileCounter++;
     const key = `profile_${Date.now()}`;
     this.profiles[key] = {
-      name: `Profile ${this.profileCounter}`,
+      name: t('profileNewName', this.profileCounter),
       description: '',
       requestHeaders: [],
       responseHeaders: [],
@@ -696,8 +701,10 @@ export class HeaderEditorPopup {
 
     // Read from the manifest rather than hardcoding, so releases don't have to
     // bump a fifth place.
-    document.getElementById('info-version').textContent =
-      `Version ${chrome.runtime.getManifest().version}`;
+    document.getElementById('info-version').textContent = t(
+      'infoVersion',
+      chrome.runtime.getManifest().version
+    );
 
     tooltip.style.display = 'block';
 
@@ -741,10 +748,8 @@ export class HeaderEditorPopup {
       return; // default is never deletable; unknown keys are a no-op
     }
 
-    const profileName = this.profiles[profileKey]?.name || 'this profile';
-    if (
-      !confirm(`Are you sure you want to delete "${profileName}"? This action cannot be undone.`)
-    ) {
+    const profileName = this.profiles[profileKey]?.name || t('profileThisProfile');
+    if (!confirm(t('profileDeleteConfirm', profileName))) {
       return;
     }
 
@@ -801,17 +806,15 @@ export class HeaderEditorPopup {
     const dropdown = document.getElementById('profile-dropdown');
     const deleteItem = document.getElementById('delete-profile-item');
 
-    // Update delete item state based on current profile
-    if (this.currentProfile === 'default') {
-      deleteItem.classList.add('disabled');
-      deleteItem.innerHTML =
-        '<svg viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"/></svg><span>Cannot delete default profile</span>';
-    } else {
-      deleteItem.classList.remove('disabled');
-      deleteItem.classList.add('danger');
-      deleteItem.innerHTML =
-        '<svg viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"/></svg><span>Delete Profile</span>';
-    }
+    // Update delete item state based on current profile. The label is a <span>
+    // built once in the HTML, so only its text changes — translated strings
+    // never go through innerHTML.
+    const deleteLabel = deleteItem.querySelector('span');
+    const isDefault = this.currentProfile === 'default';
+
+    deleteItem.classList.toggle('disabled', isDefault);
+    deleteItem.classList.toggle('danger', !isDefault);
+    deleteLabel.textContent = isDefault ? t('menuCannotDeleteDefault') : t('menuDeleteProfile');
 
     // Toggle dropdown visibility
     dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';

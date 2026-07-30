@@ -1,6 +1,7 @@
 {
   "name": "Header Editor Pro - Free",
-  "description": "Professional HTTP header editor for web developers, API testing, and debugging - completely free with unlimited profiles",
+  "description": "__MSG_appDesc__",
+  "default_locale": "en",
   "version": "2.5.3",
   "manifest_version": 3,
   "permissions": ["declarativeNetRequest", "storage", "tabGroups"],

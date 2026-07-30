@@ -1,4 +1,5 @@
 import { defaultFilters } from './default-data.js';
+import { t } from './i18n.js';
 
 // Normalize one user-typed domain entry to a bare lowercase hostname.
 // Returns the hostname, or null when the entry can't be a valid DNR domain.
@@ -96,7 +97,7 @@ export class FiltersManager {
       const hintEl = document.getElementById('domain-filter-hint');
       if (hintEl) {
         if (rejected.length > 0) {
-          hintEl.textContent = `Ignored (not valid domains): ${rejected.join(', ')}`;
+          hintEl.textContent = t('filtersDomainsIgnored', rejected.join(', '));
         } else {
           hintEl.textContent = '';
         }
@@ -172,7 +173,7 @@ export class FiltersManager {
 
     const placeholder = document.createElement('option');
     placeholder.value = '';
-    placeholder.textContent = 'Select a tab group…';
+    placeholder.textContent = t('filtersTabGroupSelect');
     select.appendChild(placeholder);
 
     let groups = [];
@@ -186,7 +187,7 @@ export class FiltersManager {
       const option = document.createElement('option');
       option.value = String(group.id);
       const dot = GROUP_COLOR_DOTS[group.color] || '●';
-      option.textContent = `${dot} ${group.title || '(unnamed)'}${suffix}`;
+      option.textContent = `${dot} ${group.title || t('filtersTabGroupUnnamed')}${suffix}`;
       option.dataset.title = group.title || '';
       option.dataset.color = group.color;
       select.appendChild(option);
@@ -196,7 +197,7 @@ export class FiltersManager {
 
     // Keep the saved group visible/selected even when it is not open right now
     if (selectedGroup && !groups.some(group => group.id === selectedGroup.id)) {
-      addOption(selectedGroup, ' (not open)');
+      addOption(selectedGroup, t('filtersTabGroupNotOpen'));
     }
     if (selectedGroup) {
       select.value = String(selectedGroup.id);

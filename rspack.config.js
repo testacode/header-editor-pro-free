@@ -58,6 +58,13 @@ module.exports = {
           from: 'src/assets/icons',
           to: 'icons',
         },
+        {
+          // Chrome refuses to load the extension if default_locale is set and
+          // _locales is missing. The popup bundles these too, for the language
+          // selector; this copy is what serves the manifest's __MSG_ lookups.
+          from: 'src/_locales',
+          to: '_locales',
+        },
       ],
     }),
   ],

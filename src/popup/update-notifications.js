@@ -1,3 +1,5 @@
+import { t } from './i18n.js';
+
 export class UpdateNotificationsManager {
   constructor(popup) {
     this.popup = popup;
@@ -57,9 +59,9 @@ export class UpdateNotificationsManager {
     this.showTooltip({
       className: 'update-notification welcome-notification update-notification-slide-in',
       icon: '🎉',
-      title: 'Welcome to Header Editor Pro!',
-      body: `Thanks for installing v${welcomeInfo.version}`,
-      subtitle: 'Create unlimited profiles and modify HTTP headers easily',
+      title: t('welcomeTitle'),
+      body: t('welcomeBody', welcomeInfo.version),
+      subtitle: t('welcomeSubtitle'),
       autoCloseMs: 8000,
     });
   }

@@ -474,6 +474,13 @@ body {
   transition: all 0.2s;
 }
 
+/* The label used to be a bare text node whose leading space did the spacing.
+   It is a <span> now so it can be translated, so space it explicitly. */
+#modal-copy svg,
+#modal-download svg {
+  margin-right: 6px;
+}
+
 .btn-secondary {
   background: #666;
   color: #ffffff;

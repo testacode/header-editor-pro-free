@@ -65,6 +65,15 @@ const mockRuntime = {
   getURL: vi.fn(path => `chrome-extension://test-extension-id/${path}`),
 };
 
+// The popup translates through its own bundled catalogs, not chrome.i18n; this
+// only covers getUILanguage (the default-language probe) and the manifest-level
+// __MSG_ lookups. Tests assert real English text, so nothing here fakes it.
+const mockI18n = {
+  getUILanguage: vi.fn(() => 'en-US'),
+  getAcceptLanguages: vi.fn().mockResolvedValue(['en-US']),
+  getMessage: vi.fn(key => key),
+};
+
 const mockAction = {
   setBadgeText: vi.fn().mockResolvedValue(undefined),
   setBadgeBackgroundColor: vi.fn().mockResolvedValue(undefined),
@@ -120,6 +129,7 @@ const mockWindows = {
 global.chrome = {
   storage: mockStorage,
   runtime: mockRuntime,
+  i18n: mockI18n,
   action: mockAction,
   declarativeNetRequest: mockDeclarativeNetRequest,
   tabs: mockTabs,
