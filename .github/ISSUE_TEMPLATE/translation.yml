@@ -1,0 +1,59 @@
+name: Translation problem
+description: A string reads wrong, is cut off, or is still in English
+title: '[i18n] '
+labels: [i18n]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping. The current translations were machine-generated and
+        have not been reviewed by native speakers, so corrections are genuinely
+        useful — no change is too small.
+
+  - type: dropdown
+    id: locale
+    attributes:
+      label: Language
+      options:
+        - 简体中文 (zh_CN)
+        - 繁體中文 (zh_TW)
+        - 日本語 (ja)
+        - 한국어 (ko)
+        - Русский (ru)
+        - Español (es)
+        - English (en)
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: What it says now
+      description: Copy the text as it appears, or attach a screenshot.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested
+    attributes:
+      label: What it should say
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Where in the extension
+      description: e.g. "the Filters section", "the import dialog", "the tooltip on the A button"
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: |
+        Useful if the term is wrong in a specific context, if the text is cut
+        off, or if it reads unnatural rather than being outright wrong.
+    validations:
+      required: false

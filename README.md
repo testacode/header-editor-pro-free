@@ -22,7 +22,7 @@
 ☑️ **Individual Header Controls** - Enable/disable each header independently  
 📋 **Copy to Another Profile** - Per-row dropdown button to quickly copy a header to another profile's same section  
 🎯 **Profile Filters** - Scope a profile to specific domains, or to a Chrome tab group so headers never leak outside it  
-🌐 **7 Languages** - English, 简体中文, 繁體中文, 日本語, 한국어, Русский and Español, switchable from the toolbar  
+🌐 **7 Languages** - English, 简体中文, 繁體中文, 日本語, 한국어, Русский and Español, switchable from the toolbar ([spot a bad translation?](https://github.com/testacode/header-editor-pro-free/issues/new?template=translation.yml))  
 🔄 **Drag & Drop Reordering** - Easily reorganize headers by dragging them to new positions  
 ⏸️ **Pause Functionality** - Temporarily disable without losing configurations  
 🔒 **Privacy Focused** - All data stored locally, no tracking or analytics  
