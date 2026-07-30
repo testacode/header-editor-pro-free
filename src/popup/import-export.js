@@ -101,14 +101,26 @@ export class ImportExportManager {
     this.setValidationMessage(
       'success',
       exportScope === 'current'
-        ? `✓ ${t('validReadyToCopyCurrent')}`
-        : `✓ ${t('validReadyToCopyProfiles', Object.keys(popup.profiles).length)}`
+        ? t('validReadyToCopyCurrent')
+        : t('validReadyToCopyProfiles', Object.keys(popup.profiles).length)
     );
   }
 
   closeModal() {
     document.getElementById('modal-overlay').style.display = 'none';
     this.popup.currentModalMode = null;
+  }
+
+  // The glyph belongs to the status, not the sentence: keeping it out of the
+  // catalog is what stops a translator from turning ✓ into ✅ or dropping it.
+  // A name with no ASCII left — any CJK or Cyrillic one — sanitizes to nothing
+  // but underscores, so fall back rather than emit "______headers.json".
+  filenameStem(profileName) {
+    const stem = (profileName || '')
+      .replace(/[^a-z0-9]/gi, '_')
+      .toLowerCase()
+      .replace(/^_+|_+$/g, '');
+    return stem || t('exportFilenameFallback');
   }
 
   setValidationMessage(kind, text) {
@@ -119,7 +131,7 @@ export class ImportExportManager {
     }
     const span = document.createElement('span');
     span.className = kind; // 'error' | 'success'
-    span.textContent = text;
+    span.textContent = `${kind === 'error' ? '✗' : '✓'} ${text}`;
     message.appendChild(span);
   }
 
@@ -141,7 +153,7 @@ export class ImportExportManager {
       // Validate structure for import
       if (popup.currentModalMode === 'import') {
         if (Array.isArray(parsed) && this.isModHeaderProfileExport(parsed)) {
-          this.setValidationMessage('success', `✓ ${t('validJsonProfiles', parsed.length)}`);
+          this.setValidationMessage('success', t('validJsonProfiles', parsed.length));
         } else if (Array.isArray(parsed)) {
           // Check if headers have required structure
           for (let i = 0; i < parsed.length; i++) {
@@ -151,22 +163,22 @@ export class ImportExportManager {
             }
           }
 
-          this.setValidationMessage('success', `✓ ${t('validJsonHeaders', parsed.length)}`);
+          this.setValidationMessage('success', t('validJsonHeaders', parsed.length));
         } else if (parsed && typeof parsed === 'object' && parsed.profiles) {
           this.setValidationMessage(
             'success',
-            `✓ ${t('validJsonProfiles', Object.keys(parsed.profiles).length)}`
+            t('validJsonProfiles', Object.keys(parsed.profiles).length)
           );
         } else {
           throw new LocalizedError('errInvalidJsonFormat');
         }
       } else {
-        this.setValidationMessage('success', `✓ ${t('validJson')}`);
+        this.setValidationMessage('success', t('validJson'));
       }
 
       actionBtn.disabled = false;
     } catch (_error) {
-      this.setValidationMessage('error', `✗ ${describeError(_error)}`);
+      this.setValidationMessage('error', describeError(_error));
       actionBtn.disabled = true;
     }
   }
@@ -193,7 +205,7 @@ export class ImportExportManager {
 
       this.closeModal();
     } catch (_error) {
-      this.setValidationMessage('error', `✗ ${t('validImportFailed', describeError(_error))}`);
+      this.setValidationMessage('error', t('validImportFailed', describeError(_error)));
     }
   }
 
@@ -440,15 +452,13 @@ export class ImportExportManager {
     try {
       data = JSON.parse(jsonText);
     } catch (error) {
-      this.setValidationMessage('error', `✗ ${describeError(error)}`);
+      this.setValidationMessage('error', describeError(error));
       return;
     }
 
     const filename =
       exportScope === 'current'
-        ? `${(this.popup.profiles[this.popup.currentProfile]?.name || 'profile')
-            .replace(/[^a-z0-9]/gi, '_')
-            .toLowerCase()}_headers.json`
+        ? `${this.filenameStem(this.popup.profiles[this.popup.currentProfile]?.name)}_headers.json`
         : `header-editor-profiles-${new Date().toISOString().slice(0, 10)}.json`;
 
     this.downloadJSON(data, filename);

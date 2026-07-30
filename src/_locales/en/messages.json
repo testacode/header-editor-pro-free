@@ -217,6 +217,10 @@
     "message": "Imported from ModHeader - click to edit",
     "description": "Description stored on a profile imported from ModHeader."
   },
+  "exportFilenameFallback": {
+    "message": "profile",
+    "description": "Filename stem used when a profile name keeps no characters a filename can use (e.g. it is all CJK). Lowercase ASCII only, no spaces."
+  },
   "importedFromJson": {
     "message": "Imported from JSON - click to edit",
     "description": "Description stored on a profile imported from a JSON file."

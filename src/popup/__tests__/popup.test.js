@@ -1861,12 +1861,19 @@ describe('HeaderEditorPopup', () => {
       expect(container.textContent).toContain(malicious);
     });
 
-    test('success message creates span.success with correct text', () => {
-      popup.importExport.setValidationMessage('success', '✓ Valid JSON');
+    test('success message creates span.success and prefixes the glyph', () => {
+      popup.importExport.setValidationMessage('success', 'Valid JSON');
 
       const span = document.querySelector('#validation-message span.success');
       expect(span).not.toBeNull();
       expect(span.textContent).toBe('✓ Valid JSON');
+    });
+
+    test('error message gets the error glyph, not the success one', () => {
+      popup.importExport.setValidationMessage('error', 'Invalid import format');
+
+      const span = document.querySelector('#validation-message span.error');
+      expect(span.textContent).toBe('✗ Invalid import format');
     });
   });
 

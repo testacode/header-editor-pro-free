@@ -10,6 +10,10 @@ import {
   describeError,
   DEFAULT_LOCALE,
 } from '../i18n.js';
+import { ImportExportManager } from '../import-export.js';
+
+// filenameStem needs no popup state, so exercise it on a bare manager.
+const popupManagerStem = name => new ImportExportManager({}).filenameStem(name);
 
 describe('t', () => {
   test('returns the message for a known key', () => {
@@ -158,5 +162,21 @@ describe('describeError', () => {
     expect(describeError(new SyntaxError('Unexpected token } in JSON at position 42'))).toBe(
       'Unexpected token } in JSON at position 42'
     );
+  });
+});
+
+describe('export filename stem', () => {
+  test('an ASCII profile name is sanitized as before', () => {
+    expect(popupManagerStem('My Profile 2')).toBe('my_profile_2');
+  });
+
+  test('a name with no ASCII falls back instead of yielding only underscores', () => {
+    expect(popupManagerStem('プロファイル')).toBe('profile');
+    expect(popupManagerStem('Профиль')).toBe('profile');
+    expect(popupManagerStem('测试配置')).toBe('profile');
+  });
+
+  test('a missing name falls back too', () => {
+    expect(popupManagerStem(undefined)).toBe('profile');
   });
 });
