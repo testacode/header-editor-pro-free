@@ -9,6 +9,8 @@ export const RELEASE_HIGHLIGHTS = {
   '2.5.0': 'New: copy a header to another profile from the copy button on each header row.',
   '2.5.1':
     'Fixes: backups now keep profile filters & colors, copied headers keep their append/enabled state, and invalid domain filters are flagged inline.',
+  '2.5.2':
+    'Fix: edits are now saved as you type — changing a header value and closing the popup no longer loses the change.',
 };
 
 export class UpdateNotificationsManager {
