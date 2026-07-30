@@ -17,9 +17,13 @@ export function defaultFilters() {
 // still recognise it in existing storage: never translate it, never edit it.
 export const LEGACY_PLACEHOLDER_DESCRIPTION = 'Click to edit description';
 
-export function defaultProfile() {
+// The name is a parameter rather than a t() call so this module stays free of
+// the translation catalogs: the background service worker imports it too, and
+// it has no UI to translate. The popup passes the localized name, which is what
+// gets persisted; the background only ever uses this shape in memory.
+export function defaultProfile(name = 'Default') {
   return {
-    name: 'Default',
+    name,
     description: '',
     requestHeaders: [],
     responseHeaders: [],
@@ -29,9 +33,9 @@ export function defaultProfile() {
   };
 }
 
-export function defaultHeaderEditorData() {
+export function defaultHeaderEditorData(defaultProfileName) {
   return {
-    profiles: { default: defaultProfile() },
+    profiles: { default: defaultProfile(defaultProfileName) },
     currentProfile: 'default',
     enabled: true,
     paused: false,

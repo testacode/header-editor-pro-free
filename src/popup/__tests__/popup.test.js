@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { HeaderEditorPopup } from '../popup.js';
 import { LEGACY_PLACEHOLDER_DESCRIPTION } from '../default-data.js';
-import { SUPPORTED_LOCALES } from '../i18n.js';
+import { SUPPORTED_LOCALES, setActiveLocale } from '../i18n.js';
 import { hexToHsl, hslToHex } from '../color-utils.js';
 
 const popupHtml = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
@@ -43,6 +43,21 @@ describe('HeaderEditorPopup', () => {
   // ─── loadData ───────────────────────────────────────────────────────────────
 
   describe('loadData', () => {
+    test('a fresh install names the default profile in the browser language', async () => {
+      // The name is persisted data, so it has to be written already translated.
+      chrome.i18n.getUILanguage.mockReturnValue('es-AR');
+      try {
+        chrome.storage.local.get.mockResolvedValue({});
+        document.documentElement.innerHTML = popupHtml;
+        const p = await createPopup();
+
+        expect(p.profiles.default.name).toBe('Predeterminado');
+      } finally {
+        chrome.i18n.getUILanguage.mockReturnValue('en-US');
+        setActiveLocale('en');
+      }
+    });
+
     test('empty storage → default profile with enabled=true', () => {
       expect(popup.profiles.default).toBeDefined();
       expect(popup.profiles.default.name).toBe('Default');

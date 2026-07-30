@@ -65,7 +65,7 @@ export class HeaderEditorPopup {
   async loadData() {
     try {
       const result = await chrome.storage.local.get(['headerEditorData']);
-      const data = result.headerEditorData || defaultHeaderEditorData();
+      const data = result.headerEditorData || defaultHeaderEditorData(t('profileDefaultName'));
 
       this.profiles = data.profiles;
       this.currentProfile = data.currentProfile;
@@ -91,7 +91,7 @@ export class HeaderEditorPopup {
       };
     } catch (error) {
       console.error('Failed to load data from storage, using defaults:', error);
-      const data = defaultHeaderEditorData();
+      const data = defaultHeaderEditorData(t('profileDefaultName'));
       this.profiles = data.profiles;
       this.currentProfile = data.currentProfile;
       this.isEnabled = data.enabled;
