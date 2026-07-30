@@ -322,10 +322,13 @@ describe('HeaderEditorPopup', () => {
       expect(chrome.storage.local.set).toHaveBeenCalled();
     });
 
-    test('does NOT save for non-enabled fields (save happens on blur)', async () => {
+    test('non-enabled fields write on a debounce, not synchronously', async () => {
       chrome.storage.local.set.mockClear();
       await popup.updateHeader('request', 0, 'name', 'New');
       expect(chrome.storage.local.set).not.toHaveBeenCalled();
+
+      await popup.flushSave();
+      expect(chrome.storage.local.set).toHaveBeenCalled();
     });
 
     test('out-of-bounds index is a no-op', async () => {
@@ -1240,13 +1243,13 @@ describe('HeaderEditorPopup', () => {
   // ─── auto-close on blur ───────────────────────────────────────────────────────
 
   describe('auto-close on blur (handleWindowBlur)', () => {
-    test('no modal/dropdown/drag → closes the popup', () => {
+    test('no modal/dropdown/drag → closes the popup', async () => {
       window.close.mockClear();
-      popup.handleWindowBlur();
+      await popup.handleWindowBlur();
       expect(window.close).toHaveBeenCalled();
     });
 
-    test('during a header drag does NOT close (Linux fires blur on dragstart)', () => {
+    test('during a header drag does NOT close (Linux fires blur on dragstart)', async () => {
       window.close.mockClear();
       popup.handleDragStart(
         { target: document.createElement('div'), dataTransfer: { setData: vi.fn() } },
@@ -1254,19 +1257,138 @@ describe('HeaderEditorPopup', () => {
         0
       );
 
-      popup.handleWindowBlur();
+      await popup.handleWindowBlur();
       expect(window.close).not.toHaveBeenCalled();
 
       popup.handleDragEnd({});
-      popup.handleWindowBlur();
+      await popup.handleWindowBlur();
       expect(window.close).toHaveBeenCalled();
     });
 
-    test('while pinned does NOT close', () => {
+    test('while pinned does NOT close', async () => {
       window.close.mockClear();
       popup.isPinned = true;
-      popup.handleWindowBlur();
+      await popup.handleWindowBlur();
       expect(window.close).not.toHaveBeenCalled();
+    });
+  });
+
+  // ─── Edit persistence across popup teardown ───────────────────────────────────
+
+  describe('header edits survive the popup closing', () => {
+    function typeValue(text) {
+      const input = document.querySelector('#request-headers-list .header-value');
+      input.value = text;
+      input.dispatchEvent(new Event('input'));
+      return input;
+    }
+
+    beforeEach(() => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'X-Version', value: 'beta1', enabled: true },
+      ];
+      popup.renderHeadersList('request');
+    });
+
+    test('typing persists after the debounce, without any blur', async () => {
+      vi.useFakeTimers();
+      try {
+        chrome.storage.local.set.mockClear();
+        typeValue('beta4');
+        expect(chrome.storage.local.set).not.toHaveBeenCalled();
+
+        await vi.advanceTimersByTimeAsync(500);
+
+        const saved = chrome.storage.local.set.mock.calls.at(-1)[0].headerEditorData;
+        expect(saved.profiles[popup.currentProfile].requestHeaders[0].value).toBe('beta4');
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    test('window blur waits for the pending write before closing', async () => {
+      let resolveWrite;
+      chrome.storage.local.set.mockImplementationOnce(
+        () =>
+          new Promise(resolve => {
+            resolveWrite = resolve;
+          })
+      );
+      window.close.mockClear();
+      typeValue('beta4');
+
+      const closing = popup.handleWindowBlur();
+      await Promise.resolve();
+      expect(window.close).not.toHaveBeenCalled();
+
+      resolveWrite();
+      await closing;
+      expect(window.close).toHaveBeenCalled();
+    });
+
+    test('pagehide flushes a pending edit (popup closed via Esc or toolbar icon)', () => {
+      chrome.storage.local.set.mockClear();
+      typeValue('beta4');
+
+      window.dispatchEvent(new Event('pagehide'));
+
+      const saved = chrome.storage.local.set.mock.calls.at(-1)[0].headerEditorData;
+      expect(saved.profiles[popup.currentProfile].requestHeaders[0].value).toBe('beta4');
+    });
+
+    test('typed profile name persists without blur', async () => {
+      chrome.storage.local.set.mockClear();
+      const input = document.getElementById('profile-name-input');
+      input.value = 'Staging';
+      input.dispatchEvent(new Event('input'));
+
+      await popup.flushSave();
+
+      const saved = chrome.storage.local.set.mock.calls.at(-1)[0].headerEditorData;
+      expect(saved.profiles[popup.currentProfile].name).toBe('Staging');
+    });
+
+    test('typed profile description persists without blur', async () => {
+      chrome.storage.local.set.mockClear();
+      const input = document.getElementById('description-input');
+      input.value = 'API v4 sandbox';
+      input.dispatchEvent(new Event('input'));
+
+      await popup.flushSave();
+
+      const saved = chrome.storage.local.set.mock.calls.at(-1)[0].headerEditorData;
+      expect(saved.profiles[popup.currentProfile].description).toBe('API v4 sandbox');
+    });
+
+    test('emptying the name does not overwrite state (restored on blur)', async () => {
+      const original = popup.profiles[popup.currentProfile].name;
+      const input = document.getElementById('profile-name-input');
+      input.value = '';
+      input.dispatchEvent(new Event('input'));
+
+      await popup.flushSave();
+      expect(popup.profiles[popup.currentProfile].name).toBe(original);
+    });
+
+    test('typing the name does not re-render circles on every keystroke', () => {
+      const spy = vi.spyOn(popup, 'renderProfileCircles');
+      const input = document.getElementById('profile-name-input');
+      input.value = 'Sta';
+      input.dispatchEvent(new Event('input'));
+
+      expect(spy).not.toHaveBeenCalled();
+      spy.mockRestore();
+    });
+
+    test('blur on the value input persists immediately', async () => {
+      chrome.storage.local.set.mockClear();
+      const input = typeValue('beta4');
+
+      input.dispatchEvent(new Event('blur'));
+      await vi.waitFor(() => expect(chrome.storage.local.set).toHaveBeenCalled());
+
+      const saved = chrome.storage.local.set.mock.calls.at(-1)[0].headerEditorData;
+      expect(saved.profiles[popup.currentProfile].requestHeaders[0].value).toBe('beta4');
     });
   });
 

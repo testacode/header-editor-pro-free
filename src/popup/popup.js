@@ -8,6 +8,11 @@ import { UpdateNotificationsManager } from './update-notifications.js';
 import { ColorPickerManager } from './color-picker.js';
 import { FiltersManager } from './filters.js';
 
+// Typing only mutated memory and the write happened on blur, so closing the popup
+// could tear down the page before the storage write reached the browser process —
+// the edit was silently lost. Persist while typing, and drain before any close.
+const SAVE_DEBOUNCE_MS = 250;
+
 export class HeaderEditorPopup {
   constructor() {
     this.currentProfile = 'default';
@@ -19,6 +24,9 @@ export class HeaderEditorPopup {
     this.isDraggingHeader = false;
     this.infoLinksSetup = false;
     this.profileCounter = 1;
+    this.saveTimer = null;
+    this.savePending = false;
+    this.saveInFlight = null;
     this.importExport = new ImportExportManager(this);
     this.updateNotifications = new UpdateNotificationsManager(this);
     this.colorPicker = new ColorPickerManager(this);
@@ -107,7 +115,26 @@ export class HeaderEditorPopup {
       pinned: this.isPinned,
       profileCounter: this.profileCounter,
     };
-    await chrome.storage.local.set({ headerEditorData: data });
+    this.saveInFlight = chrome.storage.local.set({ headerEditorData: data });
+    await this.saveInFlight;
+  }
+
+  // Persist an in-progress edit shortly after the user stops typing.
+  scheduleSave() {
+    this.savePending = true;
+    clearTimeout(this.saveTimer);
+    this.saveTimer = setTimeout(() => this.flushSave(), SAVE_DEBOUNCE_MS);
+  }
+
+  // Write anything still pending and wait for any write already on its way.
+  async flushSave() {
+    clearTimeout(this.saveTimer);
+    this.saveTimer = null;
+    if (this.savePending) {
+      this.savePending = false;
+      await this.saveData();
+    }
+    await this.saveInFlight;
   }
 
   setupEventListeners() {
@@ -150,6 +177,10 @@ export class HeaderEditorPopup {
       this.updateProfileName(e.target.value);
     });
 
+    document.getElementById('profile-name-input').addEventListener('input', e => {
+      this.stageProfileEdit('name', e.target.value);
+    });
+
     document.getElementById('profile-name-input').addEventListener('keypress', e => {
       if (e.key === 'Enter') {
         e.target.blur();
@@ -159,6 +190,10 @@ export class HeaderEditorPopup {
     // Profile description inline editing
     document.getElementById('description-input').addEventListener('blur', e => {
       this.updateProfileDescription(e.target.value);
+    });
+
+    document.getElementById('description-input').addEventListener('input', e => {
+      this.stageProfileEdit('description', e.target.value);
     });
 
     document.getElementById('description-input').addEventListener('keypress', e => {
@@ -246,6 +281,12 @@ export class HeaderEditorPopup {
     // Close popup when clicking outside (blur event)
     window.addEventListener('blur', () => {
       this.handleWindowBlur();
+    });
+
+    // Last chance to persist when the popup is closed by the browser instead of
+    // by us (Esc, clicking the toolbar icon) — no blur handler runs there.
+    window.addEventListener('pagehide', () => {
+      this.flushSave();
     });
 
     // Profile management
@@ -384,7 +425,7 @@ export class HeaderEditorPopup {
       this.updateHeader(type, index, 'name', e.target.value);
     });
     nameInput.addEventListener('blur', () => {
-      this.saveData();
+      this.flushSave();
     });
 
     // Header value input
@@ -397,7 +438,7 @@ export class HeaderEditorPopup {
       this.updateHeader(type, index, 'value', e.target.value);
     });
     valueInput.addEventListener('blur', () => {
-      this.saveData();
+      this.flushSave();
     });
 
     // Append-mode toggle (append instead of set for multi-value headers)
@@ -540,6 +581,8 @@ export class HeaderEditorPopup {
       headers[index][field] = value;
       if (field === 'enabled') {
         await this.saveData(); // Save immediately for enable/disable
+      } else {
+        this.scheduleSave(); // Typed edits: persist without waiting for blur
       }
     }
   }
@@ -729,6 +772,17 @@ export class HeaderEditorPopup {
     this.renderUI();
   }
 
+  // Keep a typed name/description alive without the blur-only side effects
+  // (re-rendering circles, hiding an emptied description) firing per keystroke.
+  stageProfileEdit(field, value) {
+    const trimmed = value.trim();
+    if (field === 'name' && !trimmed) {
+      return; // an emptied name is restored from state on blur
+    }
+    this.profiles[this.currentProfile][field] = trimmed;
+    this.scheduleSave();
+  }
+
   async updateProfileName(newName) {
     if (newName && newName.trim()) {
       this.profiles[this.currentProfile].name = newName.trim();
@@ -807,9 +861,13 @@ export class HeaderEditorPopup {
   // Only close if not pinned, no modal is open, and no drag in progress
   // (on Linux, starting an HTML5 drag blurs the popup window — closing
   // here would abort every reorder attempt)
-  handleWindowBlur() {
+  async handleWindowBlur() {
     const modalOverlay = document.getElementById('modal-overlay');
     const dropdown = document.getElementById('profile-dropdown');
+
+    // Never close over an unfinished write — the popup dying mid-write is how
+    // typed header values used to disappear.
+    await this.flushSave();
 
     if (
       !this.isPinned &&
