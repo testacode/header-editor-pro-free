@@ -902,7 +902,7 @@ describe('HeaderEditorBackground', () => {
         expect.objectContaining({
           pinned: false,
           profiles: expect.objectContaining({
-            default: expect.objectContaining({ description: 'Click to edit description' }),
+            default: expect.objectContaining({ description: '' }),
           }),
         }),
         expect.any(Array)

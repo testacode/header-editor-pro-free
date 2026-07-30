@@ -2,6 +2,7 @@ import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { HeaderEditorPopup } from '../popup.js';
+import { LEGACY_PLACEHOLDER_DESCRIPTION } from '../default-data.js';
 import { hexToHsl, hslToHex } from '../color-utils.js';
 
 const popupHtml = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
@@ -895,16 +896,25 @@ describe('HeaderEditorPopup', () => {
       expect(popup.profiles.test.description).toBe('');
     });
 
-    test('default profile with no description gets placeholder', () => {
+    test('profile with no description gets an empty one', () => {
       popup.profiles = { default: { name: 'Default' } };
       popup.migrateProfileFormat();
-      expect(popup.profiles.default.description).toBe('Click to edit description');
+      expect(popup.profiles.default.description).toBe('');
     });
 
-    test('default profile with empty string description gets placeholder', () => {
-      popup.profiles = { default: { name: 'Default', description: '' } };
+    test('the legacy placeholder literal is retired to an empty description', () => {
+      // What builds <=2.5.3 wrote into storage.
+      popup.profiles = {
+        default: { name: 'Default', description: LEGACY_PLACEHOLDER_DESCRIPTION },
+      };
       popup.migrateProfileFormat();
-      expect(popup.profiles.default.description).toBe('Click to edit description');
+      expect(popup.profiles.default.description).toBe('');
+    });
+
+    test('the legacy literal is retired for non-default profiles too', () => {
+      popup.profiles = { other: { name: 'Other', description: LEGACY_PLACEHOLDER_DESCRIPTION } };
+      popup.migrateProfileFormat();
+      expect(popup.profiles.other.description).toBe('');
     });
 
     test('existing non-empty description is preserved', () => {
@@ -990,9 +1000,10 @@ describe('HeaderEditorPopup', () => {
       expect(chrome.storage.local.set).toHaveBeenCalled();
     });
 
-    test('empty description hides the description div', async () => {
+    test('the description row stays visible when emptied (placeholder is the hint)', async () => {
       await popup.updateProfileDescription('');
-      expect(document.getElementById('profile-description').style.display).toBe('none');
+      popup.updateToolbar();
+      expect(document.getElementById('profile-description').style.display).toBe('block');
     });
   });
 

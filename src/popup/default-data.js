@@ -12,10 +12,15 @@ export function defaultFilters() {
   };
 }
 
+// Builds up to 2.5.3 stored this literal as a stand-in for "no description",
+// then compared against it to decide what to render. Frozen so migrations can
+// still recognise it in existing storage: never translate it, never edit it.
+export const LEGACY_PLACEHOLDER_DESCRIPTION = 'Click to edit description';
+
 export function defaultProfile() {
   return {
     name: 'Default',
-    description: 'Click to edit description',
+    description: '',
     requestHeaders: [],
     responseHeaders: [],
     backgroundColor: '#4caf50',

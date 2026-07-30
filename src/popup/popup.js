@@ -2,7 +2,11 @@
 import './popup.css';
 
 import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normalize.js';
-import { defaultHeaderEditorData, defaultFilters } from './default-data.js';
+import {
+  defaultHeaderEditorData,
+  defaultFilters,
+  LEGACY_PLACEHOLDER_DESCRIPTION,
+} from './default-data.js';
 import { ImportExportManager } from './import-export.js';
 import { UpdateNotificationsManager } from './update-notifications.js';
 import { ColorPickerManager } from './color-picker.js';
@@ -91,13 +95,14 @@ export class HeaderEditorPopup {
   }
 
   migrateProfileFormat() {
-    Object.entries(this.profiles).forEach(([key, profile]) => {
-      if (profile.description === undefined) {
-        // Give default profile and others a placeholder description
-        profile.description = key === 'default' ? 'Click to edit description' : '';
-      } else if (key === 'default' && profile.description === '') {
-        // Update existing empty default profile description
-        profile.description = 'Click to edit description';
+    Object.values(this.profiles).forEach(profile => {
+      // "No description" is now simply an empty string — the hint lives in the
+      // input's placeholder. Retire the literal older builds stored as data.
+      if (
+        profile.description === undefined ||
+        profile.description === LEGACY_PLACEHOLDER_DESCRIPTION
+      ) {
+        profile.description = '';
       }
 
       if (!profile.filters) {
@@ -200,11 +205,6 @@ export class HeaderEditorPopup {
       if (e.key === 'Enter') {
         e.target.blur();
       }
-    });
-
-    // Show description input when clicking if it's hidden
-    document.getElementById('description-input').addEventListener('focus', () => {
-      document.getElementById('profile-description').style.display = 'block';
     });
 
     // Dropdown menu functionality
@@ -345,11 +345,7 @@ export class HeaderEditorPopup {
 
       // Use description as tooltip if available, otherwise just the name
       let tooltip = profile.name;
-      if (
-        profile.description &&
-        profile.description.trim() &&
-        profile.description !== 'Click to edit description'
-      ) {
+      if (profile.description && profile.description.trim()) {
         tooltip = `${profile.name}\n${profile.description}`;
       }
       circleDiv.title = tooltip;
@@ -508,14 +504,10 @@ export class HeaderEditorPopup {
     const descriptionDiv = document.getElementById('profile-description');
     const descriptionInput = document.getElementById('description-input');
 
-    // Always show description input, but adjust visibility based on content
+    // Always visible: an empty description shows the input's placeholder as the
+    // hint, so the row no longer appears and disappears as you type.
     descriptionInput.value = currentProfile?.description || '';
-    if (currentProfile?.description && currentProfile.description !== 'Click to edit description') {
-      descriptionDiv.style.display = 'block';
-    } else {
-      // Show for new profiles with placeholder, hide for profiles without description
-      descriptionDiv.style.display = currentProfile?.description ? 'block' : 'none';
-    }
+    descriptionDiv.style.display = 'block';
 
     // Update pause button
     const pauseBtn = document.getElementById('pause-btn');
@@ -676,7 +668,7 @@ export class HeaderEditorPopup {
     const key = `profile_${Date.now()}`;
     this.profiles[key] = {
       name: `Profile ${this.profileCounter}`,
-      description: 'Click to edit description',
+      description: '',
       requestHeaders: [],
       responseHeaders: [],
       backgroundColor: '#4caf50',
@@ -803,12 +795,6 @@ export class HeaderEditorPopup {
   async updateProfileDescription(newDescription) {
     this.profiles[this.currentProfile].description = newDescription.trim();
     await this.saveData();
-
-    // Hide description div if empty
-    const descriptionDiv = document.getElementById('profile-description');
-    if (!newDescription.trim()) {
-      descriptionDiv.style.display = 'none';
-    }
   }
 
   toggleDropdown() {
