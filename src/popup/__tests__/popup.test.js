@@ -566,8 +566,8 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
-  describe('convertToModHeaderFormat', () => {
-    test('converts requestHeaders to ModHeader array format', () => {
+  describe('toFlatHeaderExport', () => {
+    test('converts requestHeaders to the flat array format', () => {
       const profile = {
         requestHeaders: [
           { name: 'X-A', value: 'a', enabled: true },
@@ -575,7 +575,7 @@ describe('HeaderEditorPopup', () => {
           { name: '', value: 'skipped', enabled: true }, // empty name filtered
         ],
       };
-      const result = popup.importExport.convertToModHeaderFormat(profile);
+      const result = popup.importExport.toFlatHeaderExport(profile);
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({ appendMode: false, enabled: true, name: 'X-A', value: 'a' });
@@ -583,7 +583,7 @@ describe('HeaderEditorPopup', () => {
     });
 
     test('profile with no requestHeaders returns empty array', () => {
-      const result = popup.importExport.convertToModHeaderFormat({});
+      const result = popup.importExport.toFlatHeaderExport({});
       expect(result).toEqual([]);
     });
   });
@@ -683,10 +683,10 @@ describe('HeaderEditorPopup', () => {
   });
 
   describe('replaceCurrentProfile (plan 032)', () => {
-    test('rejects ModHeader profile exports with error', async () => {
-      const modHeaderExport = [
+    test('rejects profile-list exports with error', async () => {
+      const profileListExport = [
         {
-          title: 'ModHeaderProfile',
+          title: 'Imported Profile',
           headers: [{ name: 'X-Test', value: 'v', enabled: true }],
         },
       ];
@@ -694,9 +694,9 @@ describe('HeaderEditorPopup', () => {
       // Store initial headers
       const initialHeaders = popup.profiles[popup.currentProfile].requestHeaders;
 
-      // Attempt to replace with ModHeader export should throw
-      await expect(popup.importExport.replaceCurrentProfile(modHeaderExport)).rejects.toThrow(
-        'This is a ModHeader profile export'
+      // Attempt to replace with a profile list should throw
+      await expect(popup.importExport.replaceCurrentProfile(profileListExport)).rejects.toThrow(
+        'This file holds a list of profiles'
       );
 
       // Verify the current profile's requestHeaders are unchanged
@@ -858,7 +858,7 @@ describe('HeaderEditorPopup', () => {
       expect(toggle.classList.contains('active')).toBe(true);
     });
 
-    test('ModHeader import preserves appendMode:true (no silent degrade)', async () => {
+    test('Profile-list import preserves appendMode:true (no silent degrade)', async () => {
       const withAppend = [
         {
           title: 'Append Profile',
@@ -1712,8 +1712,8 @@ describe('HeaderEditorPopup', () => {
     });
   });
 
-  describe('ModHeader profile import (plan 008)', () => {
-    const modHeaderFixture = [
+  describe('profile list import (plan 008)', () => {
+    const profileListFixture = [
       {
         title: 'Dev Profile',
         shortTitle: 'D',
@@ -1737,31 +1737,29 @@ describe('HeaderEditorPopup', () => {
       },
     ];
 
-    test('isModHeaderProfileExport: true for fixture', () => {
-      expect(popup.importExport.isModHeaderProfileExport(modHeaderFixture)).toBe(true);
+    test('isProfileListExport: true for fixture', () => {
+      expect(popup.importExport.isProfileListExport(profileListFixture)).toBe(true);
     });
 
-    test('isModHeaderProfileExport: false for empty array', () => {
-      expect(popup.importExport.isModHeaderProfileExport([])).toBe(false);
+    test('isProfileListExport: false for empty array', () => {
+      expect(popup.importExport.isProfileListExport([])).toBe(false);
     });
 
-    test('isModHeaderProfileExport: false for plain headers array', () => {
-      expect(popup.importExport.isModHeaderProfileExport([{ name: 'X-Test', value: 'v' }])).toBe(
-        false
-      );
+    test('isProfileListExport: false for plain headers array', () => {
+      expect(popup.importExport.isProfileListExport([{ name: 'X-Test', value: 'v' }])).toBe(false);
     });
 
-    test('isModHeaderProfileExport: false for profiles object', () => {
-      expect(popup.importExport.isModHeaderProfileExport({ profiles: {} })).toBe(false);
+    test('isProfileListExport: false for profiles object', () => {
+      expect(popup.importExport.isProfileListExport({ profiles: {} })).toBe(false);
     });
 
-    test('isModHeaderProfileExport: false for null', () => {
-      expect(popup.importExport.isModHeaderProfileExport(null)).toBe(false);
+    test('isProfileListExport: false for null', () => {
+      expect(popup.importExport.isProfileListExport(null)).toBe(false);
     });
 
-    test('imports 2 ModHeader profiles, names from title, currentProfile = first', async () => {
+    test('imports 2 profiles from a list, names from title, currentProfile = first', async () => {
       const profilesBefore = Object.keys(popup.profiles);
-      await popup.importExport.importProfileFromData(modHeaderFixture);
+      await popup.importExport.importProfileFromData(profileListFixture);
 
       const allKeys = Object.keys(popup.profiles);
       const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
@@ -1776,7 +1774,7 @@ describe('HeaderEditorPopup', () => {
 
     test('headers are normalized correctly (enabled:false preserved)', async () => {
       const profilesBefore = Object.keys(popup.profiles);
-      await popup.importExport.importProfileFromData(modHeaderFixture);
+      await popup.importExport.importProfileFromData(profileListFixture);
 
       const allKeys = Object.keys(popup.profiles);
       const importedKeys = allKeys.filter(k => !profilesBefore.includes(k));
@@ -1859,7 +1857,7 @@ describe('HeaderEditorPopup', () => {
       const profilesBefore = Object.keys(popup.profiles).length;
       await popup.importExport.importProfileFromData(plainHeaders);
       expect(Object.keys(popup.profiles).length).toBe(profilesBefore + 1);
-      // plain import uses createProfileFromHeaders (no ModHeader description)
+      // plain import uses createProfileFromHeaders (no imported-profile description)
       expect(popup.profiles[popup.currentProfile].description).toBe(
         'Imported from JSON - click to edit'
       );

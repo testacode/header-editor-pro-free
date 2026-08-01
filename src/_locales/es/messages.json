@@ -231,8 +231,8 @@
   "errInvalidJsonFormat": {
     "message": "Formato JSON no válido. Se esperaba un array de cabeceras o un objeto de perfiles."
   },
-  "errModHeaderExport": {
-    "message": "Esto es una exportación de perfil de ModHeader. Impórtala con «Crear perfil nuevo»."
+  "errProfileListImport": {
+    "message": "Este archivo contiene una lista de perfiles. Impórtala con «Crear perfil nuevo»."
   },
   "errCannotReplaceMultiple": {
     "message": "No se puede reemplazar el perfil actual por varios perfiles. Usa «Crear perfil nuevo»."
@@ -252,14 +252,14 @@
   "importSuccess": {
     "message": "Importado correctamente al perfil «$1»"
   },
-  "importModHeaderUrlFilters": {
-    "message": "Los filtros de URL de ModHeader no se convirtieron. Perfiles afectados: $1. Vuelve a crearlos con los filtros por dominio de esta extensión si los necesitas."
+  "importUrlFiltersSkipped": {
+    "message": "Los filtros de URL no se convirtieron. Perfiles afectados: $1. Vuelve a crearlos con los filtros por dominio de esta extensión si los necesitas."
   },
   "importedProfileName": {
     "message": "Perfil importado $1"
   },
-  "importedFromModHeader": {
-    "message": "Importado de ModHeader: haz clic para editar"
+  "importedProfileDescription": {
+    "message": "Perfil importado: haz clic para editar"
   },
   "exportFilenameFallback": {
     "message": "profile"

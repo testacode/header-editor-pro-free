@@ -231,8 +231,8 @@
   "errInvalidJsonFormat": {
     "message": "JSON 格式无效。应为请求头数组或配置对象。"
   },
-  "errModHeaderExport": {
-    "message": "这是 ModHeader 的配置导出文件。请使用“新建配置”方式导入。"
+  "errProfileListImport": {
+    "message": "该文件包含一组配置。请使用“新建配置”方式导入。"
   },
   "errCannotReplaceMultiple": {
     "message": "无法用多个配置替换当前配置。请改用“新建配置”方式。"
@@ -252,14 +252,14 @@
   "importSuccess": {
     "message": "已成功导入到配置“$1”"
   },
-  "importModHeaderUrlFilters": {
-    "message": "ModHeader 的 URL 过滤条件未被转换。受影响的配置数：$1。如有需要，请使用本扩展的域名过滤重新设置。"
+  "importUrlFiltersSkipped": {
+    "message": "URL 过滤条件未被转换。受影响的配置数：$1。如有需要，请使用本扩展的域名过滤重新设置。"
   },
   "importedProfileName": {
     "message": "导入的配置 $1"
   },
-  "importedFromModHeader": {
-    "message": "从 ModHeader 导入 - 点击编辑"
+  "importedProfileDescription": {
+    "message": "导入的配置 - 点击编辑"
   },
   "exportFilenameFallback": {
     "message": "profile"

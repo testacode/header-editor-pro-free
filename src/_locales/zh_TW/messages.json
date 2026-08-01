@@ -231,8 +231,8 @@
   "errInvalidJsonFormat": {
     "message": "JSON 格式無效。應為標頭陣列或設定檔物件。"
   },
-  "errModHeaderExport": {
-    "message": "這是 ModHeader 的設定檔匯出。請使用「建立新設定檔」方式匯入。"
+  "errProfileListImport": {
+    "message": "這個檔案包含一組設定檔。請使用「建立新設定檔」方式匯入。"
   },
   "errCannotReplaceMultiple": {
     "message": "無法用多個設定檔取代目前設定檔。請改用「建立新設定檔」方式。"
@@ -252,14 +252,14 @@
   "importSuccess": {
     "message": "已成功匯入設定檔「$1」"
   },
-  "importModHeaderUrlFilters": {
-    "message": "ModHeader 的網址篩選條件未被轉換。受影響的設定檔數：$1。如有需要，請使用本擴充功能的網域篩選重新建立。"
+  "importUrlFiltersSkipped": {
+    "message": "網址篩選條件未被轉換。受影響的設定檔數：$1。如有需要，請使用本擴充功能的網域篩選重新建立。"
   },
   "importedProfileName": {
     "message": "匯入的設定檔 $1"
   },
-  "importedFromModHeader": {
-    "message": "從 ModHeader 匯入 - 點擊編輯"
+  "importedProfileDescription": {
+    "message": "匯入的設定檔 - 點擊編輯"
   },
   "exportFilenameFallback": {
     "message": "profile"

@@ -1,25 +1,21 @@
 {
   "meta.title": "Header Editor Pro - HTTP 헤더를 수정하는 무료 크롬 확장 프로그램",
-  "meta.description": "HTTP 요청·응답 헤더를 수정하는 무료 크롬 확장 프로그램. 무제한 프로필, 7개 언어, 실시간 편집, 데이터 수집 없음. 개발자를 위한 최고의 ModHeader 대안.",
+  "meta.description": "HTTP 요청·응답 헤더를 수정하는 무료 크롬 확장 프로그램. 무제한 프로필, 7개 언어, 실시간 편집, 데이터 수집 없음. 오픈 소스이며 언제나 무료입니다.",
   "meta.ogTitle": "Header Editor Pro - 무료 HTTP 헤더 편집기",
-  "meta.ogDescription": "크롬에서 HTTP 헤더를 무료로 수정하세요. 무제한 프로필, 7개 언어, API 테스트, CORS 디버깅. 최고의 ModHeader 대안.",
+  "meta.ogDescription": "크롬에서 HTTP 헤더를 무료로 수정하세요. 무제한 프로필, 7개 언어, API 테스트, CORS 디버깅. 오픈 소스, 추적 없음.",
   "meta.twitterTitle": "Header Editor Pro - Free",
   "meta.twitterDescription": "HTTP 헤더를 수정하는 무료 크롬 확장 프로그램. 무제한 프로필, 추적 없음.",
   "meta.schemaDescription": "크롬과 파이어폭스를 위한 전문 HTTP 헤더 편집기. 무제한 프로필, 실시간 편집, 데이터 수집 없이 요청·응답 헤더를 수정하세요.",
-
   "hero.tagline": "크롬과 파이어폭스를 위한 전문 HTTP 헤더 편집기 — 영원히 무료",
   "hero.install": "크롬 웹 스토어에서 설치",
   "hero.donate": "☕ 커피 한 잔 사주기",
-
   "sticky.text": "무료이고, 유지보수에 대한 대가를 받지 않습니다.",
   "sticky.cta": "후원하기",
   "sticky.close": "닫기",
-
   "nav.howItWorks": "사용 방법",
   "nav.features": "기능",
   "nav.privacy": "개인정보 처리방침",
   "nav.github": "GitHub",
-
   "how.title": "사용 방법",
   "how.step1.title": "1. 설치하고 열기",
   "how.step1.body": "크롬에 확장 프로그램을 추가하고 툴바의 아이콘을 클릭하세요. 왼쪽에 프로필 원이 배치된 세련된 다크 인터페이스가 열립니다.",
@@ -29,7 +25,6 @@
   "how.step3.body": "\"헤더 추가\" 버튼으로 원하는 HTTP 헤더를 만드세요. 헤더마다 체크박스가 있어 개별로 켜고 끌 수 있습니다.",
   "how.step4.title": "4. 즉시 적용",
   "how.step4.body": "헤더가 실시간으로 적용됩니다! 번호가 매겨진 원을 클릭해 프로필을 전환하고, 일시정지 버튼으로 잠시 꺼둘 수도 있습니다.",
-
   "scenarios.title": "이런 상황에 딱 맞습니다:",
   "scenarios.api.title": "API 테스트",
   "scenarios.api.body": "<code>Authorization: Bearer token123</code> 을 추가해 인증이 필요한 엔드포인트를 테스트",
@@ -39,7 +34,6 @@
   "scenarios.env.body": "<code>X-Environment: staging</code> 을 설정해 다른 백엔드를 대상으로 테스트",
   "scenarios.ua.title": "User Agent 변경",
   "scenarios.ua.body": "<code>User-Agent</code> 를 바꿔 모바일과 데스크톱 응답을 비교",
-
   "features.title": "주요 기능",
   "features.free.title": "100% 영원히 무료",
   "features.free.body": "구독도, 프리미엄 등급도, 기능 제한도 없습니다. 월 5~15달러를 받는 경쟁 제품과 달리 모든 것이 완전히 무료입니다.",
@@ -58,10 +52,9 @@
   "features.pause.title": "일시정지 기능",
   "features.pause.body": "설정을 잃지 않고 모든 헤더를 잠시 꺼둘 수 있습니다. 결과를 빠르게 비교할 때 유용합니다.",
   "features.importExport.title": "가져오기 및 내보내기",
-  "features.importExport.body": "클릭 한 번으로 프로필을 JSON 파일로 백업하거나 공유하고, 설정을 가져올 수 있습니다. ModHeader에서 내보낸 프로필도 지원합니다.",
+  "features.importExport.body": "클릭 한 번으로 프로필을 JSON 파일로 백업하거나 공유하고, 설정을 가져올 수 있습니다. 다른 헤더 편집기에서 내보낸 프로필 목록도 지원합니다.",
   "features.privacy.title": "개인정보 우선",
   "features.privacy.body": "데이터 수집도 추적도 전혀 없습니다. 모든 설정은 사용자의 기기에만 저장됩니다.",
-
   "support.title": "무료이고, 아무도 돈을 주지 않습니다",
   "support.body": "이 확장 프로그램은 무료이며, 유지보수에도 새 기능 개발에도 저에게 돈을 주는 사람은 없습니다. 틈나는 시간에 조금씩 나아지고 있습니다.",
   "support.issues": "고쳤으면 하는 게 있나요? 이슈를 남겨주시면 함께 살펴보겠습니다. 이것도 무료이고, 가장 확실한 방법입니다.",
@@ -70,7 +63,6 @@
   "support.coffee": "커피 사주기",
   "support.sponsors": "GitHub에서 후원하기",
   "support.footer": "어느 쪽이든, 모두에게 계속 무료입니다.",
-
   "privacySummary.title": "개인정보 보호 및 보안",
   "privacySummary.noCollection.title": "데이터 수집 전혀 없음",
   "privacySummary.noCollection.body": "어떤 개인정보도 수집, 추적, 저장하지 않습니다. 분석 도구도, 원격 측정도, 사용자 데이터도 없습니다.",
@@ -79,10 +71,8 @@
   "privacySummary.openSource.title": "오픈 소스",
   "privacySummary.openSource.body": "완전한 투명성 - GitHub에서 코드를 직접 확인해 개인정보 관련 설명을 검증하세요.",
   "privacySummary.readFull": "개인정보 처리방침 전문 보기",
-
   "footer.madeWith": "개발자 커뮤니티를 위해 ❤️ 로 만들었습니다",
   "footer.viewGithub": "GitHub에서 보기",
-
   "privacy.meta.title": "개인정보 처리방침 - Header Editor Pro Free 크롬 확장 프로그램",
   "privacy.meta.description": "Header Editor Pro - Free의 개인정보 처리방침. 데이터 수집 없음, 모든 설정은 로컬에 저장됩니다. 사용자의 개인정보가 최우선입니다.",
   "privacy.meta.ogTitle": "개인정보 처리방침 - Header Editor Pro Free",
@@ -114,7 +104,6 @@
   "privacy.contact.title": "문의",
   "privacy.contact.body": "본 개인정보 처리방침이나 확장 프로그램의 데이터 처리 방식에 관해 궁금한 점이 있으면 GitHub의 지원 채널로 문의해 주세요.",
   "privacy.lastUpdated": "최종 업데이트: 2026년 7월 30일",
-
   "notFound.meta.title": "페이지를 찾을 수 없습니다 - Header Editor Pro Free",
   "notFound.title": "페이지를 찾을 수 없습니다",
   "notFound.body": "찾으시는 페이지가 존재하지 않거나 이동되었습니다.",

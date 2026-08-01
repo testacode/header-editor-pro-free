@@ -24,7 +24,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - **Copy Header to Profile**: Per-row 📋 button (shown when >1 profile) opens a dropdown to append the header (full header: name, value, enabled state, append mode) to another profile's same section, with toast confirmation
 - **Profile Filters**: Per-profile scoping by domains (cross-browser, requestDomains/initiatorDomains OR'd via two DNR rules) and by Chrome tab group (session rules with tabIds + tab tracking; ignored on Firefox). Tab-group-scoped profiles apply CONCURRENTLY with the selected profile (priority 2 vs 1 on conflicts); the toolbar badge shows the governing profile's initial+color per tab
 - **Internationalization**: 7 languages with an in-popup selector (🌐 in the toolbar) that switches without reloading. Preference in `chrome.storage.local.uiLocale`; absent = follow the browser. Strings live in `src/_locales/`, never hardcoded — see `docs/i18n.md`
-- **Professional UI**: Dark theme matching original ModHeader with left sidebar navigation
+- **Professional UI**: Dark theme with left sidebar navigation
 - **Pause Functionality**: Global pause/resume without losing configurations
 - **Pin Functionality**: Toggle button to disable/enable auto-close on outside click
 - **Real-time Updates**: Instant header rule application through background service worker

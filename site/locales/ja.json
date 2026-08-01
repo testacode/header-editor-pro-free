@@ -1,25 +1,21 @@
 {
   "meta.title": "Header Editor Pro - HTTPヘッダーを書き換える無料Chrome拡張機能",
-  "meta.description": "HTTPリクエスト・レスポンスヘッダーを書き換える無料のChrome拡張機能。プロファイル無制限、7言語対応、リアルタイム編集、データ収集は一切なし。開発者向けModHeader代替として最適。",
+  "meta.description": "HTTPリクエスト・レスポンスヘッダーを書き換える無料のChrome拡張機能。プロファイル無制限、7言語対応、リアルタイム編集、データ収集は一切なし。オープンソースでずっと無料。",
   "meta.ogTitle": "Header Editor Pro - 無料のHTTPヘッダーエディタ",
-  "meta.ogDescription": "ChromeでHTTPヘッダーを無料で書き換え。プロファイル無制限、7言語対応、APIテスト、CORSデバッグ。ModHeaderの最良の代替。",
+  "meta.ogDescription": "ChromeでHTTPヘッダーを無料で書き換え。プロファイル無制限、7言語対応、APIテスト、CORSデバッグ。オープンソース、トラッキングなし。",
   "meta.twitterTitle": "Header Editor Pro - Free",
   "meta.twitterDescription": "HTTPヘッダーを書き換える無料のChrome拡張機能。プロファイル無制限、トラッキングなし。",
   "meta.schemaDescription": "ChromeとFirefox向けの本格的なHTTPヘッダーエディタ。プロファイル無制限、リアルタイム編集、データ収集なしでリクエスト・レスポンスヘッダーを書き換えられます。",
-
   "hero.tagline": "ChromeとFirefox向けの本格的なHTTPヘッダーエディタ — ずっと無料",
   "hero.install": "Chrome ウェブストアからインストール",
   "hero.donate": "☕ コーヒーをおごる",
-
   "sticky.text": "無料です。誰からも報酬はもらっていません。",
   "sticky.cta": "支援する",
   "sticky.close": "閉じる",
-
   "nav.howItWorks": "使い方",
   "nav.features": "機能",
   "nav.privacy": "プライバシーポリシー",
   "nav.github": "GitHub",
-
   "how.title": "使い方",
   "how.step1.title": "1. インストールして開く",
   "how.step1.body": "Chromeに拡張機能を追加し、ツールバーのアイコンをクリックします。左側にプロファイルの丸が並ぶ、洗練されたダークテーマの画面が開きます。",
@@ -29,7 +25,6 @@
   "how.step3.body": "「ヘッダーを追加」ボタンから独自のHTTPヘッダーを作成できます。各ヘッダーにはチェックボックスがあり、個別に有効・無効を切り替えられます。",
   "how.step4.title": "4. すぐに反映",
   "how.step4.body": "ヘッダーはリアルタイムで適用されます。番号付きの丸をクリックすればプロファイルを切り替え可能。一時停止ボタンでまとめて無効にもできます。",
-
   "scenarios.title": "こんな場面にぴったり:",
   "scenarios.api.title": "APIテスト",
   "scenarios.api.body": "<code>Authorization: Bearer token123</code> を追加して認証付きエンドポイントを検証",
@@ -39,7 +34,6 @@
   "scenarios.env.body": "<code>X-Environment: staging</code> を設定して別のバックエンドに対して検証",
   "scenarios.ua.title": "User Agentの偽装",
   "scenarios.ua.body": "<code>User-Agent</code> を変更してモバイルとデスクトップの応答を比較",
-
   "features.title": "主な機能",
   "features.free.title": "完全無料、ずっと",
   "features.free.body": "サブスクリプションも、プレミアムプランも、機能制限もありません。月5〜15ドルを請求する競合とは違い、すべて完全に無料です。",
@@ -58,10 +52,9 @@
   "features.pause.title": "一時停止機能",
   "features.pause.body": "設定を失うことなく、すべてのヘッダーを一時的に無効にできます。動作の違いをさっと比べたいときに便利です。",
   "features.importExport.title": "インポートとエクスポート",
-  "features.importExport.body": "ワンクリックでプロファイルをJSONファイルとしてバックアップ・共有でき、設定の読み込みも可能です。ModHeaderから書き出したプロファイルにも対応しています。",
+  "features.importExport.body": "ワンクリックでプロファイルをJSONファイルとしてバックアップ・共有でき、設定の読み込みも可能です。他のヘッダーエディタから書き出したプロファイル一覧にも対応しています。",
   "features.privacy.title": "プライバシー第一",
   "features.privacy.body": "データ収集もトラッキングも一切なし。すべての設定はお使いの端末内にのみ保存されます。",
-
   "support.title": "無料です。誰からもお金はもらっていません",
   "support.body": "この拡張機能は無料で、維持することにも新しい機能を作ることにも、誰からも報酬は出ていません。空いた時間に少しずつ良くしています。",
   "support.issues": "直してほしいところはありますか？Issueを立てていただければ一緒に検討します。こちらも無料で、いちばん確実な方法です。",
@@ -70,7 +63,6 @@
   "support.coffee": "コーヒーをおごる",
   "support.sponsors": "GitHubでスポンサーになる",
   "support.footer": "どちらにしても、みなさんにとって無料のままです。",
-
   "privacySummary.title": "プライバシーとセキュリティ",
   "privacySummary.noCollection.title": "データ収集は一切なし",
   "privacySummary.noCollection.body": "個人情報の収集も、追跡も、保存も行いません。アナリティクスもテレメトリもユーザーデータもありません。",
@@ -79,10 +71,8 @@
   "privacySummary.openSource.title": "オープンソース",
   "privacySummary.openSource.body": "完全な透明性 - GitHubでコードを確認し、プライバシーに関する記述を検証できます。",
   "privacySummary.readFull": "プライバシーポリシー全文を読む",
-
   "footer.madeWith": "開発者コミュニティのために ❤️ を込めて",
   "footer.viewGithub": "GitHubで見る",
-
   "privacy.meta.title": "プライバシーポリシー - Header Editor Pro Free Chrome拡張機能",
   "privacy.meta.description": "Header Editor Pro - Free のプライバシーポリシー。データ収集は一切なく、設定はすべてローカルに保存されます。あなたのプライバシーを最優先します。",
   "privacy.meta.ogTitle": "プライバシーポリシー - Header Editor Pro Free",
@@ -114,7 +104,6 @@
   "privacy.contact.title": "お問い合わせ",
   "privacy.contact.body": "本プライバシーポリシーや拡張機能のデータの取り扱いについてご質問がある場合は、GitHubのサポート窓口からご連絡ください。",
   "privacy.lastUpdated": "最終更新: 2026年7月30日",
-
   "notFound.meta.title": "ページが見つかりません - Header Editor Pro Free",
   "notFound.title": "ページが見つかりません",
   "notFound.body": "お探しのページは存在しないか、移動されました。",

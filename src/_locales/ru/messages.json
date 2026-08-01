@@ -231,8 +231,8 @@
   "errInvalidJsonFormat": {
     "message": "Неверный формат JSON. Ожидается массив заголовков или объект профилей."
   },
-  "errModHeaderExport": {
-    "message": "Это экспорт профиля ModHeader. Импортируйте его через «Создать профиль»."
+  "errProfileListImport": {
+    "message": "В этом файле список профилей. Импортируйте его через «Создать профиль»."
   },
   "errCannotReplaceMultiple": {
     "message": "Нельзя заменить текущий профиль несколькими. Используйте «Создать профиль»."
@@ -252,14 +252,14 @@
   "importSuccess": {
     "message": "Импортировано в профиль «$1»"
   },
-  "importModHeaderUrlFilters": {
-    "message": "URL-фильтры ModHeader не были преобразованы. Затронуто профилей: $1. При необходимости создайте их заново через фильтры по доменам."
+  "importUrlFiltersSkipped": {
+    "message": "URL-фильтры не были преобразованы. Затронуто профилей: $1. При необходимости создайте их заново через фильтры по доменам."
   },
   "importedProfileName": {
     "message": "Импортированный профиль $1"
   },
-  "importedFromModHeader": {
-    "message": "Импортировано из ModHeader — нажмите для изменения"
+  "importedProfileDescription": {
+    "message": "Импортированный профиль — нажмите для изменения"
   },
   "exportFilenameFallback": {
     "message": "profile"

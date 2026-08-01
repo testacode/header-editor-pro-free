@@ -1,25 +1,21 @@
 {
   "meta.title": "Header Editor Pro - Free Chrome Extension for HTTP Header Modification",
-  "meta.description": "Free Chrome extension to modify HTTP request and response headers. Unlimited profiles, 7 languages, real-time editing, zero data collection. Best ModHeader alternative for developers.",
+  "meta.description": "Free Chrome extension to modify HTTP request and response headers. Unlimited profiles, 7 languages, real-time editing, zero data collection. Open source and always free.",
   "meta.ogTitle": "Header Editor Pro - Free HTTP Header Editor",
-  "meta.ogDescription": "Modify HTTP headers in Chrome for free. Unlimited profiles, 7 languages, API testing, CORS debugging. Best ModHeader alternative.",
+  "meta.ogDescription": "Modify HTTP headers in Chrome for free. Unlimited profiles, 7 languages, API testing, CORS debugging. Open source, no tracking.",
   "meta.twitterTitle": "Header Editor Pro - Free",
   "meta.twitterDescription": "Free Chrome extension for HTTP header modification. Unlimited profiles, zero tracking.",
   "meta.schemaDescription": "Professional HTTP header editor for Chrome and Firefox. Modify request and response headers with unlimited profiles, real-time editing, and zero data collection.",
-
   "hero.tagline": "Professional HTTP header editor for Chrome and Firefox — free forever",
   "hero.install": "Install from Chrome Web Store",
   "hero.donate": "☕ Buy me a coffee",
-
   "sticky.text": "Free — and nobody pays me to maintain it.",
   "sticky.cta": "Chip in",
   "sticky.close": "Dismiss",
-
   "nav.howItWorks": "How It Works",
   "nav.features": "Features",
   "nav.privacy": "Privacy Policy",
   "nav.github": "GitHub",
-
   "how.title": "How It Works",
   "how.step1.title": "1. Install & Open",
   "how.step1.body": "Add the extension to Chrome and click the icon in your toolbar. You'll see a professional dark interface with profile circles on the left.",
@@ -29,7 +25,6 @@
   "how.step3.body": "Use the \"Add header\" buttons to create custom HTTP headers. Each header has a checkbox to enable/disable individually.",
   "how.step4.title": "4. Instant Results",
   "how.step4.body": "Headers are applied in real-time! Switch profiles by clicking numbered circles. Use the pause button to temporarily disable.",
-
   "scenarios.title": "Perfect For These Scenarios:",
   "scenarios.api.title": "API Testing",
   "scenarios.api.body": "Add <code>Authorization: Bearer token123</code> for testing authenticated endpoints",
@@ -39,7 +34,6 @@
   "scenarios.env.body": "Set <code>X-Environment: staging</code> to test against different backends",
   "scenarios.ua.title": "User Agent Spoofing",
   "scenarios.ua.body": "Change <code>User-Agent</code> to test mobile vs desktop responses",
-
   "features.title": "Key Features",
   "features.free.title": "100% Free Forever",
   "features.free.body": "No subscriptions, no premium tiers, no feature limitations. Everything is completely free, unlike competitors charging $5-15/month.",
@@ -58,10 +52,9 @@
   "features.pause.title": "Pause Functionality",
   "features.pause.body": "Temporarily disable all headers without losing your configurations. Perfect for quick testing comparisons.",
   "features.importExport.title": "Import & Export",
-  "features.importExport.body": "Back up or share your profiles as a JSON file with one click, and import configurations — including profiles exported from ModHeader.",
+  "features.importExport.body": "Back up or share your profiles as a JSON file with one click, and import configurations — including profile lists exported from other header editors.",
   "features.privacy.title": "Privacy First",
   "features.privacy.body": "Zero data collection, zero tracking. All configurations stored locally on your device only.",
-
   "support.title": "Free, and nobody's paying for it",
   "support.body": "This extension costs nothing, and no one pays me to maintain it or to build new things into it. It gets better in my own time.",
   "support.issues": "Want something improved? Open an issue and let's talk it through — that's free too, and it's the best way in.",
@@ -70,7 +63,6 @@
   "support.coffee": "Buy me a coffee",
   "support.sponsors": "Sponsor on GitHub",
   "support.footer": "Either way, it stays free for everyone.",
-
   "privacySummary.title": "Privacy & Security",
   "privacySummary.noCollection.title": "Zero Data Collection",
   "privacySummary.noCollection.body": "We don't collect, track, or store any personal information. No analytics, no telemetry, no user data.",
@@ -79,10 +71,8 @@
   "privacySummary.openSource.title": "Open Source",
   "privacySummary.openSource.body": "Full transparency - inspect the code on GitHub to verify our privacy claims.",
   "privacySummary.readFull": "Read Full Privacy Policy",
-
   "footer.madeWith": "Made with ❤️ for the developer community",
   "footer.viewGithub": "View on GitHub",
-
   "privacy.meta.title": "Privacy Policy - Header Editor Pro Free Chrome Extension",
   "privacy.meta.description": "Privacy policy for Header Editor Pro - Free. Zero data collection, all configurations stored locally. Your privacy is our priority.",
   "privacy.meta.ogTitle": "Privacy Policy - Header Editor Pro Free",
@@ -114,7 +104,6 @@
   "privacy.contact.title": "Contact",
   "privacy.contact.body": "If you have any questions about this privacy policy or the extension's data practices, please contact us through the extension's support channels on GitHub.",
   "privacy.lastUpdated": "Last updated: July 30, 2026",
-
   "notFound.meta.title": "Page Not Found - Header Editor Pro Free",
   "notFound.title": "Page Not Found",
   "notFound.body": "The page you're looking for doesn't exist or has been moved.",

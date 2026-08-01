@@ -1,25 +1,21 @@
 {
   "meta.title": "Header Editor Pro - Extensión gratis de Chrome para modificar headers HTTP",
-  "meta.description": "Extensión gratuita de Chrome para modificar headers HTTP de request y response. Perfiles ilimitados, 7 idiomas, edición en tiempo real, cero recolección de datos. La mejor alternativa a ModHeader para desarrolladores.",
+  "meta.description": "Extensión gratuita de Chrome para modificar headers HTTP de request y response. Perfiles ilimitados, 7 idiomas, edición en tiempo real, cero recolección de datos. Open source y siempre gratis.",
   "meta.ogTitle": "Header Editor Pro - Editor gratuito de headers HTTP",
-  "meta.ogDescription": "Modificá headers HTTP en Chrome gratis. Perfiles ilimitados, 7 idiomas, testing de APIs, debugging de CORS. La mejor alternativa a ModHeader.",
+  "meta.ogDescription": "Modificá headers HTTP en Chrome gratis. Perfiles ilimitados, 7 idiomas, testing de APIs, debugging de CORS. Open source, sin tracking.",
   "meta.twitterTitle": "Header Editor Pro - Free",
   "meta.twitterDescription": "Extensión gratuita de Chrome para modificar headers HTTP. Perfiles ilimitados, cero tracking.",
   "meta.schemaDescription": "Editor profesional de headers HTTP para Chrome y Firefox. Modificá headers de request y response con perfiles ilimitados, edición en tiempo real y cero recolección de datos.",
-
   "hero.tagline": "Editor profesional de headers HTTP para Chrome y Firefox — gratis para siempre",
   "hero.install": "Instalar desde Chrome Web Store",
   "hero.donate": "☕ Doname un cafecito",
-
   "sticky.text": "Gratis, y nadie me paga por mantenerla.",
   "sticky.cta": "Tirame un mango",
   "sticky.close": "Cerrar",
-
   "nav.howItWorks": "Cómo funciona",
   "nav.features": "Características",
   "nav.privacy": "Política de privacidad",
   "nav.github": "GitHub",
-
   "how.title": "Cómo funciona",
   "how.step1.title": "1. Instalar y abrir",
   "how.step1.body": "Agregá la extensión a Chrome y hacé clic en el ícono de la barra de herramientas. Vas a ver una interfaz oscura profesional con los círculos de perfil a la izquierda.",
@@ -29,7 +25,6 @@
   "how.step3.body": "Usá los botones \"Agregar header\" para crear headers HTTP personalizados. Cada header tiene un checkbox para activarlo o desactivarlo por separado.",
   "how.step4.title": "4. Resultados al instante",
   "how.step4.body": "¡Los headers se aplican en tiempo real! Cambiá de perfil haciendo clic en los círculos numerados. Usá el botón de pausa para desactivarlos temporalmente.",
-
   "scenarios.title": "Ideal para estos escenarios:",
   "scenarios.api.title": "Testing de APIs",
   "scenarios.api.body": "Agregá <code>Authorization: Bearer token123</code> para probar endpoints autenticados",
@@ -39,7 +34,6 @@
   "scenarios.env.body": "Poné <code>X-Environment: staging</code> para probar contra distintos backends",
   "scenarios.ua.title": "Simular otro User Agent",
   "scenarios.ua.body": "Cambiá el <code>User-Agent</code> para comparar respuestas de mobile y desktop",
-
   "features.title": "Características principales",
   "features.free.title": "100% gratis para siempre",
   "features.free.body": "Sin suscripciones, sin planes premium, sin funciones limitadas. Todo es completamente gratis, a diferencia de la competencia que cobra entre 5 y 15 dólares por mes.",
@@ -58,10 +52,9 @@
   "features.pause.title": "Función de pausa",
   "features.pause.body": "Desactivá todos los headers temporalmente sin perder las configuraciones. Perfecto para comparar resultados al toque.",
   "features.importExport.title": "Importar y exportar",
-  "features.importExport.body": "Respaldá o compartí tus perfiles en un archivo JSON con un clic, e importá configuraciones — incluidos los perfiles exportados desde ModHeader.",
+  "features.importExport.body": "Respaldá o compartí tus perfiles en un archivo JSON con un clic, e importá configuraciones — incluidas las listas de perfiles exportadas desde otros editores de headers.",
   "features.privacy.title": "La privacidad primero",
   "features.privacy.body": "Cero recolección de datos, cero tracking. Todas las configuraciones se guardan solo en tu dispositivo.",
-
   "support.title": "Gratis, y nadie me paga por hacerla",
   "support.body": "Esta extensión no cuesta nada, y no hay nadie pagándome para mantenerla ni para agregarle cosas nuevas. Mejora en mis ratos libres.",
   "support.issues": "¿Querés que mejore algo? Tirá un issue y lo vemos — eso también es gratis, y es la mejor manera de que pase.",
@@ -70,7 +63,6 @@
   "support.coffee": "Invitame un café",
   "support.sponsors": "Bancame en GitHub",
   "support.footer": "En cualquier caso, sigue siendo gratis para todos.",
-
   "privacySummary.title": "Privacidad y seguridad",
   "privacySummary.noCollection.title": "Cero recolección de datos",
   "privacySummary.noCollection.body": "No recolectamos, rastreamos ni almacenamos ninguna información personal. Sin analytics, sin telemetría, sin datos de usuarios.",
@@ -79,10 +71,8 @@
   "privacySummary.openSource.title": "Código abierto",
   "privacySummary.openSource.body": "Transparencia total: revisá el código en GitHub para verificar lo que decimos sobre privacidad.",
   "privacySummary.readFull": "Leer la política de privacidad completa",
-
   "footer.madeWith": "Hecho con ❤️ para la comunidad de desarrolladores",
   "footer.viewGithub": "Ver en GitHub",
-
   "privacy.meta.title": "Política de privacidad - Extensión de Chrome Header Editor Pro Free",
   "privacy.meta.description": "Política de privacidad de Header Editor Pro - Free. Cero recolección de datos, todas las configuraciones se guardan localmente. Tu privacidad es nuestra prioridad.",
   "privacy.meta.ogTitle": "Política de privacidad - Header Editor Pro Free",
@@ -114,7 +104,6 @@
   "privacy.contact.title": "Contacto",
   "privacy.contact.body": "Si tenés alguna consulta sobre esta política de privacidad o sobre el manejo de datos de la extensión, escribinos por los canales de soporte en GitHub.",
   "privacy.lastUpdated": "Última actualización: 30 de julio de 2026",
-
   "notFound.meta.title": "Página no encontrada - Header Editor Pro Free",
   "notFound.title": "Página no encontrada",
   "notFound.body": "La página que buscás no existe o fue movida.",

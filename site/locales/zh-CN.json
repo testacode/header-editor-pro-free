@@ -1,25 +1,21 @@
 {
   "meta.title": "Header Editor Pro - 免费的 HTTP 请求头修改 Chrome 扩展",
-  "meta.description": "免费的 Chrome 扩展，用于修改 HTTP 请求头和响应头。无限配置文件、7 种语言、实时编辑、零数据收集。开发者最佳的 ModHeader 替代方案。",
+  "meta.description": "免费的 Chrome 扩展，用于修改 HTTP 请求头和响应头。无限配置文件、7 种语言、实时编辑、零数据收集。开源，永久免费。",
   "meta.ogTitle": "Header Editor Pro - 免费的 HTTP 请求头编辑器",
-  "meta.ogDescription": "在 Chrome 中免费修改 HTTP 请求头。无限配置文件、7 种语言、API 测试、CORS 调试。最佳的 ModHeader 替代方案。",
+  "meta.ogDescription": "在 Chrome 中免费修改 HTTP 请求头。无限配置文件、7 种语言、API 测试、CORS 调试。开源，无追踪。",
   "meta.twitterTitle": "Header Editor Pro - Free",
   "meta.twitterDescription": "免费的 HTTP 请求头修改 Chrome 扩展。无限配置文件，零追踪。",
   "meta.schemaDescription": "适用于 Chrome 和 Firefox 的专业 HTTP 请求头编辑器。以无限配置文件、实时编辑和零数据收集修改请求头与响应头。",
-
   "hero.tagline": "适用于 Chrome 和 Firefox 的专业 HTTP 请求头编辑器 — 永久免费",
   "hero.install": "从 Chrome 应用商店安装",
   "hero.donate": "☕ 请我喝杯咖啡",
-
   "sticky.text": "完全免费，也没有人付钱让我维护它。",
   "sticky.cta": "赞助一下",
   "sticky.close": "关闭",
-
   "nav.howItWorks": "使用方法",
   "nav.features": "功能特性",
   "nav.privacy": "隐私政策",
   "nav.github": "GitHub",
-
   "how.title": "使用方法",
   "how.step1.title": "1. 安装并打开",
   "how.step1.body": "把扩展添加到 Chrome，然后点击工具栏上的图标。你会看到一个精致的深色界面，左侧是配置文件圆圈。",
@@ -29,7 +25,6 @@
   "how.step3.body": "用「添加请求头」按钮创建自定义 HTTP 请求头。每个请求头都有一个复选框，可单独启用或停用。",
   "how.step4.title": "4. 即时生效",
   "how.step4.body": "请求头会实时生效！点击带编号的圆圈切换配置文件，用暂停按钮可以临时停用全部规则。",
-
   "scenarios.title": "特别适合这些场景：",
   "scenarios.api.title": "API 测试",
   "scenarios.api.body": "添加 <code>Authorization: Bearer token123</code> 来测试需要认证的接口",
@@ -39,7 +34,6 @@
   "scenarios.env.body": "设置 <code>X-Environment: staging</code> 来对接不同的后端进行测试",
   "scenarios.ua.title": "伪装 User Agent",
   "scenarios.ua.body": "修改 <code>User-Agent</code> 来对比移动端与桌面端的响应",
-
   "features.title": "主要功能",
   "features.free.title": "100% 永久免费",
   "features.free.body": "没有订阅、没有高级套餐、没有功能限制。一切完全免费，不像竞品每月收取 5 至 15 美元。",
@@ -58,10 +52,9 @@
   "features.pause.title": "暂停功能",
   "features.pause.body": "临时停用所有请求头而不丢失配置。想快速对比测试结果时特别好用。",
   "features.importExport.title": "导入与导出",
-  "features.importExport.body": "一键将配置文件备份或分享为 JSON 文件，也可以导入配置 — 包括从 ModHeader 导出的配置文件。",
+  "features.importExport.body": "一键将配置文件备份或分享为 JSON 文件，也可以导入配置 —— 包括从其他请求头编辑器导出的配置列表。",
   "features.privacy.title": "隐私优先",
   "features.privacy.body": "零数据收集，零追踪。所有配置仅保存在你自己的设备上。",
-
   "support.title": "完全免费，也没有人付钱给我",
   "support.body": "这个扩展不收一分钱，无论是维护还是开发新功能，都没有人付我报酬。它是在我的空闲时间里一点点变好的。",
   "support.issues": "有想改进的地方吗？提个 issue，我们一起讨论 —— 这同样免费，而且是最有效的方式。",
@@ -70,7 +63,6 @@
   "support.coffee": "请我喝咖啡",
   "support.sponsors": "在 GitHub 上赞助",
   "support.footer": "无论如何，它对所有人都会一直免费。",
-
   "privacySummary.title": "隐私与安全",
   "privacySummary.noCollection.title": "零数据收集",
   "privacySummary.noCollection.body": "我们不收集、不追踪、不存储任何个人信息。没有分析工具，没有遥测，没有用户数据。",
@@ -79,10 +71,8 @@
   "privacySummary.openSource.title": "开源",
   "privacySummary.openSource.body": "完全透明 — 你可以在 GitHub 上查看代码，亲自验证我们对隐私的承诺。",
   "privacySummary.readFull": "阅读完整隐私政策",
-
   "footer.madeWith": "用 ❤️ 为开发者社区打造",
   "footer.viewGithub": "在 GitHub 上查看",
-
   "privacy.meta.title": "隐私政策 - Header Editor Pro Free Chrome 扩展",
   "privacy.meta.description": "Header Editor Pro - Free 的隐私政策。零数据收集，所有配置均保存在本地。你的隐私是我们的首要考量。",
   "privacy.meta.ogTitle": "隐私政策 - Header Editor Pro Free",
@@ -114,7 +104,6 @@
   "privacy.contact.title": "联系方式",
   "privacy.contact.body": "如果你对本隐私政策或扩展的数据处理方式有任何疑问，请通过 GitHub 上的支持渠道联系我们。",
   "privacy.lastUpdated": "最后更新：2026 年 7 月 30 日",
-
   "notFound.meta.title": "找不到页面 - Header Editor Pro Free",
   "notFound.title": "找不到页面",
   "notFound.body": "你要找的页面不存在，或者已被移动。",

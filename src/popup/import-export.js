@@ -73,7 +73,7 @@ export class ImportExportManager {
 
     if (exportScope === 'current') {
       const currentProfile = popup.profiles[popup.currentProfile];
-      exportData = this.convertToModHeaderFormat(currentProfile);
+      exportData = this.toFlatHeaderExport(currentProfile);
     } else {
       // Export all profiles in a more comprehensive format
       exportData = {
@@ -152,7 +152,7 @@ export class ImportExportManager {
 
       // Validate structure for import
       if (popup.currentModalMode === 'import') {
-        if (Array.isArray(parsed) && this.isModHeaderProfileExport(parsed)) {
+        if (Array.isArray(parsed) && this.isProfileListExport(parsed)) {
           this.setValidationMessage('success', t('validJsonProfiles', parsed.length));
         } else if (Array.isArray(parsed)) {
           // Check if headers have required structure
@@ -211,12 +211,12 @@ export class ImportExportManager {
 
   async replaceCurrentProfile(importData) {
     const popup = this.popup;
-    if (this.isModHeaderProfileExport(importData)) {
-      throw new LocalizedError('errModHeaderExport');
+    if (this.isProfileListExport(importData)) {
+      throw new LocalizedError('errProfileListImport');
     }
     // Handle different import formats
     if (Array.isArray(importData)) {
-      // ModHeader format - array of headers
+      // Flat format - array of headers
       const headers = this.extractHeadersFromArray(importData);
       popup.profiles[popup.currentProfile].requestHeaders = headers;
     } else if (importData.profiles) {
@@ -332,7 +332,7 @@ export class ImportExportManager {
 
   // ── Import logic ──────────────────────────────────────────────────────────
 
-  isModHeaderProfileExport(data) {
+  isProfileListExport(data) {
     return (
       Array.isArray(data) &&
       data.length > 0 &&
@@ -340,24 +340,24 @@ export class ImportExportManager {
     );
   }
 
-  async importModHeaderProfiles(modHeaderData) {
+  async importProfileList(profileList) {
     const popup = this.popup;
     let firstImportedKey = null;
     let skippedFeatures = 0;
-    modHeaderData.forEach((mhProfile, index) => {
+    profileList.forEach((sourceProfile, index) => {
       popup.profileCounter++;
       const newKey = `profile_${Date.now()}_mh_${index}`;
       if (firstImportedKey === null) {
         firstImportedKey = newKey;
       }
-      if ((mhProfile.filters || []).length > 0) {
+      if ((sourceProfile.filters || []).length > 0) {
         skippedFeatures++;
       }
       popup.profiles[newKey] = {
-        name: mhProfile.title || t('importedProfileName', popup.profileCounter),
-        description: t('importedFromModHeader'),
-        requestHeaders: this.extractHeadersFromArray(mhProfile.headers),
-        responseHeaders: this.sanitizeHeaders(mhProfile.respHeaders),
+        name: sourceProfile.title || t('importedProfileName', popup.profileCounter),
+        description: t('importedProfileDescription'),
+        requestHeaders: this.extractHeadersFromArray(sourceProfile.headers),
+        responseHeaders: this.sanitizeHeaders(sourceProfile.respHeaders),
       };
     });
     if (firstImportedKey) {
@@ -365,15 +365,15 @@ export class ImportExportManager {
     }
     await popup.saveData();
     popup.renderUI();
-    return { imported: modHeaderData.length, skippedFeatures };
+    return { imported: profileList.length, skippedFeatures };
   }
 
   async importProfileFromData(importData) {
-    if (this.isModHeaderProfileExport(importData)) {
-      // ModHeader profile export format: array of profile objects with headers[]
-      const result = await this.importModHeaderProfiles(importData);
+    if (this.isProfileListExport(importData)) {
+      // Profile list format: array of profile objects with headers[]
+      const result = await this.importProfileList(importData);
       if (result.skippedFeatures > 0) {
-        alert(t('importModHeaderUrlFilters', result.skippedFeatures));
+        alert(t('importUrlFiltersSkipped', result.skippedFeatures));
       }
     } else if (Array.isArray(importData)) {
       // Plain headers array format
@@ -464,7 +464,7 @@ export class ImportExportManager {
     this.downloadJSON(data, filename);
   }
 
-  convertToModHeaderFormat(profile) {
+  toFlatHeaderExport(profile) {
     const headers = [];
 
     // Add request headers
@@ -481,7 +481,7 @@ export class ImportExportManager {
       });
     }
 
-    // Single-profile export uses the flat ModHeader header array (request-only by
+    // Single-profile export uses the flat header array (request-only by
     // shape). Response headers are preserved via the full "all profiles" export.
 
     return headers;

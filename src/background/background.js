@@ -116,7 +116,7 @@ export class HeaderEditorBackground {
 
   // The profiles that apply right now: the selected one (as always) plus every
   // profile whose tab group filter is enabled — those stay active inside their
-  // group even when another profile is selected (ModHeader-style), so sandbox
+  // group even when another profile is selected, so sandbox
   // headers never depend on which profile the popup shows.
   // Each entry: { key, profile, tabIds } with tabIds null = no tab scoping.
   async resolveActiveProfiles(data) {

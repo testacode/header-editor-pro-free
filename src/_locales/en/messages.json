@@ -79,7 +79,7 @@
   },
   "modalModeNew": {
     "message": "Create new profile",
-    "description": "Import mode label. Quoted verbatim by errModHeaderExport and errCannotReplaceMultiple — keep the three consistent."
+    "description": "Import mode label. Quoted verbatim by errProfileListImport and errCannotReplaceMultiple — keep the three consistent."
   },
   "modalModeReplace": {
     "message": "Replace current profile"
@@ -260,8 +260,8 @@
   "errInvalidJsonFormat": {
     "message": "Invalid JSON format. Expected array of headers or profiles object."
   },
-  "errModHeaderExport": {
-    "message": "This is a ModHeader profile export. Use \"Create new profile\" mode to import it.",
+  "errProfileListImport": {
+    "message": "This file holds a list of profiles. Use \"Create new profile\" mode to import it.",
     "description": "The quoted text is the modalModeNew label — keep both in step."
   },
   "errCannotReplaceMultiple": {
@@ -285,17 +285,17 @@
     "message": "Successfully imported to profile \"$1\"",
     "description": "$1 = destination profile name."
   },
-  "importModHeaderUrlFilters": {
-    "message": "ModHeader URL filters were not converted. Affected profiles: $1. Recreate them with this extension's domain filters if needed.",
+  "importUrlFiltersSkipped": {
+    "message": "URL filters were not converted. Affected profiles: $1. Recreate them with this extension’s domain filters if needed.",
     "description": "$1 = how many profiles were affected. Phrased to avoid plural forms."
   },
   "importedProfileName": {
     "message": "Imported Profile $1",
     "description": "Name for a profile created by an import. $1 = a counter. Stored as data."
   },
-  "importedFromModHeader": {
-    "message": "Imported from ModHeader - click to edit",
-    "description": "Description stored on a profile imported from ModHeader."
+  "importedProfileDescription": {
+    "message": "Imported profile - click to edit",
+    "description": "Description stored on a profile created by importing a profile list."
   },
   "exportFilenameFallback": {
     "message": "profile",

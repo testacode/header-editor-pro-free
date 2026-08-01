@@ -17,7 +17,7 @@ Everything the extension does, from the popup.
 - **Delete**: right-click a profile circle (the default profile can't be deleted)
 - **Active indicator**: green circle = active, red = inactive
 - **Import/Export**: the toolbar menu shares configurations as JSON. Importing a
-  file exported from ModHeader creates one profile per ModHeader profile,
+  file holding a list of profiles creates one profile per entry,
   including its request and response headers — URL filters are not supported and
   are skipped.
 

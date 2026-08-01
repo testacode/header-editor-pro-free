@@ -231,8 +231,8 @@
   "errInvalidJsonFormat": {
     "message": "JSON の形式が無効です。ヘッダーの配列かプロファイルのオブジェクトが必要です。"
   },
-  "errModHeaderExport": {
-    "message": "これは ModHeader のプロファイルです。「新しいプロファイルを作成」でインポートしてください。"
+  "errProfileListImport": {
+    "message": "このファイルにはプロファイルの一覧が含まれています。「新しいプロファイルを作成」でインポートしてください。"
   },
   "errCannotReplaceMultiple": {
     "message": "複数のプロファイルで現在のプロファイルを置き換えることはできません。「新しいプロファイルを作成」を使ってください。"
@@ -252,14 +252,14 @@
   "importSuccess": {
     "message": "プロファイル「$1」にインポートしました"
   },
-  "importModHeaderUrlFilters": {
-    "message": "ModHeader の URL フィルターは変換されませんでした。対象プロファイル数：$1。必要ならこの拡張機能のドメインフィルターで作り直してください。"
+  "importUrlFiltersSkipped": {
+    "message": "URL フィルターは変換されませんでした。対象プロファイル数：$1。必要ならこの拡張機能のドメインフィルターで作り直してください。"
   },
   "importedProfileName": {
     "message": "インポートしたプロファイル $1"
   },
-  "importedFromModHeader": {
-    "message": "ModHeader からインポート - クリックで編集"
+  "importedProfileDescription": {
+    "message": "インポートしたプロファイル - クリックで編集"
   },
   "exportFilenameFallback": {
     "message": "profile"

@@ -1,25 +1,21 @@
 {
   "meta.title": "Header Editor Pro - 免費的 HTTP 標頭修改 Chrome 擴充功能",
-  "meta.description": "免費的 Chrome 擴充功能，用於修改 HTTP 請求標頭與回應標頭。無限設定檔、7 種語言、即時編輯、零資料收集。開發者最佳的 ModHeader 替代方案。",
+  "meta.description": "免費的 Chrome 擴充功能，用於修改 HTTP 請求標頭與回應標頭。無限設定檔、7 種語言、即時編輯、零資料收集。開源，永久免費。",
   "meta.ogTitle": "Header Editor Pro - 免費的 HTTP 標頭編輯器",
-  "meta.ogDescription": "在 Chrome 中免費修改 HTTP 標頭。無限設定檔、7 種語言、API 測試、CORS 除錯。最佳的 ModHeader 替代方案。",
+  "meta.ogDescription": "在 Chrome 中免費修改 HTTP 標頭。無限設定檔、7 種語言、API 測試、CORS 除錯。開源，無追蹤。",
   "meta.twitterTitle": "Header Editor Pro - Free",
   "meta.twitterDescription": "免費的 HTTP 標頭修改 Chrome 擴充功能。無限設定檔，零追蹤。",
   "meta.schemaDescription": "適用於 Chrome 與 Firefox 的專業 HTTP 標頭編輯器。以無限設定檔、即時編輯與零資料收集修改請求標頭與回應標頭。",
-
   "hero.tagline": "適用於 Chrome 與 Firefox 的專業 HTTP 標頭編輯器 — 永久免費",
   "hero.install": "從 Chrome 線上應用程式商店安裝",
   "hero.donate": "☕ 請我喝杯咖啡",
-
   "sticky.text": "完全免費，也沒有人付錢讓我維護它。",
   "sticky.cta": "贊助一下",
   "sticky.close": "關閉",
-
   "nav.howItWorks": "使用方式",
   "nav.features": "功能特色",
   "nav.privacy": "隱私權政策",
   "nav.github": "GitHub",
-
   "how.title": "使用方式",
   "how.step1.title": "1. 安裝並開啟",
   "how.step1.body": "把擴充功能加到 Chrome，然後點擊工具列上的圖示。你會看到一個精緻的深色介面，左側是設定檔圓圈。",
@@ -29,7 +25,6 @@
   "how.step3.body": "用「新增標頭」按鈕建立自訂的 HTTP 標頭。每個標頭都有一個核取方塊，可以個別啟用或停用。",
   "how.step4.title": "4. 立即生效",
   "how.step4.body": "標頭會即時套用！點擊帶編號的圓圈切換設定檔，也可以用暫停按鈕暫時停用全部規則。",
-
   "scenarios.title": "特別適合這些情境：",
   "scenarios.api.title": "API 測試",
   "scenarios.api.body": "加上 <code>Authorization: Bearer token123</code> 來測試需要驗證的端點",
@@ -39,7 +34,6 @@
   "scenarios.env.body": "設定 <code>X-Environment: staging</code> 來對不同的後端進行測試",
   "scenarios.ua.title": "偽裝 User Agent",
   "scenarios.ua.body": "修改 <code>User-Agent</code> 來比較行動版與桌面版的回應",
-
   "features.title": "主要功能",
   "features.free.title": "100% 永久免費",
   "features.free.body": "沒有訂閱、沒有進階方案、沒有功能限制。一切完全免費，不像競品每月收取 5 至 15 美元。",
@@ -58,10 +52,9 @@
   "features.pause.title": "暫停功能",
   "features.pause.body": "暫時停用所有標頭而不會遺失設定。想快速比較測試結果時特別好用。",
   "features.importExport.title": "匯入與匯出",
-  "features.importExport.body": "一鍵將設定檔備份或分享為 JSON 檔案，也可以匯入設定 — 包括從 ModHeader 匯出的設定檔。",
+  "features.importExport.body": "一鍵將設定檔備份或分享為 JSON 檔案，也可以匯入設定 —— 包括從其他標頭編輯器匯出的設定檔列表。",
   "features.privacy.title": "隱私優先",
   "features.privacy.body": "零資料收集，零追蹤。所有設定只會儲存在你自己的裝置上。",
-
   "support.title": "完全免費，也沒有人付錢給我",
   "support.body": "這個擴充功能不收一分錢，無論是維護還是開發新功能，都沒有人付我報酬。它是在我的空閒時間裡一點一點變好的。",
   "support.issues": "有想改進的地方嗎？開一個 issue，我們一起討論 —— 這同樣免費，而且是最有效的方式。",
@@ -70,7 +63,6 @@
   "support.coffee": "請我喝咖啡",
   "support.sponsors": "在 GitHub 上贊助",
   "support.footer": "無論如何，它對所有人都會一直免費。",
-
   "privacySummary.title": "隱私與安全",
   "privacySummary.noCollection.title": "零資料收集",
   "privacySummary.noCollection.body": "我們不收集、不追蹤、不儲存任何個人資訊。沒有分析工具，沒有遙測，沒有使用者資料。",
@@ -79,10 +71,8 @@
   "privacySummary.openSource.title": "開放原始碼",
   "privacySummary.openSource.body": "完全透明 — 你可以在 GitHub 上檢視程式碼，親自驗證我們對隱私的承諾。",
   "privacySummary.readFull": "閱讀完整隱私權政策",
-
   "footer.madeWith": "用 ❤️ 為開發者社群打造",
   "footer.viewGithub": "在 GitHub 上檢視",
-
   "privacy.meta.title": "隱私權政策 - Header Editor Pro Free Chrome 擴充功能",
   "privacy.meta.description": "Header Editor Pro - Free 的隱私權政策。零資料收集，所有設定皆儲存在本機。你的隱私是我們的首要考量。",
   "privacy.meta.ogTitle": "隱私權政策 - Header Editor Pro Free",
@@ -114,7 +104,6 @@
   "privacy.contact.title": "聯絡方式",
   "privacy.contact.body": "如果你對本隱私權政策或擴充功能的資料處理方式有任何疑問，請透過 GitHub 上的支援管道與我們聯絡。",
   "privacy.lastUpdated": "最後更新：2026 年 7 月 30 日",
-
   "notFound.meta.title": "找不到頁面 - Header Editor Pro Free",
   "notFound.title": "找不到頁面",
   "notFound.body": "你要找的頁面不存在，或者已被移動。",

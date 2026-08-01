@@ -231,8 +231,8 @@
   "errInvalidJsonFormat": {
     "message": "JSON 형식이 올바르지 않습니다. 헤더 배열 또는 프로필 객체여야 합니다."
   },
-  "errModHeaderExport": {
-    "message": "ModHeader 프로필 내보내기 파일입니다. '새 프로필 만들기'로 가져오세요."
+  "errProfileListImport": {
+    "message": "이 파일에는 프로필 목록이 들어 있습니다. '새 프로필 만들기'로 가져오세요."
   },
   "errCannotReplaceMultiple": {
     "message": "여러 프로필로 현재 프로필을 바꿀 수 없습니다. '새 프로필 만들기'를 사용하세요."
@@ -252,14 +252,14 @@
   "importSuccess": {
     "message": "'$1' 프로필로 가져왔습니다"
   },
-  "importModHeaderUrlFilters": {
-    "message": "ModHeader의 URL 필터는 변환되지 않았습니다. 해당 프로필 수: $1. 필요하면 이 확장 프로그램의 도메인 필터로 다시 만드세요."
+  "importUrlFiltersSkipped": {
+    "message": "URL 필터는 변환되지 않았습니다. 해당 프로필 수: $1. 필요하면 이 확장 프로그램의 도메인 필터로 다시 만드세요."
   },
   "importedProfileName": {
     "message": "가져온 프로필 $1"
   },
-  "importedFromModHeader": {
-    "message": "ModHeader에서 가져옴 - 클릭하여 편집"
+  "importedProfileDescription": {
+    "message": "가져온 프로필 - 클릭하여 편집"
   },
   "exportFilenameFallback": {
     "message": "profile"
