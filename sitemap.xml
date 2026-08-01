@@ -1,12 +1,184 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://testacode.github.io/header-editor-pro-free/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/es/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/ja/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/ko/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/ru/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/zh-CN/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/zh-TW/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/"/>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://testacode.github.io/header-editor-pro-free/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/es/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/ja/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/ko/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/ru/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/zh-CN/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://testacode.github.io/header-editor-pro-free/zh-TW/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/privacy.html"/>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>

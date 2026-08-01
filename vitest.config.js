@@ -29,7 +29,7 @@ export default defineConfig({
         lines: 75,
       },
     },
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: ['{src,site}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['node_modules/**', 'dist/**', 'coverage/**', '**/*.config.js', '**/*.config.mjs'],
   },
 });

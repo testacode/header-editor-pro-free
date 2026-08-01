@@ -6,7 +6,7 @@ export default [
   js.configs.recommended,
   prettierConfig,
   {
-    files: ['src/**/*.js', 'scripts/**/*.js', '*.js'],
+    files: ['src/**/*.js', 'scripts/**/*.js', 'site/**/*.js', '*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -100,7 +100,7 @@ export default [
   },
   {
     // Test files configuration
-    files: ['src/**/*.test.js', 'src/**/__tests__/**/*.js'],
+    files: ['src/**/*.test.js', 'src/**/__tests__/**/*.js', 'site/**/__tests__/**/*.js'],
     languageOptions: {
       globals: {
         // Jest globals

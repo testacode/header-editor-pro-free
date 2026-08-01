@@ -1,36 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{__lang}}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Header Editor Pro - Free Chrome Extension for HTTP Header Modification</title>
-    <meta name="description" content="Free Chrome extension to modify HTTP request and response headers. Unlimited profiles, 7 languages, real-time editing, zero data collection. Best ModHeader alternative for developers.">
-    <link rel="canonical" href="https://testacode.github.io/header-editor-pro-free/">
-    <link rel="alternate" hreflang="en" href="https://testacode.github.io/header-editor-pro-free/">
-    <link rel="alternate" hreflang="es" href="https://testacode.github.io/header-editor-pro-free/es/">
-    <link rel="alternate" hreflang="ja" href="https://testacode.github.io/header-editor-pro-free/ja/">
-    <link rel="alternate" hreflang="ko" href="https://testacode.github.io/header-editor-pro-free/ko/">
-    <link rel="alternate" hreflang="ru" href="https://testacode.github.io/header-editor-pro-free/ru/">
-    <link rel="alternate" hreflang="zh-CN" href="https://testacode.github.io/header-editor-pro-free/zh-CN/">
-    <link rel="alternate" hreflang="zh-TW" href="https://testacode.github.io/header-editor-pro-free/zh-TW/">
-    <link rel="alternate" hreflang="x-default" href="https://testacode.github.io/header-editor-pro-free/">
-    <link rel="icon" type="image/png" sizes="128x128" href="src/assets/icons/icon128.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="src/assets/icons/icon48.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="src/assets/icons/icon16.png">
+    <title>{{meta.title}}</title>
+    <meta name="description" content="{{meta.description}}">
+    <link rel="canonical" href="{{__canonical}}">
+{{__hreflang}}
+    <link rel="icon" type="image/png" sizes="128x128" href="{{__assets}}src/assets/icons/icon128.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{__assets}}src/assets/icons/icon48.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{__assets}}src/assets/icons/icon16.png">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Header Editor Pro - Free HTTP Header Editor">
-    <meta property="og:description" content="Modify HTTP headers in Chrome for free. Unlimited profiles, 7 languages, API testing, CORS debugging. Best ModHeader alternative.">
+    <meta property="og:title" content="{{meta.ogTitle}}">
+    <meta property="og:description" content="{{meta.ogDescription}}">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://testacode.github.io/header-editor-pro-free/">
+    <meta property="og:url" content="{{__canonical}}">
     <meta property="og:image" content="https://testacode.github.io/header-editor-pro-free/og-image.png">
     <meta property="og:site_name" content="Header Editor Pro">
-    <meta property="og:locale" content="en">
+    <meta property="og:locale" content="{{__lang}}">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Header Editor Pro - Free">
-    <meta name="twitter:description" content="Free Chrome extension for HTTP header modification. Unlimited profiles, zero tracking.">
+    <meta name="twitter:title" content="{{meta.twitterTitle}}">
+    <meta name="twitter:description" content="{{meta.twitterDescription}}">
     <meta name="twitter:image" content="https://testacode.github.io/header-editor-pro-free/og-image.png">
 
     <!-- Structured Data -->
@@ -46,9 +39,9 @@
         "price": "0",
         "priceCurrency": "USD"
       },
-      "description": "Professional HTTP header editor for Chrome and Firefox. Modify request and response headers with unlimited profiles, real-time editing, and zero data collection.",
+      "description": "{{meta.schemaDescription}}",
       "softwareVersion": "2.6.0",
-      "inLanguage": "en",
+      "inLanguage": "{{__lang}}",
       "author": {
         "@type": "Person",
         "name": "testacode"
@@ -308,89 +301,80 @@
 </head>
 <body>
     <div class="container">
-      <nav class="lang-switcher" aria-label="Language">
-        <span class="lang-globe" aria-hidden="true">🌐</span>
-        <span class="lang-current" aria-current="true">English</span>
-        <a href="es/index.html" hreflang="es" lang="es">Español</a>
-        <a href="ja/index.html" hreflang="ja" lang="ja">日本語</a>
-        <a href="ko/index.html" hreflang="ko" lang="ko">한국어</a>
-        <a href="ru/index.html" hreflang="ru" lang="ru">Русский</a>
-        <a href="zh-CN/index.html" hreflang="zh-CN" lang="zh-CN">简体中文</a>
-        <a href="zh-TW/index.html" hreflang="zh-TW" lang="zh-TW">繁體中文</a>
-      </nav>
+{{__langSwitcher}}
 
         <!-- Hero Section -->
         <div class="hero">
             <h1>Header Editor Pro - Free</h1>
-            <p>Professional HTTP header editor for Chrome and Firefox — free forever</p>
+            <p>{{hero.tagline}}</p>
             <div class="hero-actions">
-                <a href="https://chromewebstore.google.com/detail/cpdkigffbilaglfmddclhgfflimpaeim" class="install-btn" target="_blank" rel="noopener">Install from Chrome Web Store</a>
-                <a href="https://buymeacoffee.com/charlybrown" class="donate-btn" target="_blank" rel="noopener">☕ Buy me a coffee</a>
+                <a href="https://chromewebstore.google.com/detail/cpdkigffbilaglfmddclhgfflimpaeim" class="install-btn" target="_blank" rel="noopener">{{hero.install}}</a>
+                <a href="https://buymeacoffee.com/charlybrown" class="donate-btn" target="_blank" rel="noopener">{{hero.donate}}</a>
             </div>
         </div>
 
         <!-- Navigation -->
         <div class="nav">
-            <a href="#how-it-works">🎯 How It Works</a>
-            <a href="#features">✨ Features</a>
-            <a href="privacy.html">🔒 Privacy Policy</a>
-            <a href="https://github.com/testacode/header-editor-pro-free">💻 GitHub</a>
+            <a href="#how-it-works">🎯 {{nav.howItWorks}}</a>
+            <a href="#features">✨ {{nav.features}}</a>
+            <a href="privacy.html">🔒 {{nav.privacy}}</a>
+            <a href="https://github.com/testacode/header-editor-pro-free">💻 {{nav.github}}</a>
         </div>
 
         <!-- How It Works Section -->
         <div id="how-it-works">
-            <h2>🎯 How It Works</h2>
+            <h2>🎯 {{how.title}}</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin: 30px 0;">
 
                 <!-- Step 1 -->
                 <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">
                     <div style="font-size: 3em; margin-bottom: 15px;">🔧</div>
-                    <h3 style="color: #2c3e50; margin-bottom: 15px;">1. Install & Open</h3>
-                    <p>Add the extension to Chrome and click the icon in your toolbar. You'll see a professional dark interface with profile circles on the left.</p>
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">{{how.step1.title}}</h3>
+                    <p>{{how.step1.body}}</p>
                 </div>
 
                 <!-- Step 2 -->
                 <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">
                     <div style="font-size: 3em; margin-bottom: 15px;">⚙️</div>
-                    <h3 style="color: #2c3e50; margin-bottom: 15px;">2. Create Profiles</h3>
-                    <p>Click the "+" circle to create different header configurations. Each profile can have unlimited request and response headers.</p>
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">{{how.step2.title}}</h3>
+                    <p>{{how.step2.body}}</p>
                 </div>
 
                 <!-- Step 3 -->
                 <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">
                     <div style="font-size: 3em; margin-bottom: 15px;">🎯</div>
-                    <h3 style="color: #2c3e50; margin-bottom: 15px;">3. Add Headers</h3>
-                    <p>Use the "Add header" buttons to create custom HTTP headers. Each header has a checkbox to enable/disable individually.</p>
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">{{how.step3.title}}</h3>
+                    <p>{{how.step3.body}}</p>
                 </div>
 
                 <!-- Step 4 -->
                 <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">
                     <div style="font-size: 3em; margin-bottom: 15px;">⚡</div>
-                    <h3 style="color: #2c3e50; margin-bottom: 15px;">4. Instant Results</h3>
-                    <p>Headers are applied in real-time! Switch profiles by clicking numbered circles. Use the pause button to temporarily disable.</p>
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">{{how.step4.title}}</h3>
+                    <p>{{how.step4.body}}</p>
                 </div>
 
             </div>
 
             <!-- Visual Example -->
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px; margin: 30px 0; text-align: center;">
-                <h3 style="margin-bottom: 20px; color: white;">💡 Perfect For These Scenarios:</h3>
+                <h3 style="margin-bottom: 20px; color: white;">💡 {{scenarios.title}}</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; text-align: left;">
                     <div>
-                        <h4>🔐 API Testing</h4>
-                        <p style="opacity: 0.9;">Add <code>Authorization: Bearer token123</code> for testing authenticated endpoints</p>
+                        <h4>🔐 {{scenarios.api.title}}</h4>
+                        <p style="opacity: 0.9;">{{scenarios.api.body}}</p>
                     </div>
                     <div>
-                        <h4>🌐 CORS Debugging</h4>
-                        <p style="opacity: 0.9;">Add <code>Access-Control-Allow-Origin: *</code> to test cross-origin requests</p>
+                        <h4>🌐 {{scenarios.cors.title}}</h4>
+                        <p style="opacity: 0.9;">{{scenarios.cors.body}}</p>
                     </div>
                     <div>
-                        <h4>🧪 Environment Testing</h4>
-                        <p style="opacity: 0.9;">Set <code>X-Environment: staging</code> to test against different backends</p>
+                        <h4>🧪 {{scenarios.env.title}}</h4>
+                        <p style="opacity: 0.9;">{{scenarios.env.body}}</p>
                     </div>
                     <div>
-                        <h4>🎭 User Agent Spoofing</h4>
-                        <p style="opacity: 0.9;">Change <code>User-Agent</code> to test mobile vs desktop responses</p>
+                        <h4>🎭 {{scenarios.ua.title}}</h4>
+                        <p style="opacity: 0.9;">{{scenarios.ua.body}}</p>
                     </div>
                 </div>
             </div>
@@ -399,101 +383,101 @@
 
         <!-- Features Section -->
         <div id="features">
-            <h2>✨ Key Features</h2>
+            <h2>✨ {{features.title}}</h2>
             <div class="features">
                 <div class="feature">
-                    <h3>🆓 100% Free Forever</h3>
-                    <p>No subscriptions, no premium tiers, no feature limitations. Everything is completely free, unlike competitors charging $5-15/month.</p>
+                    <h3>🆓 {{features.free.title}}</h3>
+                    <p>{{features.free.body}}</p>
                 </div>
                 <div class="feature">
-                    <h3>🎯 Unlimited Profiles</h3>
-                    <p>Create as many header configurations as you need. Most free alternatives limit you to just 3 profiles.</p>
+                    <h3>🎯 {{features.profiles.title}}</h3>
+                    <p>{{features.profiles.body}}</p>
                 </div>
                 <div class="feature">
-                    <h3>🌐 7 Languages</h3>
-                    <p>English, 简体中文, 繁體中文, 日本語, 한국어, Русский and Español — switch from the toolbar, or let it follow your browser.</p>
+                    <h3>🌐 {{features.languages.title}}</h3>
+                    <p>{{features.languages.body}}</p>
                 </div>
                 <div class="feature">
-                    <h3>⚡ Real-time Modification</h3>
-                    <p>Modify request and response headers instantly using Chrome's latest declarativeNetRequest API. No page refreshes needed!</p>
+                    <h3>⚡ {{features.realtime.title}}</h3>
+                    <p>{{features.realtime.body}}</p>
                 </div>
                 <div class="feature">
-                    <h3>➕ Set or Append</h3>
-                    <p>Toggle any header between set and append mode — perfect for multi-value headers like Accept, Cookie or Accept-Encoding.</p>
+                    <h3>➕ {{features.append.title}}</h3>
+                    <p>{{features.append.body}}</p>
                 </div>
                 <div class="feature">
-                    <h3>🗂️ Domain & Tab Group Filters</h3>
-                    <p>Scope a profile to specific domains, or to a Chrome tab group — keep sandbox headers in their tabs and never mix environments again.</p>
+                    <h3>🗂️ {{features.filters.title}}</h3>
+                    <p>{{features.filters.body}}</p>
                 </div>
                 <div class="feature">
-                    <h3>🎨 Professional Interface</h3>
-                    <p>Beautiful dark theme with numbered profile circles, checkboxes for individual headers, and intuitive controls.</p>
+                    <h3>🎨 {{features.ui.title}}</h3>
+                    <p>{{features.ui.body}}</p>
                 </div>
                 <div class="feature">
-                    <h3>⏸️ Pause Functionality</h3>
-                    <p>Temporarily disable all headers without losing your configurations. Perfect for quick testing comparisons.</p>
+                    <h3>⏸️ {{features.pause.title}}</h3>
+                    <p>{{features.pause.body}}</p>
                 </div>
                 <div class="feature">
-                    <h3>💾 Import & Export</h3>
-                    <p>Back up or share your profiles as a JSON file with one click, and import configurations — including profiles exported from ModHeader.</p>
+                    <h3>💾 {{features.importExport.title}}</h3>
+                    <p>{{features.importExport.body}}</p>
                 </div>
                 <div class="feature">
-                    <h3>🔒 Privacy First</h3>
-                    <p>Zero data collection, zero tracking. All configurations stored locally on your device only.</p>
+                    <h3>🔒 {{features.privacy.title}}</h3>
+                    <p>{{features.privacy.body}}</p>
                 </div>
             </div>
         </div>
 
         <!-- Support Section -->
         <div class="support-box">
-            <h2>☕ Free, and nobody's paying for it</h2>
-            <p style="font-size: 1.1em; margin-bottom: 20px; opacity: 0.95;">This extension costs nothing, and no one pays me to maintain it or to build new things into it. It gets better in my own time.</p>
+            <h2>☕ {{support.title}}</h2>
+            <p style="font-size: 1.1em; margin-bottom: 20px; opacity: 0.95;">{{support.body}}</p>
             <p style="margin-bottom: 10px; opacity: 0.95;">
-                Want something improved? Open an issue and let's talk it through — that's free too, and it's the best way in.
-                <a href="https://github.com/testacode/header-editor-pro-free/issues" class="support-inline-link" target="_blank" rel="noopener">Open an issue →</a>
+                {{support.issues}}
+                <a href="https://github.com/testacode/header-editor-pro-free/issues" class="support-inline-link" target="_blank" rel="noopener">{{support.issuesLink}}</a>
             </p>
-            <p style="margin-bottom: 25px; opacity: 0.95;">Chip in and your request moves up my queue. And if you'd rather not, no hard feelings — nobody ever turned down a glass of water ;)</p>
+            <p style="margin-bottom: 25px; opacity: 0.95;">{{support.wink}}</p>
             <div class="support-links">
-                <a href="https://buymeacoffee.com/charlybrown" class="support-coffee" target="_blank" rel="noopener">☕ Buy me a coffee</a>
-                <a href="https://github.com/sponsors/testacode" class="support-sponsors" target="_blank" rel="noopener">💝 Sponsor on GitHub</a>
+                <a href="https://buymeacoffee.com/charlybrown" class="support-coffee" target="_blank" rel="noopener">☕ {{support.coffee}}</a>
+                <a href="https://github.com/sponsors/testacode" class="support-sponsors" target="_blank" rel="noopener">💝 {{support.sponsors}}</a>
             </div>
-            <p style="margin-top: 20px; opacity: 0.9; font-size: 0.95em;">Either way, it stays free for everyone.</p>
+            <p style="margin-top: 20px; opacity: 0.9; font-size: 0.95em;">{{support.footer}}</p>
         </div>
 
         <!-- Privacy Summary -->
         <div class="privacy-section">
-            <h2>🔒 Privacy & Security</h2>
+            <h2>🔒 {{privacySummary.title}}</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                 <div>
-                    <h4>🚫 Zero Data Collection</h4>
-                    <p>We don't collect, track, or store any personal information. No analytics, no telemetry, no user data.</p>
+                    <h4>🚫 {{privacySummary.noCollection.title}}</h4>
+                    <p>{{privacySummary.noCollection.body}}</p>
                 </div>
                 <div>
-                    <h4>💾 Local Storage Only</h4>
-                    <p>All your header configurations stay on your device using Chrome's secure local storage.</p>
+                    <h4>💾 {{privacySummary.local.title}}</h4>
+                    <p>{{privacySummary.local.body}}</p>
                 </div>
                 <div>
-                    <h4>🔐 Open Source</h4>
-                    <p>Full transparency - inspect the code on GitHub to verify our privacy claims.</p>
+                    <h4>🔐 {{privacySummary.openSource.title}}</h4>
+                    <p>{{privacySummary.openSource.body}}</p>
                 </div>
             </div>
             <p style="text-align: center; margin-top: 20px;">
-                <a href="privacy.html" style="color: #3498db; text-decoration: none; font-weight: bold;">📄 Read Full Privacy Policy →</a>
+                <a href="privacy.html" style="color: #3498db; text-decoration: none; font-weight: bold;">📄 {{privacySummary.readFull}} →</a>
             </p>
         </div>
 
         <!-- Footer -->
         <div style="text-align: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid #eee; color: #666;">
-            <p>Made with ❤️ for the developer community</p>
-            <p><a href="https://github.com/testacode/header-editor-pro-free">View on GitHub</a></p>
+            <p>{{footer.madeWith}}</p>
+            <p><a href="https://github.com/testacode/header-editor-pro-free">{{footer.viewGithub}}</a></p>
         </div>
     </div>
 
     <!-- Sticky donation bar -->
     <div class="sticky-donate" id="sticky-donate" hidden>
-        <span>Free — and nobody pays me to maintain it.</span>
-        <a href="https://buymeacoffee.com/charlybrown" target="_blank" rel="noopener">☕ Chip in</a>
-        <button type="button" id="sticky-dismiss" aria-label="Dismiss">&times;</button>
+        <span>{{sticky.text}}</span>
+        <a href="https://buymeacoffee.com/charlybrown" target="_blank" rel="noopener">☕ {{sticky.cta}}</a>
+        <button type="button" id="sticky-dismiss" aria-label="{{sticky.close}}">&times;</button>
     </div>
     <script>
         (function () {

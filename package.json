@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "rspack build --mode development --watch",
     "build": "rspack build --mode production",
+    "build:site": "node scripts/build-site.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",

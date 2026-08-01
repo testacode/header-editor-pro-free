@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="{{__lang}}">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{privacy.meta.title}}</title>
+    <meta name="description" content="{{privacy.meta.description}}">
+    <link rel="canonical" href="{{__canonical}}">
+{{__hreflang}}
+    <link rel="icon" type="image/png" sizes="128x128" href="{{__assets}}src/assets/icons/icon128.png">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{privacy.meta.ogTitle}}">
+    <meta property="og:description" content="{{privacy.meta.ogDescription}}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{__canonical}}">
+    <meta property="og:locale" content="{{__lang}}">
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        line-height: 1.6;
+        color: #333;
+        background-color: #fff;
+      }
+      h1 {
+        color: #2c3e50;
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 10px;
+      }
+      h2 {
+        color: #34495e;
+        margin-top: 30px;
+      }
+      p {
+        margin-bottom: 15px;
+      }
+      .highlight {
+        background-color: #f8f9fa;
+        border-left: 4px solid #3498db;
+        padding: 15px;
+        margin: 20px 0;
+      }
+      .footer {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        font-size: 0.9em;
+        color: #666;
+      }
+      .lang-switcher {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 25px;
+        font-size: 0.9em;
+      }
+      .lang-switcher a {
+        color: #3498db;
+        text-decoration: none;
+      }
+      .lang-switcher a:hover {
+        text-decoration: underline;
+      }
+      .lang-current {
+        color: #2c3e50;
+        font-weight: bold;
+      }
+      .lang-globe {
+        font-size: 1.1em;
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #3498db;
+        text-decoration: none;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+{{__langSwitcher}}
+
+    <a href="index.html" class="back-link">← {{privacy.back}}</a>
+
+    <h1>{{privacy.title}}</h1>
+
+    <div class="highlight">
+      <p><strong>{{privacy.callout.label}}</strong> {{privacy.callout.body}}</p>
+    </div>
+
+    <h2>{{privacy.collection.title}}</h2>
+    <p>{{privacy.collection.body}}</p>
+
+    <h2>{{privacy.storage.title}}</h2>
+    <p>{{privacy.storage.intro}}</p>
+    <ul>
+      <li>{{privacy.storage.item1}}</li>
+      <li>{{privacy.storage.item2}}</li>
+      <li>{{privacy.storage.item3}}</li>
+    </ul>
+    <p>{{privacy.storage.outro}}</p>
+
+    <h2>{{privacy.permissions.title}}</h2>
+    <p>{{privacy.permissions.intro}}</p>
+    <ul>
+      <li><strong>declarativeNetRequest:</strong> {{privacy.permissions.dnr}}</li>
+      <li><strong>storage:</strong> {{privacy.permissions.storage}}</li>
+      <li><strong>tabGroups:</strong> {{privacy.permissions.tabGroups}}</li>
+      <li><strong>{{privacy.permissions.allUrlsLabel}}</strong> {{privacy.permissions.allUrls}}</li>
+    </ul>
+    <p>{{privacy.permissions.outro}}</p>
+
+    <h2>{{privacy.thirdParty.title}}</h2>
+    <p>{{privacy.thirdParty.body}}</p>
+
+    <h2>{{privacy.updates.title}}</h2>
+    <p>{{privacy.updates.body}}</p>
+
+    <h2>{{privacy.contact.title}}</h2>
+    <p>{{privacy.contact.body}}</p>
+
+    <div class="footer">
+      <p>{{privacy.lastUpdated}}</p>
+    </div>
+  </body>
+</html>
