@@ -10,7 +10,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 
 **Current Structure (Rspack bundled):**
 - `src/manifest.json` - Unified manifest v3 (Chrome + Firefox compatibility)
-- `src/_locales/<locale>/messages.json` - Translation catalogs (en, es, ja, ko, ru, zh_CN, zh_TW)
+- `src/_locales/<locale>/messages.json` - Translation catalogs (en, es, ja, ko, ru, zh_CN, zh_TW). `appName` and `appDesc` back the manifest's `__MSG_` references, so the store listing title and summary are localized too — both have per-locale character limits the tests enforce
 - `src/popup/` - UI components (HTML, CSS, JS) 
 - `src/background/` - Service worker for header modification
 - `src/assets/icons/` - Extension icons (16-128px)
@@ -116,7 +116,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Testing:**
 - Vitest framework with jsdom environment (modern Jest alternative)
 - Custom Chrome API mocking for Manifest V3 compatibility
-- 396 tests across 8 files: background service worker (declarativeNetRequest rule building, pause/resume), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
+- 410 tests across 8 files: background service worker (declarativeNetRequest rule building, pause/resume), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
 - Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**

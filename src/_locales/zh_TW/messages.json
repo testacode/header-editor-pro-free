@@ -3,114 +3,268 @@
     "message": "unreviewed",
     "description": "MACHINE-TRANSLATED, NOT reviewed by a native speaker. Delete this key once someone has checked the file. See docs/i18n.md."
   },
-
   "appDesc": {
-    "message": "為網頁開發、API 測試與偵錯打造的 HTTP 標頭編輯器。設定檔數量不限，支援 7 種語言，永久免費。"
+    "message": "修改 HTTP 請求標頭與回應標頭。無限設定檔，網域與分頁群組篩選，支援 7 種語言。免費開源。"
   },
-  "appTitle": { "message": "Header Editor Pro - Free" },
-
-  "sidebarAddProfile": { "message": "新增設定檔" },
-  "sidebarInfo": { "message": "擴充功能資訊" },
-
-  "toolbarRefresh": { "message": "重新整理" },
-  "toolbarPause": { "message": "暫停擴充功能" },
-  "toolbarResume": { "message": "恢復擴充功能" },
-  "toolbarPin": { "message": "釘選（停用自動關閉）" },
-  "toolbarUnpin": { "message": "取消釘選（啟用自動關閉）" },
-  "toolbarProfileColor": { "message": "設定檔顏色" },
-  "toolbarMenu": { "message": "選單" },
-  "toolbarLanguage": { "message": "語言" },
-  "languageAuto": { "message": "自動" },
-  "toolbarDescriptionPlaceholder": { "message": "點擊以新增說明…" },
-
-  "menuImport": { "message": "匯入設定" },
-  "menuExport": { "message": "匯出設定" },
-  "menuDeleteProfile": { "message": "刪除設定檔" },
-  "menuCannotDeleteDefault": { "message": "無法刪除預設設定檔" },
-
-  "modalExportScope": { "message": "匯出範圍：" },
-  "modalScopeCurrent": { "message": "僅目前設定檔" },
-  "modalScopeAll": { "message": "所有設定檔" },
-  "modalImportMode": { "message": "匯入方式：" },
-  "modalModeNew": { "message": "建立新設定檔" },
-  "modalModeReplace": { "message": "取代目前設定檔" },
-  "modalCancel": { "message": "取消" },
-  "modalImport": { "message": "匯入" },
-  "modalCopy": { "message": "複製" },
-  "modalCopied": { "message": "已複製！" },
-  "modalDownload": { "message": "下載" },
-  "modalJsonPlaceholder": { "message": "在此貼上 JSON 設定…" },
-
-  "colorPickerTitle": { "message": "設定檔顏色" },
-  "colorPickerPreview": { "message": "預覽：" },
-  "colorPickerBackground": { "message": "背景" },
-  "colorPickerText": { "message": "文字顏色" },
-  "colorPickerSave": { "message": "儲存" },
-
-  "sectionRequestHeaders": { "message": "請求標頭" },
-  "sectionResponseHeaders": { "message": "回應標頭" },
-  "sectionFilters": { "message": "篩選條件" },
-  "sectionAddHeader": { "message": "新增標頭" },
-
-  "headerNamePlaceholder": { "message": "名稱" },
-  "headerValuePlaceholder": { "message": "值" },
-  "headerDragToReorder": { "message": "拖曳以排序" },
-  "headerAppendMode": { "message": "附加而非覆寫" },
-  "headerCopyToProfile": { "message": "複製到設定檔…" },
-  "headerCopyDropdownLabel": { "message": "複製到設定檔" },
-  "headerDelete": { "message": "刪除" },
-  "headerCopiedToast": { "message": "已複製到「$1」" },
-
-  "filtersDomains": { "message": "網域" },
-  "filtersDomainsTooltip": { "message": "僅對這些網域生效" },
-  "filtersDomainsPlaceholder": { "message": "example.com, api.example.com" },
-  "filtersDomainsIgnored": { "message": "已忽略（無效網域）：$1" },
-  "filtersTabGroup": { "message": "分頁群組" },
-  "filtersTabGroupTooltip": { "message": "僅對某個分頁群組生效" },
-  "filtersTabGroupSelect": { "message": "選擇分頁群組…" },
-  "filtersTabGroupUnnamed": { "message": "（未命名）" },
-  "filtersTabGroupNotOpen": { "message": "（未開啟）" },
-
-  "profileDefaultName": { "message": "預設" },
-  "profileNewName": { "message": "設定檔 $1" },
-  "profileDeleteConfirm": { "message": "確定要刪除「$1」嗎？此操作無法復原。" },
-  "profileThisProfile": { "message": "此設定檔" },
-
-  "infoGitHub": { "message": "GitHub" },
-  "infoWebsite": { "message": "網站" },
-  "infoAuthor": { "message": "作者：CharlyBrown" },
-  "infoVersion": { "message": "版本 $1" },
-
-  "welcomeTitle": { "message": "歡迎使用 Header Editor Pro！" },
-  "welcomeBody": { "message": "感謝安裝 v$1" },
-  "welcomeSubtitle": { "message": "建立無限設定檔，輕鬆修改 HTTP 標頭" },
-
-  "validReadyToCopyCurrent": { "message": "可以複製（目前設定檔）" },
-  "validReadyToCopyProfiles": { "message": "可以複製 — 設定檔數：$1" },
-  "validJson": { "message": "JSON 有效" },
-  "validJsonProfiles": { "message": "JSON 有效 — 設定檔數：$1" },
-  "validJsonHeaders": { "message": "JSON 有效 — 標頭數：$1" },
-  "validImportFailed": { "message": "匯入失敗：$1" },
-
-  "errHeaderMissingName": { "message": "第 $1 個標頭：缺少或無效的 name 欄位" },
-  "errInvalidJsonFormat": { "message": "JSON 格式無效。應為標頭陣列或設定檔物件。" },
+  "appName": {
+    "message": "Header Editor Pro – 修改 HTTP 標頭"
+  },
+  "appTitle": {
+    "message": "Header Editor Pro - Free"
+  },
+  "sidebarAddProfile": {
+    "message": "新增設定檔"
+  },
+  "sidebarInfo": {
+    "message": "擴充功能資訊"
+  },
+  "toolbarRefresh": {
+    "message": "重新整理"
+  },
+  "toolbarPause": {
+    "message": "暫停擴充功能"
+  },
+  "toolbarResume": {
+    "message": "恢復擴充功能"
+  },
+  "toolbarPin": {
+    "message": "釘選（停用自動關閉）"
+  },
+  "toolbarUnpin": {
+    "message": "取消釘選（啟用自動關閉）"
+  },
+  "toolbarProfileColor": {
+    "message": "設定檔顏色"
+  },
+  "toolbarMenu": {
+    "message": "選單"
+  },
+  "toolbarLanguage": {
+    "message": "語言"
+  },
+  "languageAuto": {
+    "message": "自動"
+  },
+  "toolbarDescriptionPlaceholder": {
+    "message": "點擊以新增說明…"
+  },
+  "menuImport": {
+    "message": "匯入設定"
+  },
+  "menuExport": {
+    "message": "匯出設定"
+  },
+  "menuDeleteProfile": {
+    "message": "刪除設定檔"
+  },
+  "menuCannotDeleteDefault": {
+    "message": "無法刪除預設設定檔"
+  },
+  "modalExportScope": {
+    "message": "匯出範圍："
+  },
+  "modalScopeCurrent": {
+    "message": "僅目前設定檔"
+  },
+  "modalScopeAll": {
+    "message": "所有設定檔"
+  },
+  "modalImportMode": {
+    "message": "匯入方式："
+  },
+  "modalModeNew": {
+    "message": "建立新設定檔"
+  },
+  "modalModeReplace": {
+    "message": "取代目前設定檔"
+  },
+  "modalCancel": {
+    "message": "取消"
+  },
+  "modalImport": {
+    "message": "匯入"
+  },
+  "modalCopy": {
+    "message": "複製"
+  },
+  "modalCopied": {
+    "message": "已複製！"
+  },
+  "modalDownload": {
+    "message": "下載"
+  },
+  "modalJsonPlaceholder": {
+    "message": "在此貼上 JSON 設定…"
+  },
+  "colorPickerTitle": {
+    "message": "設定檔顏色"
+  },
+  "colorPickerPreview": {
+    "message": "預覽："
+  },
+  "colorPickerBackground": {
+    "message": "背景"
+  },
+  "colorPickerText": {
+    "message": "文字顏色"
+  },
+  "colorPickerSave": {
+    "message": "儲存"
+  },
+  "sectionRequestHeaders": {
+    "message": "請求標頭"
+  },
+  "sectionResponseHeaders": {
+    "message": "回應標頭"
+  },
+  "sectionFilters": {
+    "message": "篩選條件"
+  },
+  "sectionAddHeader": {
+    "message": "新增標頭"
+  },
+  "headerNamePlaceholder": {
+    "message": "名稱"
+  },
+  "headerValuePlaceholder": {
+    "message": "值"
+  },
+  "headerDragToReorder": {
+    "message": "拖曳以排序"
+  },
+  "headerAppendMode": {
+    "message": "附加而非覆寫"
+  },
+  "headerCopyToProfile": {
+    "message": "複製到設定檔…"
+  },
+  "headerCopyDropdownLabel": {
+    "message": "複製到設定檔"
+  },
+  "headerDelete": {
+    "message": "刪除"
+  },
+  "headerCopiedToast": {
+    "message": "已複製到「$1」"
+  },
+  "filtersDomains": {
+    "message": "網域"
+  },
+  "filtersDomainsTooltip": {
+    "message": "僅對這些網域生效"
+  },
+  "filtersDomainsPlaceholder": {
+    "message": "example.com, api.example.com"
+  },
+  "filtersDomainsIgnored": {
+    "message": "已忽略（無效網域）：$1"
+  },
+  "filtersTabGroup": {
+    "message": "分頁群組"
+  },
+  "filtersTabGroupTooltip": {
+    "message": "僅對某個分頁群組生效"
+  },
+  "filtersTabGroupSelect": {
+    "message": "選擇分頁群組…"
+  },
+  "filtersTabGroupUnnamed": {
+    "message": "（未命名）"
+  },
+  "filtersTabGroupNotOpen": {
+    "message": "（未開啟）"
+  },
+  "profileDefaultName": {
+    "message": "預設"
+  },
+  "profileNewName": {
+    "message": "設定檔 $1"
+  },
+  "profileDeleteConfirm": {
+    "message": "確定要刪除「$1」嗎？此操作無法復原。"
+  },
+  "profileThisProfile": {
+    "message": "此設定檔"
+  },
+  "infoGitHub": {
+    "message": "GitHub"
+  },
+  "infoWebsite": {
+    "message": "網站"
+  },
+  "infoAuthor": {
+    "message": "作者：CharlyBrown"
+  },
+  "infoVersion": {
+    "message": "版本 $1"
+  },
+  "welcomeTitle": {
+    "message": "歡迎使用 Header Editor Pro！"
+  },
+  "welcomeBody": {
+    "message": "感謝安裝 v$1"
+  },
+  "welcomeSubtitle": {
+    "message": "建立無限設定檔，輕鬆修改 HTTP 標頭"
+  },
+  "validReadyToCopyCurrent": {
+    "message": "可以複製（目前設定檔）"
+  },
+  "validReadyToCopyProfiles": {
+    "message": "可以複製 — 設定檔數：$1"
+  },
+  "validJson": {
+    "message": "JSON 有效"
+  },
+  "validJsonProfiles": {
+    "message": "JSON 有效 — 設定檔數：$1"
+  },
+  "validJsonHeaders": {
+    "message": "JSON 有效 — 標頭數：$1"
+  },
+  "validImportFailed": {
+    "message": "匯入失敗：$1"
+  },
+  "errHeaderMissingName": {
+    "message": "第 $1 個標頭：缺少或無效的 name 欄位"
+  },
+  "errInvalidJsonFormat": {
+    "message": "JSON 格式無效。應為標頭陣列或設定檔物件。"
+  },
   "errModHeaderExport": {
     "message": "這是 ModHeader 的設定檔匯出。請使用「建立新設定檔」方式匯入。"
   },
   "errCannotReplaceMultiple": {
     "message": "無法用多個設定檔取代目前設定檔。請改用「建立新設定檔」方式。"
   },
-  "errInvalidImportFormat": { "message": "匯入格式無效" },
-  "errFailedToReadFile": { "message": "讀取檔案失敗" },
-  "errSelectJsonFile": { "message": "請選擇 JSON 檔案" },
-  "errImportingFile": { "message": "匯入檔案時發生錯誤：$1" },
-
-  "importSuccess": { "message": "已成功匯入設定檔「$1」" },
+  "errInvalidImportFormat": {
+    "message": "匯入格式無效"
+  },
+  "errFailedToReadFile": {
+    "message": "讀取檔案失敗"
+  },
+  "errSelectJsonFile": {
+    "message": "請選擇 JSON 檔案"
+  },
+  "errImportingFile": {
+    "message": "匯入檔案時發生錯誤：$1"
+  },
+  "importSuccess": {
+    "message": "已成功匯入設定檔「$1」"
+  },
   "importModHeaderUrlFilters": {
     "message": "ModHeader 的網址篩選條件未被轉換。受影響的設定檔數：$1。如有需要，請使用本擴充功能的網域篩選重新建立。"
   },
-  "importedProfileName": { "message": "匯入的設定檔 $1" },
-  "importedFromModHeader": { "message": "從 ModHeader 匯入 - 點擊編輯" },
-  "exportFilenameFallback": { "message": "profile" },
-  "importedFromJson": { "message": "從 JSON 匯入 - 點擊編輯" }
+  "importedProfileName": {
+    "message": "匯入的設定檔 $1"
+  },
+  "importedFromModHeader": {
+    "message": "從 ModHeader 匯入 - 點擊編輯"
+  },
+  "exportFilenameFallback": {
+    "message": "profile"
+  },
+  "importedFromJson": {
+    "message": "從 JSON 匯入 - 點擊編輯"
+  }
 }

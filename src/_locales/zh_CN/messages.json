@@ -3,112 +3,268 @@
     "message": "unreviewed",
     "description": "MACHINE-TRANSLATED, NOT reviewed by a native speaker. Delete this key once someone has checked the file. See docs/i18n.md."
   },
-
   "appDesc": {
-    "message": "面向 Web 开发、API 测试与调试的 HTTP 标头编辑器。配置数量不限，支持 7 种语言，永久免费。"
+    "message": "修改 HTTP 请求头与响应头。无限配置文件，域名与标签组过滤，支持 7 种语言。免费开源。"
   },
-  "appTitle": { "message": "Header Editor Pro - Free" },
-
-  "sidebarAddProfile": { "message": "添加配置" },
-  "sidebarInfo": { "message": "扩展信息" },
-
-  "toolbarRefresh": { "message": "刷新" },
-  "toolbarPause": { "message": "暂停扩展" },
-  "toolbarResume": { "message": "恢复扩展" },
-  "toolbarPin": { "message": "固定（禁用自动关闭）" },
-  "toolbarUnpin": { "message": "取消固定（启用自动关闭）" },
-  "toolbarProfileColor": { "message": "配置颜色" },
-  "toolbarMenu": { "message": "菜单" },
-  "toolbarLanguage": { "message": "语言" },
-  "languageAuto": { "message": "自动" },
-  "toolbarDescriptionPlaceholder": { "message": "点击添加说明…" },
-
-  "menuImport": { "message": "导入配置" },
-  "menuExport": { "message": "导出配置" },
-  "menuDeleteProfile": { "message": "删除配置" },
-  "menuCannotDeleteDefault": { "message": "无法删除默认配置" },
-
-  "modalExportScope": { "message": "导出范围：" },
-  "modalScopeCurrent": { "message": "仅当前配置" },
-  "modalScopeAll": { "message": "全部配置" },
-  "modalImportMode": { "message": "导入方式：" },
-  "modalModeNew": { "message": "新建配置" },
-  "modalModeReplace": { "message": "替换当前配置" },
-  "modalCancel": { "message": "取消" },
-  "modalImport": { "message": "导入" },
-  "modalCopy": { "message": "复制" },
-  "modalCopied": { "message": "已复制！" },
-  "modalDownload": { "message": "下载" },
-  "modalJsonPlaceholder": { "message": "在此粘贴 JSON 配置…" },
-
-  "colorPickerTitle": { "message": "配置颜色" },
-  "colorPickerPreview": { "message": "预览：" },
-  "colorPickerBackground": { "message": "背景" },
-  "colorPickerText": { "message": "文字颜色" },
-  "colorPickerSave": { "message": "保存" },
-
-  "sectionRequestHeaders": { "message": "请求头" },
-  "sectionResponseHeaders": { "message": "响应头" },
-  "sectionFilters": { "message": "过滤条件" },
-  "sectionAddHeader": { "message": "添加标头" },
-
-  "headerNamePlaceholder": { "message": "名称" },
-  "headerValuePlaceholder": { "message": "值" },
-  "headerDragToReorder": { "message": "拖动以排序" },
-  "headerAppendMode": { "message": "追加而非覆盖" },
-  "headerCopyToProfile": { "message": "复制到配置…" },
-  "headerCopyDropdownLabel": { "message": "复制到配置" },
-  "headerDelete": { "message": "删除" },
-  "headerCopiedToast": { "message": "已复制到“$1”" },
-
-  "filtersDomains": { "message": "域名" },
-  "filtersDomainsTooltip": { "message": "仅对这些域名生效" },
-  "filtersDomainsPlaceholder": { "message": "example.com, api.example.com" },
-  "filtersDomainsIgnored": { "message": "已忽略（无效域名）：$1" },
-  "filtersTabGroup": { "message": "标签组" },
-  "filtersTabGroupTooltip": { "message": "仅对某个标签组生效" },
-  "filtersTabGroupSelect": { "message": "选择标签组…" },
-  "filtersTabGroupUnnamed": { "message": "（未命名）" },
-  "filtersTabGroupNotOpen": { "message": "（未打开）" },
-
-  "profileDefaultName": { "message": "默认" },
-  "profileNewName": { "message": "配置 $1" },
-  "profileDeleteConfirm": { "message": "确定要删除“$1”吗？此操作无法撤销。" },
-  "profileThisProfile": { "message": "该配置" },
-
-  "infoGitHub": { "message": "GitHub" },
-  "infoWebsite": { "message": "网站" },
-  "infoAuthor": { "message": "作者：CharlyBrown" },
-  "infoVersion": { "message": "版本 $1" },
-
-  "welcomeTitle": { "message": "欢迎使用 Header Editor Pro！" },
-  "welcomeBody": { "message": "感谢安装 v$1" },
-  "welcomeSubtitle": { "message": "创建任意数量的配置，轻松修改 HTTP 请求头" },
-
-  "validReadyToCopyCurrent": { "message": "可以复制（当前配置）" },
-  "validReadyToCopyProfiles": { "message": "可以复制 — 配置数：$1" },
-  "validJson": { "message": "JSON 有效" },
-  "validJsonProfiles": { "message": "JSON 有效 — 配置数：$1" },
-  "validJsonHeaders": { "message": "JSON 有效 — 请求头数：$1" },
-  "validImportFailed": { "message": "导入失败：$1" },
-
-  "errHeaderMissingName": { "message": "第 $1 个请求头：缺少或无效的 name 字段" },
-  "errInvalidJsonFormat": { "message": "JSON 格式无效。应为请求头数组或配置对象。" },
-  "errModHeaderExport": { "message": "这是 ModHeader 的配置导出文件。请使用“新建配置”方式导入。" },
+  "appName": {
+    "message": "Header Editor Pro – 修改 HTTP 请求头"
+  },
+  "appTitle": {
+    "message": "Header Editor Pro - Free"
+  },
+  "sidebarAddProfile": {
+    "message": "添加配置"
+  },
+  "sidebarInfo": {
+    "message": "扩展信息"
+  },
+  "toolbarRefresh": {
+    "message": "刷新"
+  },
+  "toolbarPause": {
+    "message": "暂停扩展"
+  },
+  "toolbarResume": {
+    "message": "恢复扩展"
+  },
+  "toolbarPin": {
+    "message": "固定（禁用自动关闭）"
+  },
+  "toolbarUnpin": {
+    "message": "取消固定（启用自动关闭）"
+  },
+  "toolbarProfileColor": {
+    "message": "配置颜色"
+  },
+  "toolbarMenu": {
+    "message": "菜单"
+  },
+  "toolbarLanguage": {
+    "message": "语言"
+  },
+  "languageAuto": {
+    "message": "自动"
+  },
+  "toolbarDescriptionPlaceholder": {
+    "message": "点击添加说明…"
+  },
+  "menuImport": {
+    "message": "导入配置"
+  },
+  "menuExport": {
+    "message": "导出配置"
+  },
+  "menuDeleteProfile": {
+    "message": "删除配置"
+  },
+  "menuCannotDeleteDefault": {
+    "message": "无法删除默认配置"
+  },
+  "modalExportScope": {
+    "message": "导出范围："
+  },
+  "modalScopeCurrent": {
+    "message": "仅当前配置"
+  },
+  "modalScopeAll": {
+    "message": "全部配置"
+  },
+  "modalImportMode": {
+    "message": "导入方式："
+  },
+  "modalModeNew": {
+    "message": "新建配置"
+  },
+  "modalModeReplace": {
+    "message": "替换当前配置"
+  },
+  "modalCancel": {
+    "message": "取消"
+  },
+  "modalImport": {
+    "message": "导入"
+  },
+  "modalCopy": {
+    "message": "复制"
+  },
+  "modalCopied": {
+    "message": "已复制！"
+  },
+  "modalDownload": {
+    "message": "下载"
+  },
+  "modalJsonPlaceholder": {
+    "message": "在此粘贴 JSON 配置…"
+  },
+  "colorPickerTitle": {
+    "message": "配置颜色"
+  },
+  "colorPickerPreview": {
+    "message": "预览："
+  },
+  "colorPickerBackground": {
+    "message": "背景"
+  },
+  "colorPickerText": {
+    "message": "文字颜色"
+  },
+  "colorPickerSave": {
+    "message": "保存"
+  },
+  "sectionRequestHeaders": {
+    "message": "请求头"
+  },
+  "sectionResponseHeaders": {
+    "message": "响应头"
+  },
+  "sectionFilters": {
+    "message": "过滤条件"
+  },
+  "sectionAddHeader": {
+    "message": "添加标头"
+  },
+  "headerNamePlaceholder": {
+    "message": "名称"
+  },
+  "headerValuePlaceholder": {
+    "message": "值"
+  },
+  "headerDragToReorder": {
+    "message": "拖动以排序"
+  },
+  "headerAppendMode": {
+    "message": "追加而非覆盖"
+  },
+  "headerCopyToProfile": {
+    "message": "复制到配置…"
+  },
+  "headerCopyDropdownLabel": {
+    "message": "复制到配置"
+  },
+  "headerDelete": {
+    "message": "删除"
+  },
+  "headerCopiedToast": {
+    "message": "已复制到“$1”"
+  },
+  "filtersDomains": {
+    "message": "域名"
+  },
+  "filtersDomainsTooltip": {
+    "message": "仅对这些域名生效"
+  },
+  "filtersDomainsPlaceholder": {
+    "message": "example.com, api.example.com"
+  },
+  "filtersDomainsIgnored": {
+    "message": "已忽略（无效域名）：$1"
+  },
+  "filtersTabGroup": {
+    "message": "标签组"
+  },
+  "filtersTabGroupTooltip": {
+    "message": "仅对某个标签组生效"
+  },
+  "filtersTabGroupSelect": {
+    "message": "选择标签组…"
+  },
+  "filtersTabGroupUnnamed": {
+    "message": "（未命名）"
+  },
+  "filtersTabGroupNotOpen": {
+    "message": "（未打开）"
+  },
+  "profileDefaultName": {
+    "message": "默认"
+  },
+  "profileNewName": {
+    "message": "配置 $1"
+  },
+  "profileDeleteConfirm": {
+    "message": "确定要删除“$1”吗？此操作无法撤销。"
+  },
+  "profileThisProfile": {
+    "message": "该配置"
+  },
+  "infoGitHub": {
+    "message": "GitHub"
+  },
+  "infoWebsite": {
+    "message": "网站"
+  },
+  "infoAuthor": {
+    "message": "作者：CharlyBrown"
+  },
+  "infoVersion": {
+    "message": "版本 $1"
+  },
+  "welcomeTitle": {
+    "message": "欢迎使用 Header Editor Pro！"
+  },
+  "welcomeBody": {
+    "message": "感谢安装 v$1"
+  },
+  "welcomeSubtitle": {
+    "message": "创建任意数量的配置，轻松修改 HTTP 请求头"
+  },
+  "validReadyToCopyCurrent": {
+    "message": "可以复制（当前配置）"
+  },
+  "validReadyToCopyProfiles": {
+    "message": "可以复制 — 配置数：$1"
+  },
+  "validJson": {
+    "message": "JSON 有效"
+  },
+  "validJsonProfiles": {
+    "message": "JSON 有效 — 配置数：$1"
+  },
+  "validJsonHeaders": {
+    "message": "JSON 有效 — 请求头数：$1"
+  },
+  "validImportFailed": {
+    "message": "导入失败：$1"
+  },
+  "errHeaderMissingName": {
+    "message": "第 $1 个请求头：缺少或无效的 name 字段"
+  },
+  "errInvalidJsonFormat": {
+    "message": "JSON 格式无效。应为请求头数组或配置对象。"
+  },
+  "errModHeaderExport": {
+    "message": "这是 ModHeader 的配置导出文件。请使用“新建配置”方式导入。"
+  },
   "errCannotReplaceMultiple": {
     "message": "无法用多个配置替换当前配置。请改用“新建配置”方式。"
   },
-  "errInvalidImportFormat": { "message": "导入格式无效" },
-  "errFailedToReadFile": { "message": "读取文件失败" },
-  "errSelectJsonFile": { "message": "请选择一个 JSON 文件" },
-  "errImportingFile": { "message": "导入文件出错：$1" },
-
-  "importSuccess": { "message": "已成功导入到配置“$1”" },
+  "errInvalidImportFormat": {
+    "message": "导入格式无效"
+  },
+  "errFailedToReadFile": {
+    "message": "读取文件失败"
+  },
+  "errSelectJsonFile": {
+    "message": "请选择一个 JSON 文件"
+  },
+  "errImportingFile": {
+    "message": "导入文件出错：$1"
+  },
+  "importSuccess": {
+    "message": "已成功导入到配置“$1”"
+  },
   "importModHeaderUrlFilters": {
     "message": "ModHeader 的 URL 过滤条件未被转换。受影响的配置数：$1。如有需要，请使用本扩展的域名过滤重新设置。"
   },
-  "importedProfileName": { "message": "导入的配置 $1" },
-  "importedFromModHeader": { "message": "从 ModHeader 导入 - 点击编辑" },
-  "exportFilenameFallback": { "message": "profile" },
-  "importedFromJson": { "message": "从 JSON 导入 - 点击编辑" }
+  "importedProfileName": {
+    "message": "导入的配置 $1"
+  },
+  "importedFromModHeader": {
+    "message": "从 ModHeader 导入 - 点击编辑"
+  },
+  "exportFilenameFallback": {
+    "message": "profile"
+  },
+  "importedFromJson": {
+    "message": "从 JSON 导入 - 点击编辑"
+  }
 }

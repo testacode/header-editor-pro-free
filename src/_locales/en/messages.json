@@ -1,19 +1,31 @@
 {
   "appDesc": {
-    "message": "Professional HTTP header editor for web development, API testing and debugging. Unlimited profiles, 7 languages, always free.",
+    "message": "Modify HTTP request and response headers. Unlimited profiles, domain and tab group filters, 7 languages. Free and open source.",
     "description": "Extension description shown in the store listing and chrome://extensions."
+  },
+  "appName": {
+    "message": "Header Editor Pro – Modify HTTP Headers",
+    "description": "Extension name shown in the stores and in the browser."
   },
   "appTitle": {
     "message": "Header Editor Pro - Free",
     "description": "Document title of the popup."
   },
-
-  "sidebarAddProfile": { "message": "Add Profile" },
-  "sidebarInfo": { "message": "Extension Info" },
-
-  "toolbarRefresh": { "message": "Refresh" },
-  "toolbarPause": { "message": "Pause Extension" },
-  "toolbarResume": { "message": "Resume Extension" },
+  "sidebarAddProfile": {
+    "message": "Add Profile"
+  },
+  "sidebarInfo": {
+    "message": "Extension Info"
+  },
+  "toolbarRefresh": {
+    "message": "Refresh"
+  },
+  "toolbarPause": {
+    "message": "Pause Extension"
+  },
+  "toolbarResume": {
+    "message": "Resume Extension"
+  },
   "toolbarPin": {
     "message": "Pin (Disable auto-close)",
     "description": "Tooltip on the pin button while the popup still closes automatically."
@@ -22,8 +34,12 @@
     "message": "Unpin (Enable auto-close)",
     "description": "Tooltip on the pin button while the popup is pinned open."
   },
-  "toolbarProfileColor": { "message": "Profile Color" },
-  "toolbarMenu": { "message": "Menu" },
+  "toolbarProfileColor": {
+    "message": "Profile Color"
+  },
+  "toolbarMenu": {
+    "message": "Menu"
+  },
   "toolbarLanguage": {
     "message": "Language",
     "description": "Tooltip on the language selector button."
@@ -36,33 +52,62 @@
     "message": "Click to add description...",
     "description": "Placeholder in the profile description field when it is empty."
   },
-
-  "menuImport": { "message": "Import Configuration" },
-  "menuExport": { "message": "Export Configuration" },
-  "menuDeleteProfile": { "message": "Delete Profile" },
+  "menuImport": {
+    "message": "Import Configuration"
+  },
+  "menuExport": {
+    "message": "Export Configuration"
+  },
+  "menuDeleteProfile": {
+    "message": "Delete Profile"
+  },
   "menuCannotDeleteDefault": {
     "message": "Cannot delete default profile",
     "description": "Replaces the delete entry when the default profile is selected."
   },
-
-  "modalExportScope": { "message": "Export scope:" },
-  "modalScopeCurrent": { "message": "Current profile only" },
-  "modalScopeAll": { "message": "All profiles" },
-  "modalImportMode": { "message": "Import mode:" },
+  "modalExportScope": {
+    "message": "Export scope:"
+  },
+  "modalScopeCurrent": {
+    "message": "Current profile only"
+  },
+  "modalScopeAll": {
+    "message": "All profiles"
+  },
+  "modalImportMode": {
+    "message": "Import mode:"
+  },
   "modalModeNew": {
     "message": "Create new profile",
     "description": "Import mode label. Quoted verbatim by errModHeaderExport and errCannotReplaceMultiple — keep the three consistent."
   },
-  "modalModeReplace": { "message": "Replace current profile" },
-  "modalCancel": { "message": "Cancel" },
-  "modalImport": { "message": "Import" },
-  "modalCopy": { "message": "Copy" },
-  "modalCopied": { "message": "Copied!" },
-  "modalDownload": { "message": "Download" },
-  "modalJsonPlaceholder": { "message": "Paste your JSON configuration here..." },
-
-  "colorPickerTitle": { "message": "Profile Color" },
-  "colorPickerPreview": { "message": "Preview:" },
+  "modalModeReplace": {
+    "message": "Replace current profile"
+  },
+  "modalCancel": {
+    "message": "Cancel"
+  },
+  "modalImport": {
+    "message": "Import"
+  },
+  "modalCopy": {
+    "message": "Copy"
+  },
+  "modalCopied": {
+    "message": "Copied!"
+  },
+  "modalDownload": {
+    "message": "Download"
+  },
+  "modalJsonPlaceholder": {
+    "message": "Paste your JSON configuration here..."
+  },
+  "colorPickerTitle": {
+    "message": "Profile Color"
+  },
+  "colorPickerPreview": {
+    "message": "Preview:"
+  },
   "colorPickerBackground": {
     "message": "BACKGROUND",
     "description": "Tab label, uppercase in English. Two tabs share one row — keep it short."
@@ -71,16 +116,30 @@
     "message": "TEXT COLOR",
     "description": "Tab label, uppercase in English. Two tabs share one row — keep it short."
   },
-  "colorPickerSave": { "message": "Save" },
-
-  "sectionRequestHeaders": { "message": "Request headers" },
-  "sectionResponseHeaders": { "message": "Response headers" },
-  "sectionFilters": { "message": "Filters" },
-  "sectionAddHeader": { "message": "Add header" },
-
-  "headerNamePlaceholder": { "message": "Header name" },
-  "headerValuePlaceholder": { "message": "Header value" },
-  "headerDragToReorder": { "message": "Drag to reorder" },
+  "colorPickerSave": {
+    "message": "Save"
+  },
+  "sectionRequestHeaders": {
+    "message": "Request headers"
+  },
+  "sectionResponseHeaders": {
+    "message": "Response headers"
+  },
+  "sectionFilters": {
+    "message": "Filters"
+  },
+  "sectionAddHeader": {
+    "message": "Add header"
+  },
+  "headerNamePlaceholder": {
+    "message": "Header name"
+  },
+  "headerValuePlaceholder": {
+    "message": "Header value"
+  },
+  "headerDragToReorder": {
+    "message": "Drag to reorder"
+  },
   "headerAppendMode": {
     "message": "Append instead of set",
     "description": "Tooltip on the 'A' toggle that switches a header from set to append."
@@ -93,14 +152,19 @@
     "message": "Copy to profile",
     "description": "Heading inside the copy dropdown."
   },
-  "headerDelete": { "message": "Delete header" },
+  "headerDelete": {
+    "message": "Delete header"
+  },
   "headerCopiedToast": {
     "message": "Copied to \"$1\"",
     "description": "Toast after copying a header. $1 = destination profile name, user-supplied."
   },
-
-  "filtersDomains": { "message": "Domains" },
-  "filtersDomainsTooltip": { "message": "Limit this profile to these domains" },
+  "filtersDomains": {
+    "message": "Domains"
+  },
+  "filtersDomainsTooltip": {
+    "message": "Limit this profile to these domains"
+  },
   "filtersDomainsPlaceholder": {
     "message": "example.com, api.example.com",
     "description": "Example domains. Keep them as-is — they are not real names to translate."
@@ -109,9 +173,15 @@
     "message": "Ignored (not valid domains): $1",
     "description": "$1 = comma-separated list of the entries that were dropped."
   },
-  "filtersTabGroup": { "message": "Tab group" },
-  "filtersTabGroupTooltip": { "message": "Limit this profile to a tab group" },
-  "filtersTabGroupSelect": { "message": "Select a tab group…" },
+  "filtersTabGroup": {
+    "message": "Tab group"
+  },
+  "filtersTabGroupTooltip": {
+    "message": "Limit this profile to a tab group"
+  },
+  "filtersTabGroupSelect": {
+    "message": "Select a tab group…"
+  },
   "filtersTabGroupUnnamed": {
     "message": "(unnamed)",
     "description": "Stands in for a Chrome tab group the user never titled."
@@ -120,7 +190,6 @@
     "message": " (not open)",
     "description": "Suffix on a saved tab group that no longer exists. Keep the leading space."
   },
-
   "profileDefaultName": {
     "message": "Default",
     "description": "Name of the profile that ships with the extension. Stored as data on creation."
@@ -137,9 +206,12 @@
     "message": "this profile",
     "description": "Stands in for the name in profileDeleteConfirm when it is missing."
   },
-
-  "infoGitHub": { "message": "GitHub" },
-  "infoWebsite": { "message": "Website" },
+  "infoGitHub": {
+    "message": "GitHub"
+  },
+  "infoWebsite": {
+    "message": "Website"
+  },
   "infoAuthor": {
     "message": "Author: CharlyBrown",
     "description": "Only the word 'Author' translates — CharlyBrown is a person's handle."
@@ -148,7 +220,6 @@
     "message": "Version $1",
     "description": "$1 = version number from the manifest, e.g. 2.5.3."
   },
-
   "welcomeTitle": {
     "message": "Welcome to Header Editor Pro!",
     "description": "First-install tooltip. 'Header Editor Pro' is the brand name — do not translate it."
@@ -157,14 +228,19 @@
     "message": "Thanks for installing v$1",
     "description": "$1 = version number, e.g. 2.5.3."
   },
-  "welcomeSubtitle": { "message": "Create unlimited profiles and modify HTTP headers easily" },
-
-  "validReadyToCopyCurrent": { "message": "Ready to copy (current profile)" },
+  "welcomeSubtitle": {
+    "message": "Create unlimited profiles and modify HTTP headers easily"
+  },
+  "validReadyToCopyCurrent": {
+    "message": "Ready to copy (current profile)"
+  },
   "validReadyToCopyProfiles": {
     "message": "Ready to copy — profiles: $1",
     "description": "$1 = how many profiles. Phrased to avoid plural forms."
   },
-  "validJson": { "message": "Valid JSON" },
+  "validJson": {
+    "message": "Valid JSON"
+  },
   "validJsonProfiles": {
     "message": "Valid JSON — profiles: $1",
     "description": "$1 = how many profiles. Phrased to avoid plural forms."
@@ -177,7 +253,6 @@
     "message": "Import failed: $1",
     "description": "$1 = the underlying error text, already translated when it is ours."
   },
-
   "errHeaderMissingName": {
     "message": "Header $1: missing or invalid 'name' field",
     "description": "$1 = position of the header in the imported list, starting at 1. Not a count."
@@ -193,14 +268,19 @@
     "message": "Cannot replace current profile with multiple profiles. Use \"Create new profile\" mode instead.",
     "description": "The quoted text is the modalModeNew label — keep both in step."
   },
-  "errInvalidImportFormat": { "message": "Invalid import format" },
-  "errFailedToReadFile": { "message": "Failed to read file" },
-  "errSelectJsonFile": { "message": "Please select a JSON file" },
+  "errInvalidImportFormat": {
+    "message": "Invalid import format"
+  },
+  "errFailedToReadFile": {
+    "message": "Failed to read file"
+  },
+  "errSelectJsonFile": {
+    "message": "Please select a JSON file"
+  },
   "errImportingFile": {
     "message": "Error importing file: $1",
     "description": "$1 = the underlying error text."
   },
-
   "importSuccess": {
     "message": "Successfully imported to profile \"$1\"",
     "description": "$1 = destination profile name."

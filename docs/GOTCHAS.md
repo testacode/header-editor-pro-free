@@ -54,7 +54,9 @@ Por eso `popup.html` usa `data-i18n="key"` (y `-title` / `-placeholder` / `-valu
 
 Como el manifest dice `"description": "__MSG_appDesc__"`, la store resuelve **una description por idioma** y valida cada una — no alcanza con que el inglés entre. `src/__tests__/locales.test.js` ahora asserta el límite en los 7 catálogos.
 
-Los idiomas CJK entran holgados (50-60 chars); los de alfabeto latino y el ruso son los que rozan el límite.
+Los idiomas CJK entran holgados (50-60 chars); los de alfabeto latino y el ruso son los que rozan el límite. Volvió a pasar en la 2.6.1 al reescribir el summary: español dio 139 y ruso 142 en el primer intento, y hubo que acortar los dos.
+
+Desde la 2.6.1 el `name` también sale de un `__MSG_`, con **dos** techos distintos: Chrome corta en 75, AMO en 50 (y AMO trunca en silencio en vez de rechazar, que es peor — te enterás mirando el listing). Los tests assertan el más chico de los dos.
 
 ## Texto visible guardado como dato (el centinela de descripción)
 

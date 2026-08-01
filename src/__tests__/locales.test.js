@@ -72,8 +72,8 @@ describe('message catalogs', () => {
     const unused = Object.keys(english).filter(
       key => key !== REVIEW_SENTINEL && !usedInJs.has(key) && !usedInHtml.has(key)
     );
-    // appDesc is referenced by manifest.json via __MSG_, not by code.
-    expect(unused).toEqual(['appDesc']);
+    // appDesc and appName are referenced by manifest.json via __MSG_, not by code.
+    expect(unused).toEqual(['appDesc', 'appName']);
   });
 
   test('message names are valid for Chrome (ASCII word chars, case-insensitively unique)', () => {
@@ -117,11 +117,22 @@ describe('message catalogs', () => {
     });
   });
 
-  // The manifest resolves __MSG_appDesc__ per locale, so every catalog has to
-  // clear the store's limit — not just the default one.
+  // The manifest resolves __MSG_appDesc__ and __MSG_appName__ per locale, so
+  // every catalog has to clear the store limits — not just the default one.
+  // Chrome enforces both; AMO truncates the name at 50 instead of rejecting it.
   describe.each(locales)('%s appDesc', locale => {
     test('fits the 132-character store limit', () => {
       expect(readCatalog(locale).appDesc.message.length).toBeLessThanOrEqual(132);
+    });
+  });
+
+  describe.each(locales)('%s appName', locale => {
+    test('fits the 75-character manifest limit', () => {
+      expect(readCatalog(locale).appName.message.length).toBeLessThanOrEqual(75);
+    });
+
+    test('fits the 50-character AMO listing limit', () => {
+      expect(readCatalog(locale).appName.message.length).toBeLessThanOrEqual(50);
     });
   });
 });
@@ -139,7 +150,12 @@ describe('manifest', () => {
     expect(english[match[1]]).toBeDefined();
   });
 
-  test('the name is NOT localized — it must match the store listing', () => {
-    expect(manifest.name).not.toMatch(/^__MSG_/);
+  // Reversed in 2.6.1: the name used to be a fixed brand string. AMO ranks the
+  // name far above every other field and indexes it once per translation, so a
+  // localized name is the single biggest search lever there.
+  test('the name is a __MSG_ reference backed by a real key', () => {
+    const match = manifest.name.match(/^__MSG_([A-Za-z0-9_]+)__$/);
+    expect(match).not.toBeNull();
+    expect(english[match[1]]).toBeDefined();
   });
 });

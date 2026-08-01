@@ -3,98 +3,231 @@
     "message": "unreviewed",
     "description": "MACHINE-TRANSLATED, NOT reviewed by a native speaker. Delete this key once someone has checked the file. See docs/i18n.md."
   },
-
   "appDesc": {
-    "message": "Редактор HTTP-заголовков для веб-разработки, тестирования API и отладки. Профилей сколько угодно, 7 языков, бесплатно."
+    "message": "Изменяйте HTTP-заголовки запросов и ответов. Профили без ограничений, фильтры по доменам, 7 языков. Бесплатно, открытый код."
   },
-  "appTitle": { "message": "Header Editor Pro - Free" },
-
-  "sidebarAddProfile": { "message": "Добавить профиль" },
-  "sidebarInfo": { "message": "О расширении" },
-
-  "toolbarRefresh": { "message": "Обновить" },
-  "toolbarPause": { "message": "Приостановить" },
-  "toolbarResume": { "message": "Возобновить" },
-  "toolbarPin": { "message": "Закрепить (без автозакрытия)" },
-  "toolbarUnpin": { "message": "Открепить (с автозакрытием)" },
-  "toolbarProfileColor": { "message": "Цвет профиля" },
-  "toolbarMenu": { "message": "Меню" },
-  "toolbarLanguage": { "message": "Язык" },
-  "languageAuto": { "message": "Авто" },
-  "toolbarDescriptionPlaceholder": { "message": "Нажмите, чтобы добавить описание…" },
-
-  "menuImport": { "message": "Импорт настроек" },
-  "menuExport": { "message": "Экспорт настроек" },
-  "menuDeleteProfile": { "message": "Удалить профиль" },
-  "menuCannotDeleteDefault": { "message": "Профиль по умолчанию нельзя удалить" },
-
-  "modalExportScope": { "message": "Что экспортировать:" },
-  "modalScopeCurrent": { "message": "Только текущий профиль" },
-  "modalScopeAll": { "message": "Все профили" },
-  "modalImportMode": { "message": "Способ импорта:" },
-  "modalModeNew": { "message": "Создать профиль" },
-  "modalModeReplace": { "message": "Заменить текущий профиль" },
-  "modalCancel": { "message": "Отмена" },
-  "modalImport": { "message": "Импорт" },
-  "modalCopy": { "message": "Копировать" },
-  "modalCopied": { "message": "Скопировано!" },
-  "modalDownload": { "message": "Скачать" },
-  "modalJsonPlaceholder": { "message": "Вставьте сюда конфигурацию JSON…" },
-
-  "colorPickerTitle": { "message": "Цвет профиля" },
-  "colorPickerPreview": { "message": "Образец:" },
-  "colorPickerBackground": { "message": "ФОН" },
-  "colorPickerText": { "message": "ТЕКСТ" },
-  "colorPickerSave": { "message": "Сохранить" },
-
-  "sectionRequestHeaders": { "message": "Заголовки запроса" },
-  "sectionResponseHeaders": { "message": "Заголовки ответа" },
-  "sectionFilters": { "message": "Фильтры" },
-  "sectionAddHeader": { "message": "Добавить заголовок" },
-
-  "headerNamePlaceholder": { "message": "Имя" },
-  "headerValuePlaceholder": { "message": "Значение" },
-  "headerDragToReorder": { "message": "Перетащите для сортировки" },
-  "headerAppendMode": { "message": "Добавлять, а не заменять" },
-  "headerCopyToProfile": { "message": "Копировать в профиль…" },
-  "headerCopyDropdownLabel": { "message": "Копировать в профиль" },
-  "headerDelete": { "message": "Удалить" },
-  "headerCopiedToast": { "message": "Скопировано в «$1»" },
-
-  "filtersDomains": { "message": "Домены" },
-  "filtersDomainsTooltip": { "message": "Применять профиль только к этим доменам" },
-  "filtersDomainsPlaceholder": { "message": "example.com, api.example.com" },
-  "filtersDomainsIgnored": { "message": "Пропущено (неверные домены): $1" },
-  "filtersTabGroup": { "message": "Группа вкладок" },
-  "filtersTabGroupTooltip": { "message": "Применять профиль только к группе вкладок" },
-  "filtersTabGroupSelect": { "message": "Выберите группу вкладок…" },
-  "filtersTabGroupUnnamed": { "message": "(без названия)" },
-  "filtersTabGroupNotOpen": { "message": " (не открыта)" },
-
-  "profileDefaultName": { "message": "Основной" },
-  "profileNewName": { "message": "Профиль $1" },
-  "profileDeleteConfirm": { "message": "Удалить «$1»? Это действие нельзя отменить." },
-  "profileThisProfile": { "message": "этот профиль" },
-
-  "infoGitHub": { "message": "GitHub" },
-  "infoWebsite": { "message": "Сайт" },
-  "infoAuthor": { "message": "Автор: CharlyBrown" },
-  "infoVersion": { "message": "Версия $1" },
-
-  "welcomeTitle": { "message": "Добро пожаловать в Header Editor Pro!" },
-  "welcomeBody": { "message": "Спасибо за установку v$1" },
+  "appName": {
+    "message": "Header Editor Pro – Изменение HTTP-заголовков"
+  },
+  "appTitle": {
+    "message": "Header Editor Pro - Free"
+  },
+  "sidebarAddProfile": {
+    "message": "Добавить профиль"
+  },
+  "sidebarInfo": {
+    "message": "О расширении"
+  },
+  "toolbarRefresh": {
+    "message": "Обновить"
+  },
+  "toolbarPause": {
+    "message": "Приостановить"
+  },
+  "toolbarResume": {
+    "message": "Возобновить"
+  },
+  "toolbarPin": {
+    "message": "Закрепить (без автозакрытия)"
+  },
+  "toolbarUnpin": {
+    "message": "Открепить (с автозакрытием)"
+  },
+  "toolbarProfileColor": {
+    "message": "Цвет профиля"
+  },
+  "toolbarMenu": {
+    "message": "Меню"
+  },
+  "toolbarLanguage": {
+    "message": "Язык"
+  },
+  "languageAuto": {
+    "message": "Авто"
+  },
+  "toolbarDescriptionPlaceholder": {
+    "message": "Нажмите, чтобы добавить описание…"
+  },
+  "menuImport": {
+    "message": "Импорт настроек"
+  },
+  "menuExport": {
+    "message": "Экспорт настроек"
+  },
+  "menuDeleteProfile": {
+    "message": "Удалить профиль"
+  },
+  "menuCannotDeleteDefault": {
+    "message": "Профиль по умолчанию нельзя удалить"
+  },
+  "modalExportScope": {
+    "message": "Что экспортировать:"
+  },
+  "modalScopeCurrent": {
+    "message": "Только текущий профиль"
+  },
+  "modalScopeAll": {
+    "message": "Все профили"
+  },
+  "modalImportMode": {
+    "message": "Способ импорта:"
+  },
+  "modalModeNew": {
+    "message": "Создать профиль"
+  },
+  "modalModeReplace": {
+    "message": "Заменить текущий профиль"
+  },
+  "modalCancel": {
+    "message": "Отмена"
+  },
+  "modalImport": {
+    "message": "Импорт"
+  },
+  "modalCopy": {
+    "message": "Копировать"
+  },
+  "modalCopied": {
+    "message": "Скопировано!"
+  },
+  "modalDownload": {
+    "message": "Скачать"
+  },
+  "modalJsonPlaceholder": {
+    "message": "Вставьте сюда конфигурацию JSON…"
+  },
+  "colorPickerTitle": {
+    "message": "Цвет профиля"
+  },
+  "colorPickerPreview": {
+    "message": "Образец:"
+  },
+  "colorPickerBackground": {
+    "message": "ФОН"
+  },
+  "colorPickerText": {
+    "message": "ТЕКСТ"
+  },
+  "colorPickerSave": {
+    "message": "Сохранить"
+  },
+  "sectionRequestHeaders": {
+    "message": "Заголовки запроса"
+  },
+  "sectionResponseHeaders": {
+    "message": "Заголовки ответа"
+  },
+  "sectionFilters": {
+    "message": "Фильтры"
+  },
+  "sectionAddHeader": {
+    "message": "Добавить заголовок"
+  },
+  "headerNamePlaceholder": {
+    "message": "Имя"
+  },
+  "headerValuePlaceholder": {
+    "message": "Значение"
+  },
+  "headerDragToReorder": {
+    "message": "Перетащите для сортировки"
+  },
+  "headerAppendMode": {
+    "message": "Добавлять, а не заменять"
+  },
+  "headerCopyToProfile": {
+    "message": "Копировать в профиль…"
+  },
+  "headerCopyDropdownLabel": {
+    "message": "Копировать в профиль"
+  },
+  "headerDelete": {
+    "message": "Удалить"
+  },
+  "headerCopiedToast": {
+    "message": "Скопировано в «$1»"
+  },
+  "filtersDomains": {
+    "message": "Домены"
+  },
+  "filtersDomainsTooltip": {
+    "message": "Применять профиль только к этим доменам"
+  },
+  "filtersDomainsPlaceholder": {
+    "message": "example.com, api.example.com"
+  },
+  "filtersDomainsIgnored": {
+    "message": "Пропущено (неверные домены): $1"
+  },
+  "filtersTabGroup": {
+    "message": "Группа вкладок"
+  },
+  "filtersTabGroupTooltip": {
+    "message": "Применять профиль только к группе вкладок"
+  },
+  "filtersTabGroupSelect": {
+    "message": "Выберите группу вкладок…"
+  },
+  "filtersTabGroupUnnamed": {
+    "message": "(без названия)"
+  },
+  "filtersTabGroupNotOpen": {
+    "message": " (не открыта)"
+  },
+  "profileDefaultName": {
+    "message": "Основной"
+  },
+  "profileNewName": {
+    "message": "Профиль $1"
+  },
+  "profileDeleteConfirm": {
+    "message": "Удалить «$1»? Это действие нельзя отменить."
+  },
+  "profileThisProfile": {
+    "message": "этот профиль"
+  },
+  "infoGitHub": {
+    "message": "GitHub"
+  },
+  "infoWebsite": {
+    "message": "Сайт"
+  },
+  "infoAuthor": {
+    "message": "Автор: CharlyBrown"
+  },
+  "infoVersion": {
+    "message": "Версия $1"
+  },
+  "welcomeTitle": {
+    "message": "Добро пожаловать в Header Editor Pro!"
+  },
+  "welcomeBody": {
+    "message": "Спасибо за установку v$1"
+  },
   "welcomeSubtitle": {
     "message": "Создавайте сколько угодно профилей и легко меняйте HTTP-заголовки"
   },
-
-  "validReadyToCopyCurrent": { "message": "Готово к копированию (текущий профиль)" },
-  "validReadyToCopyProfiles": { "message": "Готово к копированию — профилей: $1" },
-  "validJson": { "message": "JSON корректен" },
-  "validJsonProfiles": { "message": "JSON корректен — профилей: $1" },
-  "validJsonHeaders": { "message": "JSON корректен — заголовков: $1" },
-  "validImportFailed": { "message": "Не удалось импортировать: $1" },
-
-  "errHeaderMissingName": { "message": "Заголовок $1: поле «name» отсутствует или неверно" },
+  "validReadyToCopyCurrent": {
+    "message": "Готово к копированию (текущий профиль)"
+  },
+  "validReadyToCopyProfiles": {
+    "message": "Готово к копированию — профилей: $1"
+  },
+  "validJson": {
+    "message": "JSON корректен"
+  },
+  "validJsonProfiles": {
+    "message": "JSON корректен — профилей: $1"
+  },
+  "validJsonHeaders": {
+    "message": "JSON корректен — заголовков: $1"
+  },
+  "validImportFailed": {
+    "message": "Не удалось импортировать: $1"
+  },
+  "errHeaderMissingName": {
+    "message": "Заголовок $1: поле «name» отсутствует или неверно"
+  },
   "errInvalidJsonFormat": {
     "message": "Неверный формат JSON. Ожидается массив заголовков или объект профилей."
   },
@@ -104,17 +237,34 @@
   "errCannotReplaceMultiple": {
     "message": "Нельзя заменить текущий профиль несколькими. Используйте «Создать профиль»."
   },
-  "errInvalidImportFormat": { "message": "Неверный формат импорта" },
-  "errFailedToReadFile": { "message": "Не удалось прочитать файл" },
-  "errSelectJsonFile": { "message": "Выберите файл JSON" },
-  "errImportingFile": { "message": "Ошибка при импорте файла: $1" },
-
-  "importSuccess": { "message": "Импортировано в профиль «$1»" },
+  "errInvalidImportFormat": {
+    "message": "Неверный формат импорта"
+  },
+  "errFailedToReadFile": {
+    "message": "Не удалось прочитать файл"
+  },
+  "errSelectJsonFile": {
+    "message": "Выберите файл JSON"
+  },
+  "errImportingFile": {
+    "message": "Ошибка при импорте файла: $1"
+  },
+  "importSuccess": {
+    "message": "Импортировано в профиль «$1»"
+  },
   "importModHeaderUrlFilters": {
     "message": "URL-фильтры ModHeader не были преобразованы. Затронуто профилей: $1. При необходимости создайте их заново через фильтры по доменам."
   },
-  "importedProfileName": { "message": "Импортированный профиль $1" },
-  "importedFromModHeader": { "message": "Импортировано из ModHeader — нажмите для изменения" },
-  "exportFilenameFallback": { "message": "profile" },
-  "importedFromJson": { "message": "Импортировано из JSON — нажмите для изменения" }
+  "importedProfileName": {
+    "message": "Импортированный профиль $1"
+  },
+  "importedFromModHeader": {
+    "message": "Импортировано из ModHeader — нажмите для изменения"
+  },
+  "exportFilenameFallback": {
+    "message": "profile"
+  },
+  "importedFromJson": {
+    "message": "Импортировано из JSON — нажмите для изменения"
+  }
 }
