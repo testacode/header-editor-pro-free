@@ -85,8 +85,11 @@ git push origin master --tags
 - `css/popup.css` - Minified dark theme styling  
 - `js/popup.js` - Minified frontend logic
 - `js/background.js` - Minified service worker
-- `privacy.html` - Privacy policy page
+- `_locales/` - Translation catalogs (7 languages)
 - `icons/` - Extension icons (16px, 32px, 48px, 128px)
+
+The privacy policy is **not** bundled: it is served from GitHub Pages and linked
+from each store's dashboard. See `docs/i18n.md` for the site build.
 
 ### Source Package (`header-editor-pro-free-source-vX.X.X.zip`)
 ✅ **Included for Firefox AMO reviewers:**

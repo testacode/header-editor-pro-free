@@ -14,7 +14,8 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - `src/popup/` - UI components (HTML, CSS, JS) 
 - `src/background/` - Service worker for header modification
 - `src/assets/icons/` - Extension icons (16-128px)
-- `privacy.html` - Privacy policy hosted via GitHub Pages for Chrome Web Store compliance
+- `site/templates/` + `site/locales/` - Source of the GitHub Pages site (landing, privacy policy, 404), pre-rendered per language by `scripts/build-site.js`
+- `index.html`, `privacy.html`, `404.html`, `es/ ja/ ko/ ru/ zh-CN/ zh-TW/`, `sitemap.xml` - **Generated output, committed** so Pages can serve it. Never hand-edit: run `npm run build:site`. Site locale codes use hyphens (`zh-CN`), unlike the extension's underscores (`zh_CN`) — see `docs/i18n.md`
 - `dist/` - Build output (gitignored)
 
 **Extension Features:**
@@ -105,12 +106,17 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - GitHub Actions generates: `header-editor-pro-free-extension-vX.X.X.zip` + source package
 - Unified ZIP works for both Chrome Web Store and Firefox Add-ons
 
+**Site Build (separate from the extension):**
+- `npm run build:site` - Renders `site/templates/` × `site/locales/` into 21 pages (3 per language) plus `sitemap.xml`
+- English lands at the repo root; every other language in its own directory
+- Run it after touching any template or catalog, and commit the regenerated HTML
+
 ## Quality Assurance
 
 **Testing:**
 - Vitest framework with jsdom environment (modern Jest alternative)
 - Custom Chrome API mocking for Manifest V3 compatibility
-- 366 tests across 7 files: background service worker (declarativeNetRequest rule building, pause/resume), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, and `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 catalogs. Run `npm test`; coverage via `npm run test:coverage`.
+- 396 tests across 8 files: background service worker (declarativeNetRequest rule building, pause/resume), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
 - Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**
@@ -133,7 +139,8 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 ## Chrome Web Store Compliance
 
 **Privacy Policy Setup:**
-- Privacy policy hosted at root `privacy.html` for GitHub Pages accessibility
-- URL: `https://testacode.github.io/header-editor-pro-free/privacy.html`
+- Privacy policy hosted at root `privacy.html` for GitHub Pages accessibility, translated into all 7 languages (`<locale>/privacy.html`)
+- URL for the stores: `https://testacode.github.io/header-editor-pro-free/privacy.html` — always the English one; the translations exist for users, not for review
+- Generated from `site/templates/privacy.html`; edit there, never the output
 - URL is set in each store's Developer Dashboard (Chrome Web Store / AMO), not in `manifest.json` — `privacy_policy` is not a recognized MV3 manifest key
 - Required for Chrome Web Store approval process (via dashboard)

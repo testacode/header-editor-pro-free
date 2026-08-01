@@ -8,7 +8,8 @@ Essential guidance for agentic coding agents working in this Chrome/Firefox exte
 - `npm run build` - Production build to `dist/`
 - `npm run package` - Create extension ZIP packages
 - `npm run clean` - Remove build artifacts
-- `npm test` - Vitest unit tests (jsdom). Also: `npm run test:watch`, `npm run test:coverage`. Tests live in `src/**/__tests__/`.
+- `npm run build:site` - Render the GitHub Pages site (7 languages) from `site/`
+- `npm test` - Vitest unit tests (jsdom). Also: `npm run test:watch`, `npm run test:coverage`. Tests live in `src/**/__tests__/` and `site/__tests__/`.
 
 ## Code Style & Standards
 
@@ -46,6 +47,10 @@ Essential guidance for agentic coding agents working in this Chrome/Firefox exte
   outright, because the manifest declares `default_locale`.
 - Build system: Rspack with SWC loader, CSS extraction
 - Cross-browser: Single manifest.json works for Chrome + Firefox
+- Website: `site/templates/` + `site/locales/` → `scripts/build-site.js`. The HTML
+  at the repo root and the `es/ ja/ ko/ ru/ zh-CN/ zh-TW/` directories are
+  **generated and committed** — never hand-edit them. Separate catalogs from the
+  extension's, and hyphenated locale codes. See `docs/i18n.md`.
 
 ## Releasing
 

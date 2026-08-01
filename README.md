@@ -17,119 +17,39 @@
 
 🔥 **100% FREE** - No subscriptions, no premium features, no limitations  
 🎯 **Unlimited Profiles** - Create as many header configurations as you need  
-⚡ **Real-time Header Modification** - Instant application of request and response headers via Chrome's declarativeNetRequest API  
+⚡ **Real-time Header Modification** - Instant application of request and response headers via the declarativeNetRequest API  
 🎨 **Professional Dark UI** - Clean, modern interface designed for developers  
 ☑️ **Individual Header Controls** - Enable/disable each header independently  
-📋 **Copy to Another Profile** - Per-row dropdown button to quickly copy a header to another profile's same section  
+📋 **Copy to Another Profile** - Per-row dropdown to copy a header into another profile's matching section  
 🎯 **Profile Filters** - Scope a profile to specific domains, or to a Chrome tab group so headers never leak outside it  
 🌐 **7 Languages** - English, 简体中文, 繁體中文, 日本語, 한국어, Русский and Español, switchable from the toolbar ([spot a bad translation?](https://github.com/testacode/header-editor-pro-free/issues/new?template=translation.yml))  
-🔄 **Drag & Drop Reordering** - Easily reorganize headers by dragging them to new positions  
+🔄 **Drag & Drop Reordering** - Reorganize headers by dragging them  
 ⏸️ **Pause Functionality** - Temporarily disable without losing configurations  
 🔒 **Privacy Focused** - All data stored locally, no tracking or analytics  
 
-## 🎯 Perfect For
-
-- **Web Developers** - Adding request headers for API testing and auth flows
-- **QA Testers** - Simulating different environments and conditions  
-- **API Testing** - Adding authentication headers and custom parameters
-- **Debugging** - Troubleshooting header-related issues
-- **Development** - Local testing with modified headers
-
-## 📸 Screenshots
+Built for web developers, QA testers and anyone debugging API auth flows, CORS
+or environment-specific behaviour.
 
 <div align="center">
 
 ![Header Editor Pro - Free Interface](screenshots/screenshot.jpg)
 
-*Professional dark interface with profile circles, header management, and clean design*
-
 </div>
 
 ## 🚀 Installation
 
-### Chrome Web Store (Recommended)
-1. Visit the [Chrome Web Store](https://chromewebstore.google.com/detail/cpdkigffbilaglfmddclhgfflimpaeim)
-2. Click "Add to Chrome"
-3. Click "Add Extension" in the popup
+- **Chrome**: [Chrome Web Store](https://chromewebstore.google.com/detail/cpdkigffbilaglfmddclhgfflimpaeim) → "Add to Chrome"
+- **Firefox**: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/header-editor-pro-free/) → "Add to Firefox"
+- **From source**: see [docs/development.md](docs/development.md)
 
-### Firefox Add-ons (Recommended)
-1. Visit [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/header-editor-pro-free/)
-2. Click "Add to Firefox"
-3. Click "Add" in the confirmation popup
+## 📖 Documentation
 
-### Manual Installation (Developer Mode)
-
-#### Chrome
-1. Download or clone this repository
-2. Open Chrome and go to `chrome://extensions`
-3. Enable "Developer mode" (top right)
-4. Click "Load unpacked" and select the project folder
-5. The extension icon will appear in your toolbar
-
-#### Firefox
-1. Download or clone this repository
-2. Open Firefox and go to `about:debugging`
-3. Click "This Firefox" in the sidebar
-4. Click "Load Temporary Add-on"
-5. Select the `manifest.json` file from the project folder
-
-## 💡 How to Use
-
-### Basic Usage
-1. **Click the extension icon** in Chrome toolbar
-2. **Create profiles** using the numbered circles in the sidebar
-3. **Add headers** by clicking the "+" button or "Add header" buttons
-4. **Enable/disable** individual headers using checkboxes
-5. **Switch profiles** by clicking different numbered circles
-
-### Profile Management
-- **Create new profile**: Click the "+" circle at bottom of sidebar
-- **Switch profiles**: Click any numbered circle
-- **Delete profile**: Right-click on a profile circle (except default)
-- **Import/Export profiles**: Use the import/export buttons in the toolbar to share configurations as JSON; importing a JSON file exported from ModHeader creates one profile per ModHeader profile, including its request and response headers (note: URL filters are not supported and will not be imported)
-- **Active indicator**: Green circle = active, red = inactive
-
-### Header Controls
-- **Add headers**: Use "Add header" buttons in the request and response header sections
-- **Edit headers**: Type directly in name/value fields
-- **Enable/disable**: Use checkboxes next to each header
-- **Delete headers**: Click the "✕" button
-
-### Profile Filters
-- **Domains filter**: Limit a profile to specific domains (comma-separated). Headers apply to requests going to those domains or initiated from pages on them. Works on Chrome and Firefox.
-- **Tab group filter** (Chrome only): Limit a profile to a tab group. Enabling it with the current tab inside a group picks that group automatically; new tabs added to the group inherit the headers. Perfect for keeping sandbox headers away from production tabs.
-- **Concurrent scoped profiles**: every profile with a tab group filter stays active inside its group, even while another profile is selected — so different tab groups can carry different headers at the same time. On conflicts, the scoped profile wins over the selected one.
-- **Profile badge**: the toolbar icon shows the initial and color of the profile governing the current tab, so you always know which headers are applied where.
-- Both filters live in the **Filters** section below Response headers and can be toggled per profile.
-
-### Toolbar Features
-- **Refresh**: 🔄 reload the profile from storage
-- **Pause/Resume**: ⏸️/▶️ button to temporarily disable all modifications
-- **Pin**: 📌 keep the popup open when you click elsewhere
-- **Profile Color**: 🎨 pick the colour of the profile circle and its badge
-- **Language**: 🌐 switch the interface language, or follow the browser ("Auto")
-- **Menu**: ⋮ import, export and delete profile
-- **Profile name**: Shows current active profile, editable inline
-- **Quick add**: "+" button to add request or response headers
-
-## 🔧 Technical Details
-
-### Cross-Browser Compatibility
-🌟 **Single Codebase** - Same extension works on both Chrome and Firefox using Manifest V3  
-⚡ **Universal APIs** - Uses standard WebExtensions APIs supported by both browsers  
-🔧 **Automatic Detection** - Extension adapts to browser-specific features automatically
-
-### Permissions Used
-- **declarativeNetRequest**: Modify HTTP headers efficiently
-- **storage**: Save configurations locally on your device  
-- **tabGroups**: List your tab groups for the tab group filter (Chrome)
-- **host permissions**: Modify headers across all websites
-
-### Data Privacy
-✅ **No data collection** - Extension doesn't track or collect any personal data  
-✅ **Local storage only** - All configurations stored on your device  
-✅ **No external servers** - No data transmitted anywhere  
-✅ **Open source** - Full transparency of all code  
+| Guide | What's in it |
+|---|---|
+| [Usage](docs/usage.md) | Profiles, headers, filters, toolbar, permissions |
+| [Development](docs/development.md) | Project structure, local setup, build, releases |
+| [i18n](docs/i18n.md) | How translations work, in the extension and on the site |
+| [Gotchas](docs/GOTCHAS.md) | Hard-won bugs and undocumented behaviour |
 
 ## 🆚 Why Choose Header Editor Pro - Free?
 
@@ -141,142 +61,39 @@
 | **Privacy** | 🟢 No tracking/analytics | 🔴 Often collect usage data |
 | **Open Source** | 🟢 Full transparency | 🔴 Proprietary/closed source |
 
-## 🛠️ Development
+## 🔒 Privacy
 
-### Project Structure
-```
-├── src/                  # Source code (Rspack bundling)
-│   ├── manifest.json    # Unified config for Chrome & Firefox
-│   ├── _locales/        # Translation catalogs (7 locales)
-│   ├── popup/           # UI components (HTML, CSS, JS, i18n)
-│   ├── background/      # Service worker logic
-│   └── assets/icons/    # Extension icons (16px-128px)
-├── dist/                # Built extension (gitignored)
-├── rspack.config.js     # Rspack bundler configuration
-├── package.json         # Dependencies and build scripts
-├── docs/                # Contributor docs (i18n, gotchas)
-├── scripts/             # Release automation scripts
-├── .github/workflows/   # GitHub Actions for automated builds
-├── screenshots/         # Extension screenshots
-├── index.html           # Landing page (GitHub Pages)
-├── privacy.html         # Privacy policy page
-├── 404.html             # Custom 404 page
-├── robots.txt           # SEO crawlers configuration
-├── sitemap.xml          # SEO sitemap
-└── og-image.png         # Open Graph image for social sharing
-```
-
-### Local Development
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Start development server: `npm run dev`
-4. Make changes to files in `src/`
-5. Go to `chrome://extensions`
-6. Click "Reload" on the extension card
-7. Test your changes
-8. Before pushing: `npm run code-quality` (lint + format + tests — same gate CI runs)
-
-### Build Process
-The extension uses **Rspack** (23x faster than Webpack) for bundling:
-- **Minification**: Code optimized for performance
-- **Cross-browser**: Single build works for Chrome & Firefox  
-- **No obfuscation**: Store-compliant minification only
-- **Source maps**: Available in development mode
-
-### 🚀 Creating Releases
-
-#### Option 1: Automated Script (Recommended)
-```bash
-# Interactive release script (Mac/Linux)
-./scripts/release.sh
-
-# Cross-platform Node.js version  
-node scripts/release.js
-```
-
-**The script will:**
-- Update the version in `src/manifest.json`, `package.json` and the
-  `getManifest` mock in `src/__tests__/setup.js`, and sync `package-lock.json`
-- Create proper git commit and tag
-- Push to GitHub (triggers automated ZIP build)
-- Generate versioned files: `header-editor-pro-free-extension-vX.X.X.zip`
-- Guide you through the entire process
-
-#### Option 2: Manual Process
-```bash
-# Bump the version in all four places first — CI runs `npm ci`, which fails if
-# package-lock.json disagrees:
-#   src/manifest.json, package.json, src/__tests__/setup.js
-#   then: npm install --package-lock-only
-git add .
-git commit -m "release: bump version to 1.1.0"
-git tag v1.1.0
-git push origin master --tags
-```
-
-Both methods trigger **GitHub Actions** to automatically build the extension ZIP and create a GitHub release.
-
-## 📦 Distribution & Stores
-
-### Download Options
-- **GitHub Releases**: Get the latest versioned ZIP files directly
-- **Chrome Web Store**: [Install from Chrome Web Store](https://chromewebstore.google.com/detail/cpdkigffbilaglfmddclhgfflimpaeim)
-- **Firefox Add-ons**: [Install from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/header-editor-pro-free/)
-
-### Package Files
-When you download from GitHub releases, you'll get:
-- `header-editor-pro-free-extension-vX.X.X.zip` - Ready for both Chrome & Firefox
-- `header-editor-pro-free-source-vX.X.X.zip` - Source code for Firefox reviewers
-
-### Store Compliance
-- ✅ **Minified code only** - No obfuscation (store policies compliant)
-- ✅ **Single manifest** - Works for both Chrome and Firefox  
-- ✅ **Privacy focused** - No tracking, local storage only
-- ✅ **Open source** - Full transparency for reviewers
-
-### Contributing
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run `npm run code-quality` (lint, format check, tests) — CI enforces this
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🤝 Support
-
-- **Website**: [testacode.github.io/header-editor-pro-free](https://testacode.github.io/header-editor-pro-free/)
-- **Issues**: [GitHub Issues](https://github.com/testacode/header-editor-pro-free/issues)
-- **Privacy Policy**: [View Policy](https://testacode.github.io/header-editor-pro-free/privacy.html)
-- **Documentation**: This README and inline code comments
+No data collection, no analytics, no external servers. Every configuration stays
+in local storage on your device, and the code is open for you to check.
+Full [privacy policy](https://testacode.github.io/header-editor-pro-free/privacy.html).
 
 ## 💖 Support This Project
 
-If you find Header Editor Pro - Free helpful, consider supporting its development:
+This extension costs nothing, and nobody pays me to maintain it or to build new
+things into it. It gets better in my own time.
+
+**Want something improved?** [Open an issue](https://github.com/testacode/header-editor-pro-free/issues)
+and let's talk it through — that's free too, and it's the best way in.
+
+Chip in and your request moves up my queue. And if you'd rather not, no hard
+feelings — nobody ever turned down a glass of water ;)
 
 [![Buy Me A Coffee](https://img.shields.io/badge/☕%20Buy%20Me%20A%20Coffee-Support-orange?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/charlybrown)
 [![GitHub Sponsors](https://img.shields.io/badge/💝%20GitHub%20Sponsors-Support-pink?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/testacode)
 
-Your support helps keep this extension **completely free** and actively maintained for the developer community!
+Either way, it stays free for everyone. Starring the repo and sharing it with
+other developers helps just as much.
 
-## 🌟 Show Your Support
+## 🔗 Links
 
-If you find this extension helpful:
-- ⭐ Star this repository
-- 🔄 Share with fellow developers
-- 🐛 Report bugs and suggest features
-- 📝 Contribute to the codebase
-- ☕ Buy me a coffee to fuel development
+- **Website**: [testacode.github.io/header-editor-pro-free](https://testacode.github.io/header-editor-pro-free/)
+- **Issues**: [GitHub Issues](https://github.com/testacode/header-editor-pro-free/issues)
+- **License**: [MIT](LICENSE)
 
 ---
 
 <div align="center">
 
 **Made with ❤️ for the developer community**
-
-*Free alternative to expensive header modification tools*
 
 </div>

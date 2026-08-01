@@ -74,6 +74,20 @@ npx web-ext lint --source-dir=dist --output=json
 
 Valida el manifest, los `_locales` y las APIs contra el `strict_min_version`. Al 2026-07-30 da **0 errores** y 67 warnings, todos preexistentes: `tabGroups.*` e `declarativeNetRequest.updateDynamicRules` no existen en Firefox 101 (nuestro mínimo declarado), `background.service_worker` se ignora en Firefox, y `MISSING_DATA_COLLECTION_PERMISSIONS`. Ninguno bloquea la review — la 2.5.x se publicó con todos ellos.
 
+## GitHub Pages sirve un solo `404.html` (el de la raíz)
+
+Al pre-renderizar el sitio por idioma (v2.6.0, 2026-08-01) se generó un
+`404.html` por locale. **Pages ignora los de subcarpeta**: cualquier path
+inexistente, a cualquier profundidad, recibe el de la raíz — o sea, el inglés.
+
+La consecuencia que muerde no es el idioma sino las rutas: el 404 se renderiza
+bajo la URL rota que lo disparó, así que `href="index.html"` o
+`href="../src/assets/..."` resuelven contra un directorio que no existe. En esa
+página **todo link y todo asset va con URL absoluta** (`{{__siteRoot}}`,
+`{{__homeUrl}}` en el template); el resto de las páginas sí usa rutas relativas.
+
+Los `<locale>/404.html` se generan igual, por si alguien los linkea directo.
+
 ## Banco de pruebas CDP: perfil nuevo por corrida
 
 Los scripts de `plans/verify-*.py` lanzan Chrome for Testing con `--user-data-dir`. **Reusar el mismo directorio entre corridas hace que Chrome restaure los tabs de la corrida anterior**, y un chequeo del tipo "reabro el popup y leo el valor" termina leyendo un popup viejo — falso negativo silencioso.
