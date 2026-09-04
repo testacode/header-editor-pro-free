@@ -95,3 +95,21 @@ Los `<locale>/404.html` se generan igual, por si alguien los linkea directo.
 Los scripts de `plans/verify-*.py` lanzan Chrome for Testing con `--user-data-dir`. **Reusar el mismo directorio entre corridas hace que Chrome restaure los tabs de la corrida anterior**, y un chequeo del tipo "reabro el popup y leo el valor" termina leyendo un popup viejo — falso negativo silencioso.
 
 Usar `tempfile.mkdtemp()` por corrida, e identificar el tab nuevo por diferencia contra los targets previos, no por "el último de la lista".
+
+## Las reglas DNR sobreviven al service worker dormido (pausa que no pausa)
+
+**Síntoma (v2.6.1, 2026-09-04):** apretar Pausar, o destildar un header, no tenía efecto. El popup mostraba el estado pausado y `paused: true` quedaba escrito en storage, pero los headers se seguían aplicando. La única forma de frenarlos era desactivar la extensión entera desde `chrome://extensions`.
+
+**Causa:** las reglas dinámicas de `declarativeNetRequest` viven en el browser, no en la extensión: **siguen modificando tráfico aunque el service worker esté muerto**. En MV3 el worker se apaga a los ~30s de inactividad. El único disparador que tenía el background para reaplicar reglas era `chrome.storage.onChanged`, y ese evento no es un despertador confiable — si no llega, el estado nuevo queda en storage y las reglas viejas siguen corriendo. El popup nunca le hablaba al worker: `setupMessageHandlers()` tenía ese nombre pero solo registraba el listener de storage.
+
+**Fix:** el popup pinguea al background después de cada escritura (`notifyBackground()` en `saveData()`), y el background registra `chrome.runtime.onMessage`. `sendMessage` sí arranca el service worker de forma garantizada.
+
+**Cómo verificarlo** (hace falta matar el worker a propósito, si no el bug no se reproduce): con CDP, `Target.closeTarget` sobre el target `service_worker` de la extensión, y recién ahí clickear Pausar desde el popup. Después, `chrome.declarativeNetRequest.getDynamicRules()` tiene que dar 0. Sin matar el worker el test pasa igual y no prueba nada.
+
+**Regla general:** cualquier cambio de estado que deba reflejarse en las reglas DNR necesita un `sendMessage`, no alcanza con escribir en storage.
+
+## `loadAndApplyRules()` no puede dejar que la cola se envenene
+
+**Síntoma:** latente, encontrado revisando lo anterior. Las aplicaciones de reglas se serializan en `this.applyQueue`. Si un eslabón rechaza, la promesa queda rechazada y **todos los `.then()` posteriores se saltean en silencio**: las reglas se congelan hasta que el worker reinicie, sin ningún error visible.
+
+**Fix:** la cola nunca rechaza — el error se loguea y la cadena sigue (`src/background/background.js`).
