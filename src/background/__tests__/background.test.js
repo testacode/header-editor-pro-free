@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { HeaderEditorBackground } from '../background.js';
+import { APPLY_RULES_MESSAGE } from '../../messages.js';
 
 // The module-level `new HeaderEditorBackground()` at the bottom of background.js
 // runs once on import. setup.js mocks chrome.* and console, so it is harmless.
@@ -909,6 +910,22 @@ describe('HeaderEditorBackground', () => {
       );
     });
 
+    test('a rejected application does not poison the queue for later calls', async () => {
+      const doSpy = vi
+        .spyOn(background, 'doLoadAndApplyRules')
+        .mockRejectedValueOnce(new Error('boom'))
+        .mockResolvedValueOnce(undefined);
+
+      await settle(background.loadAndApplyRules());
+      await settle(background.loadAndApplyRules());
+
+      expect(doSpy).toHaveBeenCalledTimes(2);
+      expect(console.error).toHaveBeenCalledWith(
+        'HeaderEditor: rule application failed:',
+        expect.any(Error)
+      );
+    });
+
     test('concurrent loadAndApplyRules calls are serialized, not interleaved', async () => {
       const order = [];
       let releaseFirst;
@@ -1217,11 +1234,32 @@ describe('HeaderEditorBackground', () => {
   // ─── setupMessageHandlers ────────────────────────────────────────────────
 
   describe('setupMessageHandlers', () => {
-    test('registers storage.onChanged only — no runtime message handlers left', () => {
+    test('registers storage.onChanged and runtime.onMessage', () => {
       background.setupMessageHandlers();
 
       expect(chrome.storage.onChanged.addListener).toHaveBeenCalledWith(expect.any(Function));
-      expect(chrome.runtime.onMessage.addListener).not.toHaveBeenCalled();
+      expect(chrome.runtime.onMessage.addListener).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    test('applyRules message → loadAndApplyRules, keeps the channel open, answers ok', async () => {
+      const loadSpy = vi.spyOn(background, 'loadAndApplyRules').mockResolvedValue(undefined);
+      background.setupMessageHandlers();
+      const listener = chrome.runtime.onMessage.addListener.mock.calls[0][0];
+      const sendResponse = vi.fn();
+
+      expect(listener({ type: APPLY_RULES_MESSAGE }, {}, sendResponse)).toBe(true);
+      await vi.waitFor(() => expect(sendResponse).toHaveBeenCalledWith({ ok: true }));
+      expect(loadSpy).toHaveBeenCalled();
+    });
+
+    test('unknown message → ignored, channel not held open', () => {
+      const loadSpy = vi.spyOn(background, 'loadAndApplyRules').mockResolvedValue(undefined);
+      background.setupMessageHandlers();
+      const listener = chrome.runtime.onMessage.addListener.mock.calls[0][0];
+
+      expect(listener({ type: 'somethingElse' }, {}, vi.fn())).toBe(false);
+      expect(listener(undefined, {}, vi.fn())).toBe(false);
+      expect(loadSpy).not.toHaveBeenCalled();
     });
 
     test('storage.onChanged with headerEditorData in local area → loadAndApplyRules', async () => {

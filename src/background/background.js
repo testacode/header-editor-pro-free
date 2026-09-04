@@ -1,5 +1,6 @@
 import { isHeaderEnabled } from '../popup/header-normalize.js';
 import { defaultHeaderEditorData } from '../popup/default-data.js';
+import { APPLY_RULES_MESSAGE } from '../messages.js';
 
 // Chrome's declarativeNetRequest only allows the `append` operation on this set
 // of REQUEST headers; response headers have no such restriction. Emitting an
@@ -95,6 +96,19 @@ export class HeaderEditorBackground {
         this.loadAndApplyRules();
       }
     });
+
+    // storage.onChanged alone is not a dependable wake-up: dynamic DNR rules
+    // keep modifying headers while the service worker is asleep, so a missed
+    // event leaves pause (or a disabled header) written to storage but still
+    // applied to traffic. An explicit sendMessage from the popup always starts
+    // the worker, so the popup pings us after every write.
+    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+      if (message?.type !== APPLY_RULES_MESSAGE) {
+        return false;
+      }
+      this.loadAndApplyRules().then(() => sendResponse({ ok: true }));
+      return true; // keep the message channel open for the async response
+    });
   }
 
   ruleStateSignature(data, activeProfiles) {
@@ -136,8 +150,15 @@ export class HeaderEditorBackground {
   // Concurrent triggers (storage change, tab/group events, startup) interleave
   // their DNR clear/add calls and can leave rules duplicated or missing —
   // serialize every application through a queue.
+  // The queue never rejects: a rejection would be inherited by every later
+  // .then() on it, so one failure would silently freeze the rules until the
+  // worker restarts. Failures are logged and the chain moves on.
   loadAndApplyRules() {
-    this.applyQueue = this.applyQueue.then(() => this.doLoadAndApplyRules());
+    this.applyQueue = this.applyQueue.then(() =>
+      this.doLoadAndApplyRules().catch(error => {
+        console.error('HeaderEditor: rule application failed:', error);
+      })
+    );
     return this.applyQueue;
   }
 

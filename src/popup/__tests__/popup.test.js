@@ -5,6 +5,7 @@ import { HeaderEditorPopup } from '../popup.js';
 import { LEGACY_PLACEHOLDER_DESCRIPTION } from '../default-data.js';
 import { SUPPORTED_LOCALES, setActiveLocale } from '../i18n.js';
 import { hexToHsl, hslToHex } from '../color-utils.js';
+import { APPLY_RULES_MESSAGE } from '../../messages.js';
 
 const popupHtml = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
 
@@ -177,14 +178,41 @@ describe('HeaderEditorPopup', () => {
       });
     });
 
-    test('does NOT call sendMessage (plan 004 removed it)', async () => {
-      chrome.storage.local.set.mockClear();
+    test('pings the background after the write, so a sleeping worker re-applies', async () => {
       chrome.runtime.sendMessage.mockClear();
       await popup.saveData();
 
-      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'updateHeaders' })
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ type: APPLY_RULES_MESSAGE });
+    });
+
+    test('a failing ping does not break the save', async () => {
+      chrome.runtime.sendMessage.mockRejectedValueOnce(new Error('no receiver'));
+
+      await expect(popup.saveData()).resolves.toBeUndefined();
+    });
+
+    test('togglePause persists paused and pings the background', async () => {
+      popup.isPaused = false;
+      chrome.runtime.sendMessage.mockClear();
+
+      await popup.togglePause();
+
+      expect(chrome.storage.local.set).toHaveBeenCalledWith(
+        expect.objectContaining({ headerEditorData: expect.objectContaining({ paused: true }) })
       );
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ type: APPLY_RULES_MESSAGE });
+    });
+
+    test('unchecking a header persists enabled:false and pings the background', async () => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'X-Test', value: '1', enabled: true },
+      ];
+      chrome.runtime.sendMessage.mockClear();
+
+      await popup.updateHeader('request', 0, 'enabled', false);
+
+      expect(popup.profiles[popup.currentProfile].requestHeaders[0].enabled).toBe(false);
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ type: APPLY_RULES_MESSAGE });
     });
   });
 

@@ -7,6 +7,7 @@ import {
   defaultFilters,
   LEGACY_PLACEHOLDER_DESCRIPTION,
 } from './default-data.js';
+import { APPLY_RULES_MESSAGE } from '../messages.js';
 import { ImportExportManager } from './import-export.js';
 import { UpdateNotificationsManager } from './update-notifications.js';
 import { ColorPickerManager } from './color-picker.js';
@@ -137,8 +138,22 @@ export class HeaderEditorPopup {
       pinned: this.isPinned,
       profileCounter: this.profileCounter,
     };
-    this.saveInFlight = chrome.storage.local.set({ headerEditorData: data });
+    this.saveInFlight = chrome.storage.local
+      .set({ headerEditorData: data })
+      .then(() => this.notifyBackground());
     await this.saveInFlight;
+  }
+
+  // Wake the service worker so it re-applies the rules. Without this the popup
+  // can pause the extension while the stored DNR rules keep modifying traffic:
+  // storage.onChanged is not a dependable wake-up for a sleeping MV3 worker.
+  // A failed ping must never break the save, so every outcome is swallowed.
+  async notifyBackground() {
+    try {
+      await chrome.runtime.sendMessage({ type: APPLY_RULES_MESSAGE });
+    } catch (error) {
+      console.warn('HeaderEditor: could not notify the background worker:', error);
+    }
   }
 
   // Persist an in-progress edit shortly after the user stops typing.
