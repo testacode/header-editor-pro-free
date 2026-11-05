@@ -273,6 +273,45 @@
   "importedFromJson": {
     "message": "JSON からインポート - クリックで編集"
   },
+  "validJsonRequestly": {
+    "message": "Requestly のエクスポート — ルール数：$1"
+  },
+  "errRequestlyReplace": {
+    "message": "これは Requestly のエクスポートで、複数のプロファイルを作成することがあります。「新しいプロファイルを作成」でインポートしてください。"
+  },
+  "importRequestlyDone": {
+    "message": "Requestly からインポートしました — リダイレクト数：$1、作成したプロファイル数：$2。"
+  },
+  "importRequestlyNothing": {
+    "message": "何もインポートされませんでした：この Requestly ファイルには変換できるリダイレクトがありません。プロファイルは作成されていません。"
+  },
+  "importRequestlySkipped": {
+    "message": "除外したルール（$1）："
+  },
+  "importRequestlyMore": {
+    "message": "…ほか $1 件"
+  },
+  "requestlyUnnamedRule": {
+    "message": "（名前のないルール）"
+  },
+  "requestlyProfileName": {
+    "message": "Requestly"
+  },
+  "requestlySkipNotRedirect": {
+    "message": "リダイレクトルールではありません"
+  },
+  "requestlySkipHasFilters": {
+    "message": "変換できないフィルター（メソッド、リソースの種類、ページなど）を使用しています"
+  },
+  "requestlySkipUnsupportedSource": {
+    "message": "対応していないソースの種類です（パス、または正規表現によるホスト）"
+  },
+  "requestlySkipLocalDestination": {
+    "message": "ローカルファイルまたはモックへのリダイレクトです"
+  },
+  "requestlySkipIncomplete": {
+    "message": "ソースまたはリダイレクト先がありません"
+  },
   "sectionRedirects": {
     "message": "リダイレクト"
   },

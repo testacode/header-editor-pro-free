@@ -273,6 +273,45 @@
   "importedFromJson": {
     "message": "Importado de JSON: haz clic para editar"
   },
+  "validJsonRequestly": {
+    "message": "Exportación de Requestly — reglas: $1"
+  },
+  "errRequestlyReplace": {
+    "message": "Es una exportación de Requestly, que puede crear varios perfiles. Impórtala con «Crear perfil nuevo»."
+  },
+  "importRequestlyDone": {
+    "message": "Importado de Requestly — redirecciones: $1, perfiles creados: $2."
+  },
+  "importRequestlyNothing": {
+    "message": "No se importó nada: ninguna redirección de este archivo de Requestly se puede convertir. No se creó ningún perfil."
+  },
+  "importRequestlySkipped": {
+    "message": "Reglas omitidas ($1):"
+  },
+  "importRequestlyMore": {
+    "message": "…y $1 más"
+  },
+  "requestlyUnnamedRule": {
+    "message": "(regla sin nombre)"
+  },
+  "requestlyProfileName": {
+    "message": "Requestly"
+  },
+  "requestlySkipNotRedirect": {
+    "message": "no es una regla de redirección"
+  },
+  "requestlySkipHasFilters": {
+    "message": "usa filtros (método, tipo de recurso, página…) que no se pueden convertir"
+  },
+  "requestlySkipUnsupportedSource": {
+    "message": "tipo de origen no admitido (ruta, o host con expresión regular)"
+  },
+  "requestlySkipLocalDestination": {
+    "message": "redirige a un archivo local o a un mock"
+  },
+  "requestlySkipIncomplete": {
+    "message": "falta el origen o el destino"
+  },
   "sectionRedirects": {
     "message": "Redirecciones"
   },
