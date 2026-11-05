@@ -135,6 +135,12 @@
   "headerAppendMode": {
     "message": "追加而非覆盖"
   },
+  "headerNoteAdd": {
+    "message": "添加备注"
+  },
+  "headerNotePlaceholder": {
+    "message": "这个标头是做什么用的？"
+  },
   "headerCopyToProfile": {
     "message": "复制到配置…"
   },

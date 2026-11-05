@@ -135,6 +135,12 @@
   "headerAppendMode": {
     "message": "附加而非覆寫"
   },
+  "headerNoteAdd": {
+    "message": "新增備註"
+  },
+  "headerNotePlaceholder": {
+    "message": "這個標頭的用途是什麼？"
+  },
   "headerCopyToProfile": {
     "message": "複製到設定檔…"
   },

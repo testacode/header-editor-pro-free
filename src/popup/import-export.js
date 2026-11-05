@@ -479,6 +479,7 @@ export class ImportExportManager {
             appendMode: isAppendMode(header),
             enabled: isHeaderEnabled(header),
             name: header.name,
+            note: header.note || '',
             value: header.value || '',
           });
         }

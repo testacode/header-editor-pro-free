@@ -135,6 +135,12 @@
   "headerAppendMode": {
     "message": "上書きせずに追加"
   },
+  "headerNoteAdd": {
+    "message": "メモを追加"
+  },
+  "headerNotePlaceholder": {
+    "message": "このヘッダーの用途は？"
+  },
   "headerCopyToProfile": {
     "message": "別のプロファイルにコピー…"
   },
