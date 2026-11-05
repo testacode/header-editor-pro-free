@@ -374,5 +374,20 @@
   },
   "siteCookiesDeleteConfirm": {
     "message": "\"$1\" 쿠키를 브라우저에서 삭제할까요?"
+  },
+  "menuShareActive": {
+    "message": "활성 항목 복사하여 공유"
+  },
+  "shareActiveCopied": {
+    "message": "✓ 활성 항목 $1개를 복사했습니다 — 가져오기에 붙여 넣으세요"
+  },
+  "shareActiveFailed": {
+    "message": "클립보드에 복사하지 못했습니다"
+  },
+  "menuThemeLight": {
+    "message": "라이트 테마"
+  },
+  "menuThemeDark": {
+    "message": "다크 테마"
   }
 }

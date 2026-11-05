@@ -374,5 +374,20 @@
   },
   "siteCookiesDeleteConfirm": {
     "message": "Удалить cookie «$1» из браузера?"
+  },
+  "menuShareActive": {
+    "message": "Скопировать активное для обмена"
+  },
+  "shareActiveCopied": {
+    "message": "✓ Скопировано активных элементов: $1 — вставьте их в «Импорт»"
+  },
+  "shareActiveFailed": {
+    "message": "Не удалось скопировать в буфер обмена"
+  },
+  "menuThemeLight": {
+    "message": "Светлая тема"
+  },
+  "menuThemeDark": {
+    "message": "Тёмная тема"
   }
 }

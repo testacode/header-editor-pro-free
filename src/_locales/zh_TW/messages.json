@@ -374,5 +374,20 @@
   },
   "siteCookiesDeleteConfirm": {
     "message": "要從瀏覽器中刪除 Cookie「$1」嗎？"
+  },
+  "menuShareActive": {
+    "message": "複製已啟用的項目以分享"
+  },
+  "shareActiveCopied": {
+    "message": "✓ 已複製 $1 個已啟用的項目 — 在「匯入」中貼上即可"
+  },
+  "shareActiveFailed": {
+    "message": "無法複製到剪貼簿"
+  },
+  "menuThemeLight": {
+    "message": "淺色主題"
+  },
+  "menuThemeDark": {
+    "message": "深色主題"
   }
 }

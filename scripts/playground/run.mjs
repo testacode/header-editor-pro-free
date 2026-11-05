@@ -247,6 +247,35 @@ async function runChecks(demo, popup) {
   console.log(
     `── redirect with CORS on\n${await demo.$eval('#redirect-out', el => el.textContent)}`
   );
+
+  // Share active items: the menu item puts the profile's enabled items on the
+  // clipboard, in the import format.
+  await popup.bringToFront();
+  await popup
+    .browserContext()
+    .overridePermissions(`chrome-extension://${new URL(popup.url()).host}`, [
+      'clipboard-read',
+      'clipboard-sanitized-write',
+    ]);
+  await popup.click('#menu-btn');
+  await popup.click('#share-active-item');
+  await popup.waitForSelector('.copy-toast');
+  const shared = JSON.parse(await popup.evaluate(() => navigator.clipboard.readText()));
+  const sharedItems = shared.profiles.shared;
+  console.log(
+    `── share active\nrequest: ${sharedItems.requestHeaders.map(h => h.name).join(', ')}` +
+      ` · redirects: ${sharedItems.redirects.length} · cookies: ${sharedItems.cookies.length}`
+  );
+
+  // Theme: both screenshots land in the temp dir for a visual check.
+  const shot = name => path.join(os.tmpdir(), `hep-playground-${name}.png`);
+  await popup.screenshot({ path: shot('dark') });
+  await popup.click('#menu-btn');
+  await popup.click('#theme-item');
+  const theme = await popup.evaluate(() => document.documentElement.dataset.theme);
+  await new Promise(resolve => setTimeout(resolve, 400)); // let CSS transitions finish
+  await popup.screenshot({ path: shot('light') });
+  console.log(`── theme toggled to: ${theme}\nscreenshots: ${shot('dark')} ${shot('light')}`);
 }
 
 main().catch(error => {

@@ -29,7 +29,8 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - **Requestly Import**: Importing a Requestly rules export (file or pasted JSON, detected by `objectType: 'rule' | 'group'` before the plain-headers-array branch) creates one profile per Requestly group (ungrouped rules → a profile named "Requestly"), then an `alert` summary: redirects/profiles imported plus every rule left out by name with a translated reason (capped at 15 + "…and N more"). Nothing convertible → summary only, no profiles. "Replace current profile" rejects it (`errRequestlyReplace`)
 - **Profile Filters**: Per-profile scoping by domains (cross-browser, requestDomains/initiatorDomains OR'd via two DNR rules) and by Chrome tab group (session rules with tabIds + tab tracking; ignored on Firefox). Tab-group-scoped profiles apply CONCURRENTLY with the selected profile (`PRIORITY.tabScoped` vs `PRIORITY.global` on conflicts); the toolbar badge shows the governing profile's initial+color per tab
 - **Internationalization**: 7 languages with an in-popup selector (🌐 in the toolbar) that switches without reloading. Preference in `chrome.storage.local.uiLocale`; absent = follow the browser. Strings live in `src/_locales/`, never hardcoded — see `docs/i18n.md`
-- **Professional UI**: Dark theme with left sidebar navigation
+- **Professional UI**: Dark theme (default) or light, toggled from the ⋮ menu (`src/popup/theme.js`, `localStorage.uiTheme` so it applies before the first paint). Neutral greys are CSS variables at the top of `popup.css`, one per original grey so dark stays pixel-identical; accents stay hard-coded
+- **Share Active Items**: ⋮ menu → copies the current profile with only its enabled headers, redirects and cookies, in the all-profiles export format (`activeItemsExport` in `import-export.js`)
 - **Pause Functionality**: Global pause/resume without losing configurations
 - **Pin Functionality**: Toggle button to disable/enable auto-close on outside click
 - **Real-time Updates**: Instant header rule application through background service worker
@@ -103,6 +104,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 // uiLocale: 'zh_CN'  — chosen language; absent means follow the browser
 // popupPinned: true  — pin toggle; a UI preference, so writing it doesn't wake the background
 // welcomeNotification: { version, shown }  — first-install tooltip
+// (localStorage, not chrome.storage) uiTheme: 'light' — absent means dark
 ```
 
 ## Build & Release
@@ -127,7 +129,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Testing:**
 - Vitest framework with jsdom environment (modern Jest alternative)
 - Custom Chrome API mocking for Manifest V3 compatibility
-- Test files (run `npm test` for the current count): the rule compiler (`src/background/__tests__/rule-compiler.test.js`), the Requestly import parser (`src/popup/__tests__/requestly-import.test.js`) and its popup wiring (`requestly-import-ui.test.js`), background service worker (rule application, pause/resume, tab groups, badges), popup logic (profiles, headers CRUD, import/export, language selector), redirects (`src/popup/__tests__/redirects.test.js`), managed and site cookies (`src/popup/__tests__/cookies.test.js`), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
+- Test files (run `npm test` for the current count): the rule compiler (`src/background/__tests__/rule-compiler.test.js`), the Requestly import parser (`src/popup/__tests__/requestly-import.test.js`) and its popup wiring (`requestly-import-ui.test.js`), background service worker (rule application, pause/resume, tab groups, badges), popup logic (profiles, headers CRUD, import/export, language selector), redirects (`src/popup/__tests__/redirects.test.js`), managed and site cookies (`src/popup/__tests__/cookies.test.js`), share and theme (`share-and-theme.test.js`), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
 - Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**

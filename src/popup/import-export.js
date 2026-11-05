@@ -311,6 +311,46 @@ export class ImportExportManager {
     }
   }
 
+  // ── Share active ──────────────────────────────────────────────────────────
+
+  // The current profile with only what is switched on, in the all-profiles
+  // export format: a teammate imports it as a new profile, response headers,
+  // redirects and cookies included.
+  activeItemsExport(profile) {
+    const enabled = items => (items || []).filter(item => item.enabled !== false);
+    return {
+      profiles: {
+        shared: {
+          name: profile.name,
+          description: profile.description,
+          requestHeaders: enabled(profile.requestHeaders),
+          responseHeaders: enabled(profile.responseHeaders),
+          redirects: enabled(profile.redirects),
+          cookies: enabled(profile.cookies),
+          filters: profile.filters,
+          backgroundColor: profile.backgroundColor,
+          textColor: profile.textColor,
+        },
+      },
+    };
+  }
+
+  async copyActiveItems() {
+    const popup = this.popup;
+    const data = this.activeItemsExport(popup.profiles[popup.currentProfile]);
+    const shared = data.profiles.shared;
+    const count = ['requestHeaders', 'responseHeaders', 'redirects', 'cookies'].reduce(
+      (sum, key) => sum + shared[key].length,
+      0
+    );
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+      popup.showToast(t('shareActiveCopied', count));
+    } catch (_error) {
+      popup.showToast(t('shareActiveFailed'));
+    }
+  }
+
   // ── File import ───────────────────────────────────────────────────────────
 
   showImportDialog() {

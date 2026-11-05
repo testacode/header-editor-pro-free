@@ -374,5 +374,20 @@
   },
   "siteCookiesDeleteConfirm": {
     "message": "Cookie「$1」をブラウザから削除しますか？"
+  },
+  "menuShareActive": {
+    "message": "有効な項目をコピーして共有"
+  },
+  "shareActiveCopied": {
+    "message": "✓ 有効な項目を $1 件コピーしました — インポートに貼り付けてください"
+  },
+  "shareActiveFailed": {
+    "message": "クリップボードにコピーできませんでした"
+  },
+  "menuThemeLight": {
+    "message": "ライトテーマ"
+  },
+  "menuThemeDark": {
+    "message": "ダークテーマ"
   }
 }
