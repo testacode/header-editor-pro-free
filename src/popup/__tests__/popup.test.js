@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { HeaderEditorPopup } from '../popup.js';
-import { LEGACY_PLACEHOLDER_DESCRIPTION } from '../default-data.js';
+import { LEGACY_PLACEHOLDER_DESCRIPTION, defaultFilters } from '../default-data.js';
 import { SUPPORTED_LOCALES, setActiveLocale } from '../i18n.js';
 import { hexToHsl, hslToHex } from '../color-utils.js';
 import { APPLY_RULES_MESSAGE } from '../../messages.js';
@@ -59,11 +59,10 @@ describe('HeaderEditorPopup', () => {
       }
     });
 
-    test('empty storage → default profile with enabled=true', () => {
+    test('empty storage → default profile, not paused', () => {
       expect(popup.profiles.default).toBeDefined();
       expect(popup.profiles.default.name).toBe('Default');
       expect(popup.currentProfile).toBe('default');
-      expect(popup.isEnabled).toBe(true);
       expect(popup.isPaused).toBe(false);
       expect(popup.isPinned).toBe(false);
       expect(popup.profileCounter).toBe(1);
@@ -75,21 +74,49 @@ describe('HeaderEditorPopup', () => {
           default: { name: 'My Profile', description: 'desc', requestHeaders: [] },
         },
         currentProfile: 'default',
-        enabled: false,
         paused: true,
-        pinned: true,
         profileCounter: 5,
       };
-      chrome.storage.local.get.mockResolvedValue({ headerEditorData: mockData });
+      chrome.storage.local.get.mockResolvedValue({ headerEditorData: mockData, popupPinned: true });
 
       document.documentElement.innerHTML = popupHtml;
       const p = await createPopup();
 
       expect(p.profiles.default.name).toBe('My Profile');
-      expect(p.isEnabled).toBe(false);
       expect(p.isPaused).toBe(true);
       expect(p.isPinned).toBe(true);
       expect(p.profileCounter).toBe(5);
+    });
+
+    test('legacy enabled:false folds into paused', async () => {
+      chrome.storage.local.get.mockResolvedValue({
+        headerEditorData: {
+          profiles: { default: { name: 'P' } },
+          currentProfile: 'default',
+          enabled: false,
+          paused: false,
+        },
+      });
+
+      document.documentElement.innerHTML = popupHtml;
+      const p = await createPopup();
+
+      expect(p.isPaused).toBe(true);
+    });
+
+    test('legacy pinned inside headerEditorData is carried over', async () => {
+      chrome.storage.local.get.mockResolvedValue({
+        headerEditorData: {
+          profiles: { default: { name: 'P' } },
+          currentProfile: 'default',
+          pinned: true,
+        },
+      });
+
+      document.documentElement.innerHTML = popupHtml;
+      const p = await createPopup();
+
+      expect(p.isPinned).toBe(true);
     });
 
     test('storage error → falls back to defaults', async () => {
@@ -101,7 +128,7 @@ describe('HeaderEditorPopup', () => {
 
       expect(p.profiles.default).toBeDefined();
       expect(p.currentProfile).toBe('default');
-      expect(p.isEnabled).toBe(true);
+      expect(p.isPaused).toBe(false);
     });
 
     test('colorPickerState is initialized after loadData', () => {
@@ -119,9 +146,7 @@ describe('HeaderEditorPopup', () => {
         headerEditorData: {
           profiles: { default: { name: 'Reloaded', description: 'd', requestHeaders: [] } },
           currentProfile: 'default',
-          enabled: false,
-          paused: false,
-          pinned: false,
+          paused: true,
           profileCounter: 3,
         },
       });
@@ -129,7 +154,7 @@ describe('HeaderEditorPopup', () => {
       await popup.refreshHeaders();
 
       expect(popup.profiles.default.name).toBe('Reloaded');
-      expect(popup.isEnabled).toBe(false);
+      expect(popup.isPaused).toBe(true);
       expect(popup.profileCounter).toBe(3);
     });
   });
@@ -170,9 +195,7 @@ describe('HeaderEditorPopup', () => {
         headerEditorData: {
           profiles: popup.profiles,
           currentProfile: popup.currentProfile,
-          enabled: popup.isEnabled,
           paused: popup.isPaused,
-          pinned: popup.isPinned,
           profileCounter: popup.profileCounter,
         },
       });
@@ -560,14 +583,16 @@ describe('HeaderEditorPopup', () => {
   });
 
   describe('togglePin', () => {
-    test('inverts isPinned and saves', async () => {
+    test('inverts isPinned and stores it under its own key, without waking the background', async () => {
       const before = popup.isPinned;
       chrome.storage.local.set.mockClear();
+      chrome.runtime.sendMessage.mockClear();
 
       await popup.togglePin();
 
       expect(popup.isPinned).toBe(!before);
-      expect(chrome.storage.local.set).toHaveBeenCalled();
+      expect(chrome.storage.local.set).toHaveBeenCalledWith({ popupPinned: !before });
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
     });
   });
 
@@ -701,12 +726,12 @@ describe('HeaderEditorPopup', () => {
       await popup.importExport.importMultipleProfiles(oldExport);
       expect(Object.keys(popup.profiles).length).toBe(profilesBefore + 1);
 
-      // Verify the imported profile doesn't have colors set (filters gets defaults by design in migrateProfileFormat)
+      // Missing fields get the same defaults as a profile created from the UI
       const importedProfile = popup.profiles[popup.currentProfile];
       expect(importedProfile.name).toBe('OldProfile');
-      // backgroundColor and textColor should not be added from old backups that don't have them
-      expect(importedProfile).not.toHaveProperty('backgroundColor');
-      expect(importedProfile).not.toHaveProperty('textColor');
+      expect(importedProfile.backgroundColor).toBe('#4caf50');
+      expect(importedProfile.textColor).toBe('#ffffff');
+      expect(importedProfile.filters).toEqual(defaultFilters());
     });
   });
 

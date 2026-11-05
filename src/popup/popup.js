@@ -5,7 +5,10 @@ import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normali
 import {
   defaultHeaderEditorData,
   defaultFilters,
+  defaultProfile,
+  migrateLegacyFlags,
   LEGACY_PLACEHOLDER_DESCRIPTION,
+  PINNED_STORAGE_KEY,
 } from './default-data.js';
 import { APPLY_RULES_MESSAGE } from '../messages.js';
 import { ImportExportManager } from './import-export.js';
@@ -30,7 +33,6 @@ export class HeaderEditorPopup {
   constructor() {
     this.currentProfile = 'default';
     this.profiles = {};
-    this.isEnabled = true;
     this.isPaused = false;
     this.isPinned = false;
     this.colorPickerInteractionsSetup = false;
@@ -65,14 +67,15 @@ export class HeaderEditorPopup {
 
   async loadData() {
     try {
-      const result = await chrome.storage.local.get(['headerEditorData']);
-      const data = result.headerEditorData || defaultHeaderEditorData(t('profileDefaultName'));
+      const result = await chrome.storage.local.get(['headerEditorData', PINNED_STORAGE_KEY]);
+      const { data, legacyPinned } = migrateLegacyFlags(
+        result.headerEditorData || defaultHeaderEditorData(t('profileDefaultName'))
+      );
 
       this.profiles = data.profiles;
       this.currentProfile = data.currentProfile;
-      this.isEnabled = data.enabled;
-      this.isPaused = data.paused || false;
-      this.isPinned = data.pinned || false;
+      this.isPaused = data.paused;
+      this.isPinned = Boolean(result[PINNED_STORAGE_KEY] ?? legacyPinned);
       this.profileCounter = data.profileCounter || 1;
 
       // Migrate old header format to include 'enabled' property
@@ -95,9 +98,8 @@ export class HeaderEditorPopup {
       const data = defaultHeaderEditorData(t('profileDefaultName'));
       this.profiles = data.profiles;
       this.currentProfile = data.currentProfile;
-      this.isEnabled = data.enabled;
       this.isPaused = data.paused;
-      this.isPinned = data.pinned;
+      this.isPinned = false;
       this.profileCounter = data.profileCounter;
     }
   }
@@ -133,9 +135,7 @@ export class HeaderEditorPopup {
     const data = {
       profiles: this.profiles,
       currentProfile: this.currentProfile,
-      enabled: this.isEnabled,
       paused: this.isPaused,
-      pinned: this.isPinned,
       profileCounter: this.profileCounter,
     };
     this.saveInFlight = chrome.storage.local
@@ -588,9 +588,11 @@ export class HeaderEditorPopup {
     this.updateToolbar();
   }
 
+  // A popup preference, not rule state: kept out of headerEditorData so
+  // toggling it doesn't wake the background to recompute rules.
   async togglePin() {
     this.isPinned = !this.isPinned;
-    await this.saveData();
+    await chrome.storage.local.set({ [PINNED_STORAGE_KEY]: this.isPinned });
     this.updateToolbar();
   }
 
@@ -705,15 +707,7 @@ export class HeaderEditorPopup {
   createNewProfile() {
     this.profileCounter++;
     const key = `profile_${Date.now()}`;
-    this.profiles[key] = {
-      name: t('profileNewName', this.profileCounter),
-      description: '',
-      requestHeaders: [],
-      responseHeaders: [],
-      backgroundColor: '#4caf50',
-      textColor: '#ffffff',
-      filters: defaultFilters(),
-    };
+    this.profiles[key] = defaultProfile(t('profileNewName', this.profileCounter));
     this.currentProfile = key;
     this.saveData();
     this.renderUI();

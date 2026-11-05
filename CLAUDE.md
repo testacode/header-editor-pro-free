@@ -83,14 +83,15 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
     }
   },
   currentProfile: 'profile_id',
-  enabled: true,
   paused: false,
-  pinned: false,
   profileCounter: 1
 }
+// Up to 2.6.2 it also held `enabled` (folded into `paused`) and `pinned`
+// (moved to its own key); migrateLegacyFlags() reads both from old storage.
 
 // Separate keys in chrome.storage.local
 // uiLocale: 'zh_CN'  — chosen language; absent means follow the browser
+// popupPinned: true  — pin toggle; a UI preference, so writing it doesn't wake the background
 // welcomeNotification: { version, shown }  — first-install tooltip
 ```
 
@@ -116,7 +117,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Testing:**
 - Vitest framework with jsdom environment (modern Jest alternative)
 - Custom Chrome API mocking for Manifest V3 compatibility
-- 410 tests across 8 files: background service worker (declarativeNetRequest rule building, pause/resume), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
+- 421 tests across 8 files: background service worker (declarativeNetRequest rule building, pause/resume), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
 - Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**

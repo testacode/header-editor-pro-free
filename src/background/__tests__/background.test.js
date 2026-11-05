@@ -346,8 +346,6 @@ describe('HeaderEditorBackground', () => {
     const activeOf = (data, key, tabIds) => [{ key, profile: data.profiles[key], tabIds }];
 
     test('applyHeaderRules with tabIds → session rules with priority 2, not dynamic', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
       await settle(
         background.applyHeaderRules(dataWithHeaders, activeOf(dataWithHeaders, 'p', [7, 9]))
       );
@@ -366,8 +364,6 @@ describe('HeaderEditorBackground', () => {
     });
 
     test('applyHeaderRules with empty tabIds → no rules at all', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
       await settle(
         background.applyHeaderRules(dataWithHeaders, activeOf(dataWithHeaders, 'p', []))
       );
@@ -380,7 +376,6 @@ describe('HeaderEditorBackground', () => {
     });
 
     test('selected global profile + scoped profile apply concurrently', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
       const data = {
         enabled: true,
         paused: false,
@@ -585,23 +580,76 @@ describe('HeaderEditorBackground', () => {
   // ─── applyHeaderRules ────────────────────────────────────────────────────
 
   describe('applyHeaderRules', () => {
-    test('always calls clearAllRules first', async () => {
-      const clearSpy = vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
+    test('swaps rules atomically: removal and addition in one call', async () => {
+      chrome.declarativeNetRequest.getDynamicRules.mockResolvedValue([{ id: 1 }, { id: 2 }]);
 
       await settle(
         background.applyHeaderRules({
-          enabled: true,
           paused: false,
-          profiles: { p1: { requestHeaders: [] } },
-          currentProfile: 'p1',
+          profiles: { p: { requestHeaders: [{ name: 'X', value: 'v', enabled: true }] } },
+          currentProfile: 'p',
         })
       );
 
-      expect(clearSpy).toHaveBeenCalledOnce();
+      const calls = chrome.declarativeNetRequest.updateDynamicRules.mock.calls;
+      expect(calls).toHaveLength(1);
+      expect(calls[0][0].removeRuleIds).toEqual([1, 2]);
+      expect(calls[0][0].addRules).toHaveLength(1);
     });
 
-    test('paused:true → clearAllRules called, no addRules', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
+    test('new rule ids never collide with installed ones (worker restart)', async () => {
+      chrome.declarativeNetRequest.getDynamicRules.mockResolvedValue([{ id: 7 }]);
+      chrome.declarativeNetRequest.getSessionRules.mockResolvedValue([{ id: 12 }]);
+
+      await settle(
+        background.applyHeaderRules({
+          paused: false,
+          profiles: { p: { requestHeaders: [{ name: 'X', value: 'v', enabled: true }] } },
+          currentProfile: 'p',
+        })
+      );
+
+      const added = chrome.declarativeNetRequest.updateDynamicRules.mock.calls[0][0].addRules;
+      expect(added[0].id).toBe(13);
+    });
+
+    test('rejected batch → clear, then rules added one by one', async () => {
+      chrome.declarativeNetRequest.getDynamicRules.mockResolvedValue([{ id: 1 }]);
+      chrome.declarativeNetRequest.updateDynamicRules
+        .mockRejectedValueOnce(new Error('bad rule')) // atomic swap
+        .mockResolvedValueOnce(undefined) // clear
+        .mockRejectedValueOnce(new Error('bad rule')) // addRules batch
+        .mockResolvedValue(undefined); // per-rule
+
+      await settle(
+        background.applyHeaderRules({
+          paused: false,
+          profiles: { p: { requestHeaders: [{ name: 'X', value: 'v', enabled: true }] } },
+          currentProfile: 'p',
+        })
+      );
+
+      const calls = chrome.declarativeNetRequest.updateDynamicRules.mock.calls.map(c => c[0]);
+      expect(calls[1]).toEqual({ removeRuleIds: [1] });
+      expect(calls.at(-1).addRules).toHaveLength(1);
+      expect(background.activeDynamicRuleIds.size).toBe(1);
+    });
+
+    test('nothing installed and nothing to add → no DNR write', async () => {
+      await settle(
+        background.applyHeaderRules({
+          paused: true,
+          profiles: { p: { requestHeaders: [] } },
+          currentProfile: 'p',
+        })
+      );
+
+      expect(chrome.declarativeNetRequest.updateDynamicRules).not.toHaveBeenCalled();
+      expect(chrome.declarativeNetRequest.updateSessionRules).not.toHaveBeenCalled();
+    });
+
+    test('paused:true → installed rules removed, none added', async () => {
+      chrome.declarativeNetRequest.getDynamicRules.mockResolvedValue([{ id: 4 }]);
 
       await settle(
         background.applyHeaderRules({
@@ -612,23 +660,22 @@ describe('HeaderEditorBackground', () => {
         })
       );
 
-      const addCalls = chrome.declarativeNetRequest.updateDynamicRules.mock.calls.filter(
-        c => c[0].addRules
-      );
-      expect(addCalls).toHaveLength(0);
+      expect(chrome.declarativeNetRequest.updateDynamicRules).toHaveBeenCalledWith({
+        removeRuleIds: [4],
+      });
     });
 
-    test('enabled:false → clearAllRules called, no addRules', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
-      await settle(
-        background.applyHeaderRules({
+    test('legacy enabled:false in storage → treated as paused', async () => {
+      chrome.storage.local.get.mockResolvedValue({
+        headerEditorData: {
           enabled: false,
           paused: false,
           profiles: { p: { requestHeaders: [{ name: 'X', value: 'v', enabled: true }] } },
           currentProfile: 'p',
-        })
-      );
+        },
+      });
+
+      await settle(background.loadAndApplyRules());
 
       const addCalls = chrome.declarativeNetRequest.updateDynamicRules.mock.calls.filter(
         c => c[0].addRules
@@ -637,8 +684,6 @@ describe('HeaderEditorBackground', () => {
     });
 
     test('2 enabled + 1 disabled headers → rule contains only the 2 enabled', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
       await settle(
         background.applyHeaderRules({
           enabled: true,
@@ -669,8 +714,6 @@ describe('HeaderEditorBackground', () => {
     });
 
     test('currentProfile not in profiles → no addRules, no throw', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
       await expect(
         settle(
           background.applyHeaderRules({
@@ -689,8 +732,6 @@ describe('HeaderEditorBackground', () => {
     });
 
     test('empty requestHeaders → no addRules', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
       await settle(
         background.applyHeaderRules({
           enabled: true,
@@ -716,8 +757,6 @@ describe('HeaderEditorBackground', () => {
         .flatMap(c => c[0].addRules);
 
     test('response headers only → one rule with action.responseHeaders', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
       await settle(
         background.applyHeaderRules({
           enabled: true,
@@ -744,8 +783,6 @@ describe('HeaderEditorBackground', () => {
     });
 
     test('request + response → two rules with distinct ids', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
       await settle(
         background.applyHeaderRules({
           enabled: true,
@@ -768,8 +805,6 @@ describe('HeaderEditorBackground', () => {
     });
 
     test('response header with empty value → operation remove', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
       await settle(
         background.applyHeaderRules({
           enabled: true,
@@ -791,8 +826,6 @@ describe('HeaderEditorBackground', () => {
     });
 
     test('disabled response headers are filtered out → no rule', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
       await settle(
         background.applyHeaderRules({
           enabled: true,
@@ -827,10 +860,6 @@ describe('HeaderEditorBackground', () => {
       chrome.declarativeNetRequest.updateDynamicRules.mock.calls
         .filter(c => c[0].addRules)
         .flatMap(c => c[0].addRules);
-
-    beforeEach(() => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-    });
 
     test('response header with appendMode+value → operation append', async () => {
       await applyProfile({
@@ -882,7 +911,6 @@ describe('HeaderEditorBackground', () => {
 
   describe('loadAndApplyRules', () => {
     test('storage empty → default profile, no addRules', async () => {
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
       // Default mock returns {headerEditorData: undefined}
       await settle(background.loadAndApplyRules());
 
@@ -892,16 +920,16 @@ describe('HeaderEditorBackground', () => {
       expect(addCalls).toHaveLength(0);
     });
 
-    test('storage empty → applies the shared rich default (pinned + description)', async () => {
+    test('storage empty → applies the shared rich default (description)', async () => {
       // Proves background and popup share one default source: the old inline
-      // background default had neither `pinned` nor `profiles.default.description`.
+      // background default had no `profiles.default.description`.
       const applySpy = vi.spyOn(background, 'applyHeaderRules').mockResolvedValue(undefined);
 
       await settle(background.loadAndApplyRules());
 
       expect(applySpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          pinned: false,
+          paused: false,
           profiles: expect.objectContaining({
             default: expect.objectContaining({ description: '' }),
           }),
@@ -1067,8 +1095,6 @@ describe('HeaderEditorBackground', () => {
           paused: false,
         },
       });
-      vi.spyOn(background, 'clearAllRules').mockResolvedValue(undefined);
-
       await settle(background.loadAndApplyRules());
 
       const addCalls = chrome.declarativeNetRequest.updateDynamicRules.mock.calls.filter(
