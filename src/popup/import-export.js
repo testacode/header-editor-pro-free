@@ -1,5 +1,6 @@
 import { t, LocalizedError, describeError } from './i18n.js';
 import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normalize.js';
+import { defaultProfile } from './default-data.js';
 
 export class ImportExportManager {
   constructor(popup) {
@@ -354,6 +355,7 @@ export class ImportExportManager {
         skippedFeatures++;
       }
       popup.profiles[newKey] = {
+        ...defaultProfile(),
         name: sourceProfile.title || t('importedProfileName', popup.profileCounter),
         description: t('importedProfileDescription'),
         requestHeaders: this.extractHeadersFromArray(sourceProfile.headers),
@@ -393,6 +395,7 @@ export class ImportExportManager {
     popup.profileCounter++;
     const key = `profile_${Date.now()}`;
     popup.profiles[key] = {
+      ...defaultProfile(),
       name: t('importedProfileName', popup.profileCounter),
       description: t('importedFromJson'),
       requestHeaders: headers,
@@ -418,6 +421,7 @@ export class ImportExportManager {
       }
 
       popup.profiles[newKey] = {
+        ...defaultProfile(),
         name: profileData.name || t('importedProfileName', popup.profileCounter),
         description: profileData.description || t('importedFromJson'),
         requestHeaders: this.sanitizeHeaders(profileData.requestHeaders),

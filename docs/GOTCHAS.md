@@ -113,3 +113,13 @@ Usar `tempfile.mkdtemp()` por corrida, e identificar el tab nuevo por diferencia
 **Síntoma:** latente, encontrado revisando lo anterior. Las aplicaciones de reglas se serializan en `this.applyQueue`. Si un eslabón rechaza, la promesa queda rechazada y **todos los `.then()` posteriores se saltean en silencio**: las reglas se congelan hasta que el worker reinicie, sin ningún error visible.
 
 **Fix:** la cola nunca rechaza — el error se loguea y la cadena sigue (`src/background/background.js`).
+
+## Borrar y agregar reglas DNR en dos llamadas deja tráfico sin reglas
+
+**Síntoma (latente hasta la 2.6.2):** `applyHeaderRules()` hacía `clearAllRules()` y después `addRules()`, y en Firefox metía 100ms de delay en el medio. En esa ventana los requests salían sin modificar. Con headers pasa desapercibido; con redirecciones, un request se escapa al origen real.
+
+**Fix:** una sola llamada por store, `updateDynamicRules({ removeRuleIds, addRules })` (y lo mismo para session). DNR aplica las bajas antes que las altas dentro de la misma llamada, así que no hay ventana. Si el batch rechaza (una regla inválida tumba todo), recién ahí se resigna la atomicidad: se borra y `addRules()` aísla la regla culpable.
+
+**Ojo con los ids:** el contador de ids vive en memoria y arranca en 1 cada vez que el worker reinicia, mientras las reglas viejas siguen instaladas. Antes de construir, `currentRuleId` se sube por encima del id más alto instalado en cualquiera de los dos stores.
+
+Los delays de Firefox en `clearAllRules()` (que ahora solo se usa en el camino de error) no tienen motivo documentado; quedaron como estaban.

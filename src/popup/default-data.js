@@ -37,9 +37,19 @@ export function defaultHeaderEditorData(defaultProfileName) {
   return {
     profiles: { default: defaultProfile(defaultProfileName) },
     currentProfile: 'default',
-    enabled: true,
     paused: false,
-    pinned: false,
     profileCounter: 1,
   };
 }
+
+// Up to 2.6.2 the rule state also carried `enabled` and `pinned`. `enabled`
+// had no control in the UI and meant the same as `paused`, so it folds into
+// it. `pinned` is a popup preference and now lives under its own storage key
+// (PINNED_STORAGE_KEY): it's returned so the popup can carry it over.
+export function migrateLegacyFlags(stored) {
+  const { enabled, pinned, ...data } = stored;
+  data.paused = Boolean(data.paused) || enabled === false;
+  return { data, legacyPinned: pinned };
+}
+
+export const PINNED_STORAGE_KEY = 'popupPinned';

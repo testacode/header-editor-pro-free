@@ -1,5 +1,5 @@
 import { isHeaderEnabled } from '../popup/header-normalize.js';
-import { defaultHeaderEditorData } from '../popup/default-data.js';
+import { defaultHeaderEditorData, migrateLegacyFlags } from '../popup/default-data.js';
 import { APPLY_RULES_MESSAGE } from '../messages.js';
 
 // Chrome's declarativeNetRequest only allows the `append` operation on this set
@@ -113,7 +113,6 @@ export class HeaderEditorBackground {
 
   ruleStateSignature(data, activeProfiles) {
     return JSON.stringify({
-      enabled: data.enabled,
       paused: data.paused,
       currentProfile: data.currentProfile,
       active: (activeProfiles || []).map(({ key, profile, tabIds }) => ({
@@ -165,7 +164,7 @@ export class HeaderEditorBackground {
   async doLoadAndApplyRules() {
     try {
       const result = await chrome.storage.local.get(['headerEditorData']);
-      const data = result.headerEditorData || defaultHeaderEditorData();
+      const { data } = migrateLegacyFlags(result.headerEditorData || defaultHeaderEditorData());
 
       const activeProfiles = await this.resolveActiveProfiles(data);
 
@@ -253,27 +252,70 @@ export class HeaderEditorBackground {
 
   async applyHeaderRules(data, activeProfiles = null) {
     console.log('HeaderEditor: Applying header rules', {
-      enabled: data.enabled,
       paused: data.paused,
       currentProfile: data.currentProfile,
       isFirefox: this.isFirefox,
     });
 
-    // Clear existing rules first
-    await this.clearAllRules();
+    const existingDynamic = await chrome.declarativeNetRequest.getDynamicRules();
+    const existingSession = await this.getSessionRules();
 
-    // Firefox needs extra time between clearing and applying rules
-    if (this.isFirefox) {
-      console.log('HeaderEditor: Firefox detected - adding delay');
-      await this.delay(100);
+    // New ids must not collide with rules still installed in either store —
+    // after a worker restart the in-memory counter starts over at 1.
+    for (const rule of [...existingDynamic, ...existingSession]) {
+      this.currentRuleId = Math.max(this.currentRuleId, rule.id + 1);
     }
 
-    // If extension is disabled or paused, don't apply any new rules
-    if (!data.enabled || data.paused) {
-      console.log('HeaderEditor: Extension disabled or paused - not applying rules');
+    const { dynamicRules, sessionRules } = data.paused
+      ? { dynamicRules: [], sessionRules: [] }
+      : this.buildRules(data, activeProfiles);
+
+    console.log('HeaderEditor: Rules to apply:', {
+      dynamic: dynamicRules.length,
+      session: sessionRules.length,
+    });
+
+    await this.replaceRules(dynamicRules, existingDynamic);
+    await this.replaceRules(sessionRules, existingSession, { session: true });
+  }
+
+  async getSessionRules() {
+    // Session rules (tab group scoping) live in a separate rule set
+    if (!chrome.declarativeNetRequest.getSessionRules) {
+      return [];
+    }
+    return chrome.declarativeNetRequest.getSessionRules();
+  }
+
+  // Swap a whole rule set in one call: DNR applies removeRuleIds before
+  // addRules, so traffic never goes through a window with no rules at all
+  // (with a clear-then-add pair it did, and Firefox padded it with delays).
+  async replaceRules(rules, existingRules, { session = false } = {}) {
+    const removeRuleIds = existingRules.map(rule => rule.id);
+    if (removeRuleIds.length === 0 && rules.length === 0) {
       return;
     }
+    const updateRules = options =>
+      session
+        ? chrome.declarativeNetRequest.updateSessionRules(options)
+        : chrome.declarativeNetRequest.updateDynamicRules(options);
+    const tracked = session ? this.activeSessionRuleIds : this.activeDynamicRuleIds;
 
+    try {
+      await updateRules({ removeRuleIds, ...(rules.length > 0 ? { addRules: rules } : {}) });
+      tracked.clear();
+      rules.forEach(rule => tracked.add(rule.id));
+    } catch (error) {
+      // One invalid rule rejects the whole batch. Give up atomicity to keep
+      // the valid ones: clear, then let addRules isolate the culprit.
+      console.error('HeaderEditor: atomic rule swap failed, falling back:', error);
+      await updateRules({ removeRuleIds });
+      tracked.clear();
+      await this.addRules(rules, { session });
+    }
+  }
+
+  buildRules(data, activeProfiles) {
     if (activeProfiles === null) {
       const currentProfile = data.profiles[data.currentProfile];
       activeProfiles = currentProfile
@@ -306,29 +348,7 @@ export class HeaderEditorBackground {
       }
     }
 
-    console.log('HeaderEditor: Rules to apply:', {
-      dynamic: dynamicRules.length,
-      session: sessionRules.length,
-    });
-
-    if (dynamicRules.length === 0 && sessionRules.length === 0) {
-      console.log('HeaderEditor: No rules to apply');
-      return;
-    }
-
-    // Firefox needs extra time before adding new rules
-    if (this.isFirefox) {
-      console.log('HeaderEditor: Firefox - adding delay before applying rules');
-      await this.delay(100);
-    }
-
-    if (dynamicRules.length > 0) {
-      await this.addRules(dynamicRules);
-    }
-    if (sessionRules.length > 0) {
-      await this.addRules(sessionRules, { session: true });
-    }
-    console.log('HeaderEditor: Rules added successfully');
+    return { dynamicRules, sessionRules };
   }
 
   // Show which profile governs each tab: per-tab badge (letter + profile color)
@@ -353,7 +373,7 @@ export class HeaderEditorBackground {
       }
       this.badgedTabIds.clear();
 
-      if (!data.enabled || data.paused) {
+      if (data.paused) {
         await chrome.action.setBadgeText({ text: '' });
         // Persist the (now empty) badged-tab list
         if (chrome.storage.session) {
@@ -529,11 +549,7 @@ export class HeaderEditorBackground {
   }
 
   async clearSessionRules() {
-    // Session rules (tab group scoping) live in a separate rule set
-    if (!chrome.declarativeNetRequest.getSessionRules) {
-      return;
-    }
-    const sessionRules = await chrome.declarativeNetRequest.getSessionRules();
+    const sessionRules = await this.getSessionRules();
     if (sessionRules.length > 0) {
       await chrome.declarativeNetRequest.updateSessionRules({
         removeRuleIds: sessionRules.map(rule => rule.id),
