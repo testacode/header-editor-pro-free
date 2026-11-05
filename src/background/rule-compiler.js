@@ -223,10 +223,21 @@ export function buildRedirectRules(redirect, conditions, priority = PRIORITY.glo
     },
     condition: {
       ...condition,
-      regexFilter: redirect.pattern.trim(),
+      regexFilter: wholeUrlPattern(redirect.pattern.trim()),
+      // DNR defaults to case-insensitive; a regex means what it says, and
+      // (?i) is there for whoever wants otherwise.
+      isUrlFilterCaseSensitive: true,
       resourceTypes: [...REDIRECT_RESOURCE_TYPES],
     },
   }));
+}
+
+// regexSubstitution replaces only the part of the URL the regex matched, so
+// `desa\.example\.com/(.*)` on https://desa.example.com/x would yield
+// "https://" + target. The target is a whole URL: make the match cover the
+// whole URL too. Non-capturing wrappers keep the user's $1, $2… numbering.
+export function wholeUrlPattern(pattern) {
+  return `^.*?(?:${pattern}).*$`;
 }
 
 // Users write capture groups as $1 (Requestly's syntax); DNR's

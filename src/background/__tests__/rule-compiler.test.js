@@ -4,6 +4,7 @@ import {
   buildCorsRules,
   REDIRECT_RESOURCE_TYPES,
   toRegexSubstitution,
+  wholeUrlPattern,
   buildModifyHeadersRules,
   compileRules,
   PRIORITY,
@@ -236,7 +237,8 @@ describe('redirects', () => {
       type: 'redirect',
       redirect: { regexSubstitution: 'https://www.example.com/\\1' },
     });
-    expect(rule.condition.regexFilter).toBe('^https://desa\\.example\\.com/(.*)');
+    expect(rule.condition.regexFilter).toBe(wholeUrlPattern('^https://desa\\.example\\.com/(.*)'));
+    expect(rule.condition.isUrlFilterCaseSensitive).toBe(true);
     expect(rule.condition.urlFilter).toBeUndefined();
     expect(rule.condition.resourceTypes).toEqual(REDIRECT_RESOURCE_TYPES);
     expect(rule.condition.resourceTypes).not.toContain('main_frame');
@@ -326,5 +328,33 @@ describe('toRegexSubstitution', () => {
 
   test('no placeholders → unchanged', () => {
     expect(toRegexSubstitution('https://a.com/static')).toBe('https://a.com/static');
+  });
+});
+
+describe('wholeUrlPattern', () => {
+  // DNR replaces the matched part only; emulate that to check the wrapper.
+  const redirectUrl = (url, pattern, target) =>
+    url.replace(new RegExp(wholeUrlPattern(pattern)), target);
+
+  test('unanchored pattern → the whole URL is replaced, not just the match', () => {
+    expect(
+      redirectUrl(
+        'https://desa.example.com/api/items?id=7',
+        'desa\\.example\\.com/(.*)',
+        'https://www.example.com/$1'
+      )
+    ).toBe('https://www.example.com/api/items?id=7');
+  });
+
+  test('anchored pattern still works and keeps group numbering', () => {
+    expect(
+      redirectUrl('https://a.com/x/y', '^https://a\\.com/(\\w+)/(\\w+)$', 'https://b.com/$2/$1')
+    ).toBe('https://b.com/y/x');
+  });
+
+  test('a pattern that does not match leaves the URL alone', () => {
+    expect(redirectUrl('https://other.com/', 'desa\\.example', 'https://x.com')).toBe(
+      'https://other.com/'
+    );
   });
 });
