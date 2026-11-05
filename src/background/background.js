@@ -1,36 +1,6 @@
-import { isHeaderEnabled } from '../popup/header-normalize.js';
 import { defaultHeaderEditorData, migrateLegacyFlags } from '../popup/default-data.js';
 import { APPLY_RULES_MESSAGE } from '../messages.js';
-
-// Chrome's declarativeNetRequest only allows the `append` operation on this set
-// of REQUEST headers; response headers have no such restriction. Emitting an
-// append rule for a request header outside this list makes updateDynamicRules
-// reject the whole rule, so we degrade to `set` with a warning instead.
-// Source: MDN declarativeNetRequest.ModifyHeaderInfo (verified 2026-07-05).
-// This is a Chrome-defined list and may change — update it if append stops
-// working for a header that used to be allowed.
-const APPEND_ALLOWED_REQUEST_HEADERS = new Set([
-  'accept',
-  'accept-encoding',
-  'accept-language',
-  'access-control-request-headers',
-  'cache-control',
-  'connection',
-  'content-language',
-  'cookie',
-  'forwarded',
-  'if-match',
-  'if-none-match',
-  'keep-alive',
-  'range',
-  'te',
-  'trailer',
-  'transfer-encoding',
-  'upgrade',
-  'via',
-  'want-digest',
-  'x-forwarded-for',
-]);
+import { compileRules } from './rule-compiler.js';
 
 export class HeaderEditorBackground {
   constructor() {
@@ -111,19 +81,21 @@ export class HeaderEditorBackground {
     });
   }
 
-  ruleStateSignature(data, activeProfiles) {
+  // Everything an application writes to the browser: the compiled rules and
+  // what the badges show. Fields that reach neither (descriptions, notes,
+  // text colour...) can change without re-applying anything.
+  ruleStateSignature(data, activeProfiles, compiled) {
+    const badgeOf = profile =>
+      profile ? { name: profile.name ?? null, color: profile.backgroundColor ?? null } : null;
     return JSON.stringify({
-      paused: data.paused,
-      currentProfile: data.currentProfile,
-      active: (activeProfiles || []).map(({ key, profile, tabIds }) => ({
-        key,
-        name: profile.name ?? null,
-        backgroundColor: profile.backgroundColor ?? null,
-        requestHeaders: profile.requestHeaders ?? null,
-        responseHeaders: profile.responseHeaders ?? null,
-        filters: profile.filters ?? null,
-        tabIds,
-      })),
+      compiled,
+      badges: {
+        paused: data.paused,
+        current: badgeOf(data.profiles?.[data.currentProfile]),
+        scoped: activeProfiles
+          .filter(({ tabIds }) => tabIds !== null)
+          .map(({ profile, tabIds }) => ({ ...badgeOf(profile), tabIds })),
+      },
     });
   }
 
@@ -167,13 +139,14 @@ export class HeaderEditorBackground {
       const { data } = migrateLegacyFlags(result.headerEditorData || defaultHeaderEditorData());
 
       const activeProfiles = await this.resolveActiveProfiles(data);
+      const compiled = compileRules(data, activeProfiles);
 
-      const signature = this.ruleStateSignature(data, activeProfiles);
+      const signature = this.ruleStateSignature(data, activeProfiles, compiled);
       if (signature === this.lastAppliedSignature) {
         return;
       }
 
-      await this.applyHeaderRules(data, activeProfiles);
+      await this.applyHeaderRules(data, activeProfiles, compiled);
       await this.updateBadges(data, activeProfiles);
       this.lastAppliedSignature = signature;
     } catch (error) {
@@ -250,7 +223,11 @@ export class HeaderEditorBackground {
     chrome.runtime.onStartup.addListener(reapply);
   }
 
-  async applyHeaderRules(data, activeProfiles = null) {
+  async applyHeaderRules(
+    data,
+    activeProfiles = null,
+    compiled = compileRules(data, activeProfiles)
+  ) {
     console.log('HeaderEditor: Applying header rules', {
       paused: data.paused,
       currentProfile: data.currentProfile,
@@ -266,9 +243,9 @@ export class HeaderEditorBackground {
       this.currentRuleId = Math.max(this.currentRuleId, rule.id + 1);
     }
 
-    const { dynamicRules, sessionRules } = data.paused
-      ? { dynamicRules: [], sessionRules: [] }
-      : this.buildRules(data, activeProfiles);
+    const withId = rule => ({ id: this.currentRuleId++, ...rule });
+    const dynamicRules = compiled.dynamicRules.map(withId);
+    const sessionRules = compiled.sessionRules.map(withId);
 
     console.log('HeaderEditor: Rules to apply:', {
       dynamic: dynamicRules.length,
@@ -313,42 +290,6 @@ export class HeaderEditorBackground {
       tracked.clear();
       await this.addRules(rules, { session });
     }
-  }
-
-  buildRules(data, activeProfiles) {
-    if (activeProfiles === null) {
-      const currentProfile = data.profiles[data.currentProfile];
-      activeProfiles = currentProfile
-        ? [{ key: data.currentProfile, profile: currentProfile, tabIds: null }]
-        : [];
-    }
-
-    const dynamicRules = [];
-    const sessionRules = [];
-
-    for (const { profile, tabIds } of activeProfiles) {
-      // Tab group filter resolved to zero tabs (group empty or gone): the
-      // profile is scoped to nothing, so no rules for it.
-      if (tabIds !== null && tabIds.length === 0) {
-        continue;
-      }
-
-      const conditions = this.buildConditions(profile.filters, tabIds);
-      // Tab-scoped rules outrank the selected profile's global rules when both
-      // touch the same header on the same tab.
-      const priority = tabIds !== null ? 2 : 1;
-      // tabIds conditions are only valid on session rules
-      const target = tabIds !== null ? sessionRules : dynamicRules;
-
-      for (const direction of ['requestHeaders', 'responseHeaders']) {
-        const headers = (profile[direction] || []).filter(isHeaderEnabled);
-        if (headers.length > 0) {
-          target.push(...this.createModifyHeadersRules(headers, direction, conditions, priority));
-        }
-      }
-    }
-
-    return { dynamicRules, sessionRules };
   }
 
   // Show which profile governs each tab: per-tab badge (letter + profile color)
@@ -415,99 +356,6 @@ export class HeaderEditorBackground {
     } catch (error) {
       console.error('HeaderEditor: failed to update badges:', error);
     }
-  }
-
-  activeDomainList(filters) {
-    if (!filters?.domains?.enabled) {
-      return [];
-    }
-    // DNR requires lowercase domains
-    return (filters.domains.list || []).map(domain => domain.trim().toLowerCase()).filter(Boolean);
-  }
-
-  // Build the DNR conditions the profile's rules must carry. With a domain
-  // filter, a request should match when it goes TO one of the domains or is
-  // initiated FROM one of them; DNR ANDs fields inside a condition, so that OR
-  // takes one rule (condition) per field.
-  buildConditions(filters, tabIds) {
-    const base = {
-      urlFilter: '*',
-      resourceTypes: [
-        'main_frame',
-        'sub_frame',
-        'stylesheet',
-        'script',
-        'image',
-        'font',
-        'object',
-        'xmlhttprequest',
-        'ping',
-        'csp_report',
-        'media',
-        'websocket',
-        'other',
-      ],
-    };
-    if (tabIds !== null) {
-      base.tabIds = tabIds;
-    }
-
-    const domains = this.activeDomainList(filters);
-    if (domains.length === 0) {
-      return [base];
-    }
-    return [
-      { ...base, requestDomains: domains },
-      { ...base, initiatorDomains: domains },
-    ];
-  }
-
-  // Decide the DNR operation for a header: append (multi-value) when the user
-  // enabled append mode and there is a value, else set (has value) or remove.
-  // Request-header append is degraded to set (with a warning) when the header
-  // is outside Chrome's append whitelist, to avoid a rule Chrome would reject.
-  resolveOperation(header, name, direction) {
-    if (header.appendMode && header.value) {
-      if (
-        direction === 'requestHeaders' &&
-        !APPEND_ALLOWED_REQUEST_HEADERS.has(name.toLowerCase())
-      ) {
-        console.warn(
-          `HeaderEditor: append not supported for request header "${name}"; falling back to set`
-        );
-        return 'set';
-      }
-      return 'append';
-    }
-    return header.value ? 'set' : 'remove';
-  }
-
-  // Build the modifyHeaders rules for a header direction, one per condition.
-  // `direction` is 'requestHeaders' or 'responseHeaders' — the DNR action field.
-  createModifyHeadersRules(headers, direction, conditions, priority = 1) {
-    const validHeaders = headers.filter(h => h.name && h.name.trim());
-    if (validHeaders.length === 0) {
-      return [];
-    }
-
-    const modifications = validHeaders.map(header => {
-      const name = header.name.trim();
-      return {
-        header: name,
-        operation: this.resolveOperation(header, name, direction),
-        value: header.value || undefined,
-      };
-    });
-
-    return conditions.map(condition => ({
-      id: this.currentRuleId++,
-      priority,
-      action: {
-        type: 'modifyHeaders',
-        [direction]: modifications,
-      },
-      condition,
-    }));
   }
 
   async addRules(rules, { session = false } = {}) {
