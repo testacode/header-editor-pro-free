@@ -135,6 +135,12 @@
   "headerAppendMode": {
     "message": "덮어쓰지 않고 추가"
   },
+  "headerNoteAdd": {
+    "message": "메모 추가"
+  },
+  "headerNotePlaceholder": {
+    "message": "이 헤더는 어디에 쓰이나요?"
+  },
   "headerCopyToProfile": {
     "message": "다른 프로필로 복사…"
   },

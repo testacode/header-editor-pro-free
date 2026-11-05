@@ -809,6 +809,54 @@ body {
   background: rgba(76, 175, 80, 0.1);
 }
 
+.header-note-toggle {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.header-note-toggle:hover {
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.header-note-toggle.active {
+  color: #4caf50;
+}
+
+/* Sibling of .header-item, not a child: a textarea inside a draggable row
+   can't place the cursor or select text in Chrome. */
+.header-note {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 32px);
+  margin: 6px 16px 8px;
+  min-height: 48px;
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  border-radius: 4px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 8px;
+  outline: none;
+  resize: vertical;
+}
+
+.header-note:focus {
+  border-color: #4caf50;
+}
+
+.header-note::placeholder {
+  color: #666;
+}
+
 .copy-dropdown {
   position: absolute;
   top: 34px;

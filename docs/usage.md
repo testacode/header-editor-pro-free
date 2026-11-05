@@ -29,8 +29,12 @@ Everything the extension does, from the popup.
 - **Delete**: the "✕" button
 - **Reorder**: drag a header to a new position
 - **Copy to another profile**: the per-row 📋 button (shown when you have more
-  than one profile) appends the header — name, value, enabled state and append
-  mode — to another profile's matching section
+  than one profile) appends the header — name, value, enabled state, append
+  mode and note — to another profile's matching section
+- **Note**: the per-row 📝 button opens a free-text note below the header, to
+  remember what it is for; click again to close it. The button lights up when
+  the header has a note, and hovering it shows the text. Notes are saved with
+  the header (and travel with export, import and copy) but never affect requests
 
 ## Profile filters
 

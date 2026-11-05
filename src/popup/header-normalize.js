@@ -7,8 +7,8 @@
  * Normalize a single header object, filling in missing fields with defaults.
  * Does NOT filter — callers decide whether to keep the result.
  *
- * @param {{ name?: string, value?: string, enabled?: boolean, appendMode?: boolean }} header
- * @returns {{ name: string, value: string, enabled: boolean, appendMode: boolean }}
+ * @param {{ name?: string, value?: string, enabled?: boolean, appendMode?: boolean, note?: string }} header
+ * @returns {{ name: string, value: string, enabled: boolean, appendMode: boolean, note: string }}
  */
 export function normalizeHeader(header) {
   return {
@@ -16,6 +16,8 @@ export function normalizeHeader(header) {
     value: header.value || '',
     enabled: isHeaderEnabled(header),
     appendMode: isAppendMode(header),
+    // Free-text reminder for the user; '' = no note. Never affects rules.
+    note: typeof header.note === 'string' ? header.note : '',
   };
 }
 

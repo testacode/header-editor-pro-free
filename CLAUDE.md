@@ -21,7 +21,8 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Extension Features:**
 - **Profile Management**: Unlimited profiles with numbered circle UI and active/inactive indicators
 - **Header Modification**: Request and response header support with individual enable/disable checkboxes
-- **Copy Header to Profile**: Per-row 📋 button (shown when >1 profile) opens a dropdown to append the header (full header: name, value, enabled state, append mode) to another profile's same section, with toast confirmation
+- **Copy Header to Profile**: Per-row 📋 button (shown when >1 profile) opens a dropdown to append the header (full header: name, value, enabled state, append mode, note) to another profile's same section, with toast confirmation
+- **Header Notes**: Per-row 📝 button expands an optional free-text note (`header.note`) below the row; button is highlighted and its tooltip shows the note when non-empty. Expanded state is UI-only (WeakSet of header objects). The textarea is a sibling of the draggable `.header-item`, not a child, so text editing works in Chrome. Notes never affect DNR rules
 - **Profile Filters**: Per-profile scoping by domains (cross-browser, requestDomains/initiatorDomains OR'd via two DNR rules) and by Chrome tab group (session rules with tabIds + tab tracking; ignored on Firefox). Tab-group-scoped profiles apply CONCURRENTLY with the selected profile (priority 2 vs 1 on conflicts); the toolbar badge shows the governing profile's initial+color per tab
 - **Internationalization**: 7 languages with an in-popup selector (🌐 in the toolbar) that switches without reloading. Preference in `chrome.storage.local.uiLocale`; absent = follow the browser. Strings live in `src/_locales/`, never hardcoded — see `docs/i18n.md`
 - **Professional UI**: Dark theme with left sidebar navigation
@@ -72,7 +73,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
     'profile_id': {
       name: 'Profile Name',
       description: '',            // '' means "none" — the placeholder is the hint
-      requestHeaders: [{ name: 'header', value: 'value', enabled: true, appendMode: false }],
+      requestHeaders: [{ name: 'header', value: 'value', enabled: true, appendMode: false, note: '' }], // note: '' = none
       responseHeaders: [],
       backgroundColor: '#4caf50',
       textColor: '#ffffff',
@@ -117,7 +118,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Testing:**
 - Vitest framework with jsdom environment (modern Jest alternative)
 - Custom Chrome API mocking for Manifest V3 compatibility
-- 421 tests across 8 files: background service worker (declarativeNetRequest rule building, pause/resume), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
+- 434 tests across 8 files: background service worker (declarativeNetRequest rule building, pause/resume), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
 - Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**

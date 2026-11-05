@@ -444,6 +444,7 @@ describe('HeaderEditorPopup', () => {
         value: 'bar',
         enabled: false,
         appendMode: false,
+        note: '',
       });
       expect(chrome.storage.local.set).toHaveBeenCalled();
     });
@@ -466,7 +467,7 @@ describe('HeaderEditorPopup', () => {
       await popup.copyHeaderToProfile('response', 0, 'other');
 
       expect(popup.profiles.other.responseHeaders).toEqual([
-        { name: 'X-Resp', value: 'r', enabled: true, appendMode: false },
+        { name: 'X-Resp', value: 'r', enabled: true, appendMode: false, note: '' },
       ]);
     });
 
@@ -481,6 +482,7 @@ describe('HeaderEditorPopup', () => {
         value: 'x',
         enabled: true,
         appendMode: true,
+        note: '',
       });
     });
 
@@ -548,6 +550,7 @@ describe('HeaderEditorPopup', () => {
         value: 'bar',
         enabled: true,
         appendMode: false,
+        note: '',
       });
       // Dropdown closes after copying
       expect(document.querySelector('.copy-dropdown')).toBeNull();
@@ -609,8 +612,20 @@ describe('HeaderEditorPopup', () => {
       const result = popup.importExport.extractHeadersFromArray(input);
 
       expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ name: 'X-Foo', value: 'bar', enabled: false, appendMode: false });
-      expect(result[1]).toEqual({ name: 'X-Valid', value: '', enabled: true, appendMode: false });
+      expect(result[0]).toEqual({
+        name: 'X-Foo',
+        value: 'bar',
+        enabled: false,
+        appendMode: false,
+        note: '',
+      });
+      expect(result[1]).toEqual({
+        name: 'X-Valid',
+        value: '',
+        enabled: true,
+        appendMode: false,
+        note: '',
+      });
     });
 
     test('enabled defaults to true when not false', () => {
@@ -631,8 +646,20 @@ describe('HeaderEditorPopup', () => {
       const result = popup.importExport.toFlatHeaderExport(profile);
 
       expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ appendMode: false, enabled: true, name: 'X-A', value: 'a' });
-      expect(result[1]).toEqual({ appendMode: false, enabled: false, name: 'X-B', value: 'b' });
+      expect(result[0]).toEqual({
+        appendMode: false,
+        enabled: true,
+        name: 'X-A',
+        note: '',
+        value: 'a',
+      });
+      expect(result[1]).toEqual({
+        appendMode: false,
+        enabled: false,
+        name: 'X-B',
+        note: '',
+        value: 'b',
+      });
     });
 
     test('profile with no requestHeaders returns empty array', () => {
@@ -860,7 +887,7 @@ describe('HeaderEditorPopup', () => {
       const key = Object.keys(popup.profiles).find(k => !before.includes(k));
 
       expect(popup.profiles[key].responseHeaders).toEqual([
-        { name: 'X-Resp', value: 'r', enabled: true, appendMode: false },
+        { name: 'X-Resp', value: 'r', enabled: true, appendMode: false, note: '' },
       ]);
     });
 
@@ -929,6 +956,140 @@ describe('HeaderEditorPopup', () => {
   });
 
   // ─── Color utilities ──────────────────────────────────────────────────────────
+
+  describe('header notes', () => {
+    const list = () => document.getElementById('request-headers-list');
+
+    beforeEach(() => {
+      popup.profiles[popup.currentProfile].requestHeaders = [
+        { name: 'H1', value: 'v1', enabled: true, note: 'first' },
+        { name: 'H2', value: 'v2', enabled: true },
+        { name: 'H3', value: 'v3', enabled: true },
+      ];
+      popup.renderHeadersList('request');
+    });
+
+    test('note button is active and shows the note as tooltip only when there is a note', () => {
+      const buttons = list().querySelectorAll('.header-note-toggle');
+      expect(buttons).toHaveLength(3);
+      expect(buttons[0].classList.contains('active')).toBe(true);
+      expect(buttons[0].title).toBe('first');
+      expect(buttons[1].classList.contains('active')).toBe(false);
+      expect(buttons[1].title).toBe('Add a note');
+    });
+
+    test('clicking the button expands the note below the row, outside the draggable item', () => {
+      const row = list().querySelectorAll('.header-item')[0];
+      row.querySelector('.header-note-toggle').click();
+
+      const note = list().querySelector('.header-note');
+      expect(note).not.toBeNull();
+      expect(row.nextElementSibling).toBe(note);
+      expect(row.contains(note)).toBe(false);
+      expect(note.closest('[draggable="true"]')).toBeNull();
+      expect(note.value).toBe('first');
+    });
+
+    test('clicking the button again collapses the note', () => {
+      const button = list().querySelector('.header-note-toggle');
+      button.click();
+      button.click();
+      expect(list().querySelector('.header-note')).toBeNull();
+    });
+
+    test('typing in the note persists it after the debounce and updates the button', async () => {
+      vi.useFakeTimers();
+      try {
+        const row = list().querySelectorAll('.header-item')[1];
+        row.querySelector('.header-note-toggle').click();
+        chrome.storage.local.set.mockClear();
+
+        const note = row.nextElementSibling;
+        note.value = 'used by staging';
+        note.dispatchEvent(new Event('input'));
+        expect(chrome.storage.local.set).not.toHaveBeenCalled();
+
+        await vi.advanceTimersByTimeAsync(500);
+
+        const saved = chrome.storage.local.set.mock.calls.at(-1)[0].headerEditorData;
+        expect(saved.profiles[popup.currentProfile].requestHeaders[1].note).toBe('used by staging');
+        const button = row.querySelector('.header-note-toggle');
+        expect(button.classList.contains('active')).toBe(true);
+        expect(button.title).toBe('used by staging');
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    test('blur on the note flushes the pending save', async () => {
+      list().querySelector('.header-note-toggle').click();
+      const note = list().querySelector('.header-note');
+      note.value = 'edited';
+      note.dispatchEvent(new Event('input'));
+      chrome.storage.local.set.mockClear();
+
+      note.dispatchEvent(new Event('blur'));
+
+      await vi.waitFor(() => expect(chrome.storage.local.set).toHaveBeenCalled());
+      const saved = chrome.storage.local.set.mock.calls.at(-1)[0].headerEditorData;
+      expect(saved.profiles[popup.currentProfile].requestHeaders[0].note).toBe('edited');
+    });
+
+    test('expanded state survives a re-render', () => {
+      list().querySelector('.header-note-toggle').click();
+      popup.renderHeadersList('request');
+      const rows = list().querySelectorAll('.header-item');
+      expect(rows[0].nextElementSibling.classList.contains('header-note')).toBe(true);
+    });
+
+    test('reordering keeps the note (and its open area) attached to its header', async () => {
+      list().querySelector('.header-note-toggle').click();
+
+      await popup.reorderHeaders('request', 0, 2);
+
+      const headers = popup.profiles[popup.currentProfile].requestHeaders;
+      expect(headers.map(h => h.name)).toEqual(['H2', 'H3', 'H1']);
+      expect(headers[2].note).toBe('first');
+      const rows = list().querySelectorAll('.header-item');
+      const note = list().querySelector('.header-note');
+      expect(rows[2].nextElementSibling).toBe(note);
+      expect(rows[2].querySelector('.header-name').value).toBe('H1');
+      expect(note.value).toBe('first');
+    });
+
+    test('copy-to-profile copies the note', async () => {
+      popup.profiles.other = { name: 'Other', requestHeaders: [], responseHeaders: [] };
+      await popup.copyHeaderToProfile('request', 0, 'other');
+      expect(popup.profiles.other.requestHeaders[0].note).toBe('first');
+    });
+
+    test('flat export/import round-trip keeps the note', () => {
+      const exported = popup.importExport.toFlatHeaderExport(popup.profiles[popup.currentProfile]);
+      expect(exported[0].note).toBe('first');
+      expect(exported[1].note).toBe('');
+
+      const imported = popup.importExport.extractHeadersFromArray(
+        JSON.parse(JSON.stringify(exported))
+      );
+      expect(imported.map(h => h.note)).toEqual(['first', '', '']);
+    });
+
+    test('full export/import round-trip keeps the note', async () => {
+      popup.profiles[popup.currentProfile].responseHeaders = [
+        { name: 'X-Resp', value: 'r', enabled: true, note: 'resp note' },
+      ];
+      document.querySelector('input[name="export-scope"][value="all"]').checked = true;
+      popup.importExport.updateExportData();
+      const exportData = JSON.parse(document.getElementById('json-textarea').value);
+
+      const before = Object.keys(popup.profiles);
+      await popup.importExport.importMultipleProfiles(exportData);
+      const key = Object.keys(popup.profiles).find(k => !before.includes(k));
+
+      expect(popup.profiles[key].requestHeaders[0].note).toBe('first');
+      expect(popup.profiles[key].responseHeaders[0].note).toBe('resp note');
+    });
+  });
 
   describe('color utilities', () => {
     test('hexToHsl converts #ff0000 to hue 0', () => {
@@ -1707,7 +1868,7 @@ describe('HeaderEditorPopup', () => {
       const allKeys = Object.keys(popup.profiles);
       const importedKey = allKeys.find(k => !profilesBefore.includes(k));
       expect(popup.profiles[importedKey].requestHeaders).toEqual([
-        { name: 'X-Ok', value: 'v', enabled: true, appendMode: false },
+        { name: 'X-Ok', value: 'v', enabled: true, appendMode: false, note: '' },
       ]);
     });
   });
@@ -1716,7 +1877,7 @@ describe('HeaderEditorPopup', () => {
     test('array of headers replaces current profile requestHeaders, normalized', async () => {
       await popup.importExport.replaceCurrentProfile([{ name: 'X-New', value: 'v' }]);
       expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([
-        { name: 'X-New', value: 'v', enabled: true, appendMode: false },
+        { name: 'X-New', value: 'v', enabled: true, appendMode: false, note: '' },
       ]);
     });
 
@@ -1732,7 +1893,7 @@ describe('HeaderEditorPopup', () => {
       };
       await popup.importExport.replaceCurrentProfile(exportData);
       expect(popup.profiles[popup.currentProfile].requestHeaders).toEqual([
-        { name: 'X-Single', value: 'v', enabled: false, appendMode: false },
+        { name: 'X-Single', value: 'v', enabled: false, appendMode: false, note: '' },
       ]);
     });
 
@@ -1834,8 +1995,8 @@ describe('HeaderEditorPopup', () => {
       const first = popup.profiles[importedKeys[0]];
 
       expect(first.requestHeaders).toEqual([
-        { name: 'X-Api-Key', value: 'abc', enabled: true, appendMode: false },
-        { name: 'X-Debug', value: '1', enabled: false, appendMode: false },
+        { name: 'X-Api-Key', value: 'abc', enabled: true, appendMode: false, note: '' },
+        { name: 'X-Debug', value: '1', enabled: false, appendMode: false, note: '' },
       ]);
     });
 
@@ -1874,7 +2035,7 @@ describe('HeaderEditorPopup', () => {
       expect(imported.requestHeaders).toHaveLength(1);
       expect(imported.requestHeaders[0].name).toBe('X-Req');
       expect(imported.responseHeaders).toEqual([
-        { name: 'X-Resp', value: 'r', enabled: true, appendMode: false },
+        { name: 'X-Resp', value: 'r', enabled: true, appendMode: false, note: '' },
       ]);
     });
 

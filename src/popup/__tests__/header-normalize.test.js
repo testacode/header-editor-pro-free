@@ -51,3 +51,17 @@ describe('normalizeHeader preserves appendMode (plan 028)', () => {
     expect(normalizeHeader({ name: 'X-Foo', value: 'bar' }).appendMode).toBe(false);
   });
 });
+
+describe('normalizeHeader note', () => {
+  test('defaults a missing note to empty string (old storage, imports)', () => {
+    expect(normalizeHeader({ name: 'X-Foo', value: 'bar' }).note).toBe('');
+  });
+
+  test('keeps a string note', () => {
+    expect(normalizeHeader({ name: 'X-Foo', note: 'for staging' }).note).toBe('for staging');
+  });
+
+  test('drops a non-string note', () => {
+    expect(normalizeHeader({ name: 'X-Foo', note: { evil: true } }).note).toBe('');
+  });
+});
