@@ -272,5 +272,26 @@
   },
   "importedFromJson": {
     "message": "JSON에서 가져옴 - 클릭하여 편집"
+  },
+  "sectionRedirects": {
+    "message": "리디렉션"
+  },
+  "redirectAdd": {
+    "message": "리디렉션 추가"
+  },
+  "redirectPatternPlaceholder": {
+    "message": "정규식 (예: ^https://dev\\.example\\.com/(.*))"
+  },
+  "redirectTargetPlaceholder": {
+    "message": "https://example.com/$1"
+  },
+  "redirectCors": {
+    "message": "대상에 대한 교차 출처 요청도 허용합니다 (Access-Control-Allow-Origin: * 설정, 자격 증명이 포함된 요청에서는 작동하지 않음)"
+  },
+  "redirectDelete": {
+    "message": "리디렉션 삭제"
+  },
+  "redirectInvalidPattern": {
+    "message": "이 패턴은 사용할 수 없습니다: $1"
   }
 }

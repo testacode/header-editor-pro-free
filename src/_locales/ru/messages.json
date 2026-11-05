@@ -272,5 +272,26 @@
   },
   "importedFromJson": {
     "message": "Импортировано из JSON — нажмите для изменения"
+  },
+  "sectionRedirects": {
+    "message": "Перенаправления"
+  },
+  "redirectAdd": {
+    "message": "Добавить перенаправление"
+  },
+  "redirectPatternPlaceholder": {
+    "message": "Регулярное выражение, напр. ^https://dev\\.example\\.com/(.*)"
+  },
+  "redirectTargetPlaceholder": {
+    "message": "https://example.com/$1"
+  },
+  "redirectCors": {
+    "message": "Также разрешить кросс-доменные запросы к цели (устанавливает Access-Control-Allow-Origin: *; не работает с учётными данными)"
+  },
+  "redirectDelete": {
+    "message": "Удалить перенаправление"
+  },
+  "redirectInvalidPattern": {
+    "message": "Этот шаблон нельзя использовать: $1"
   }
 }

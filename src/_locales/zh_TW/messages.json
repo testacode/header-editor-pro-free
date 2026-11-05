@@ -272,5 +272,26 @@
   },
   "importedFromJson": {
     "message": "從 JSON 匯入 - 點擊編輯"
+  },
+  "sectionRedirects": {
+    "message": "重新導向"
+  },
+  "redirectAdd": {
+    "message": "新增重新導向"
+  },
+  "redirectPatternPlaceholder": {
+    "message": "規則運算式，例如 ^https://dev\\.example\\.com/(.*)"
+  },
+  "redirectTargetPlaceholder": {
+    "message": "https://example.com/$1"
+  },
+  "redirectCors": {
+    "message": "同時允許對目標的跨來源請求（設定 Access-Control-Allow-Origin: *；對攜帶憑證的請求無效）"
+  },
+  "redirectDelete": {
+    "message": "刪除重新導向"
+  },
+  "redirectInvalidPattern": {
+    "message": "無法使用此模式：$1"
   }
 }

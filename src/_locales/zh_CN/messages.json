@@ -272,5 +272,26 @@
   },
   "importedFromJson": {
     "message": "从 JSON 导入 - 点击编辑"
+  },
+  "sectionRedirects": {
+    "message": "重定向"
+  },
+  "redirectAdd": {
+    "message": "添加重定向"
+  },
+  "redirectPatternPlaceholder": {
+    "message": "正则表达式，例如 ^https://dev\\.example\\.com/(.*)"
+  },
+  "redirectTargetPlaceholder": {
+    "message": "https://example.com/$1"
+  },
+  "redirectCors": {
+    "message": "同时允许对目标的跨域请求（设置 Access-Control-Allow-Origin: *；对携带凭据的请求无效）"
+  },
+  "redirectDelete": {
+    "message": "删除重定向"
+  },
+  "redirectInvalidPattern": {
+    "message": "无法使用此模式：$1"
   }
 }
