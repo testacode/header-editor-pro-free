@@ -36,9 +36,27 @@ Everything the extension does, from the popup.
   the header has a note, and hovering it shows the text. Notes are saved with
   the header (and travel with export, import and copy) but never affect requests
 
+## Redirects
+
+The **Redirects** section sends requests matching a pattern to another URL, per
+profile — so they follow the profile's filters, tab group and pause like headers do.
+
+- **Pattern** — a regular expression matched against the full request URL, e.g.
+  `^https://dev\.example\.com/api/(.*)`. Chrome validates it as you type; an
+  invalid pattern is underlined in red with the reason in its tooltip.
+- **Target** — the destination URL. `$1`, `$2`… insert the pattern's capture
+  groups: `https://www.example.com/api/$1`.
+- **CORS** — when a page fetches from one origin and the redirect lands on
+  another, the browser blocks the response unless the target allows it. This
+  toggle adds `Access-Control-Allow-*: *` to responses from the target host.
+  `*` is rejected by browsers for credentialed requests (cookies), so it won't
+  help there.
+- Only subresources (fetch/XHR, scripts, styles, images…) are redirected, never
+  the page you navigate to.
+
 ## Profile filters
 
-Both filters live in the **Filters** section below Response headers, and are set
+Both filters live in the **Filters** section below Redirects, and are set
 per profile.
 
 - **Domains** — limit a profile to specific domains (comma-separated). Headers

@@ -7,13 +7,16 @@
 // That also makes the output comparable between runs (see ruleStateSignature).
 
 import { isHeaderEnabled } from '../popup/header-normalize.js';
+import { isRedirectActive } from '../popup/redirect-normalize.js';
 
 // When two rules touch the same header on the same request, the higher
-// priority wins. Tab-scoped profiles outrank the selected profile's global
-// rules inside their tab group.
+// priority wins (equal priorities: undefined order). Tab-scoped profiles
+// outrank the selected profile's global rules inside their tab group, and the
+// automatic CORS headers lose to any header the user sets explicitly.
 export const PRIORITY = {
-  global: 1,
-  tabScoped: 2,
+  cors: 1,
+  global: 2,
+  tabScoped: 3,
 };
 
 export const RESOURCE_TYPES = [
@@ -62,7 +65,29 @@ export const APPEND_ALLOWED_REQUEST_HEADERS = new Set([
   'x-forwarded-for',
 ]);
 
+// Redirects only apply to subresources, never to page navigations: a typo in
+// a pattern can't hijack the page you're on, only what it loads.
+export const REDIRECT_RESOURCE_TYPES = RESOURCE_TYPES.filter(
+  type => type !== 'main_frame' && type !== 'sub_frame'
+);
+
 const HEADER_DIRECTIONS = ['requestHeaders', 'responseHeaders'];
+
+// Opening CORS on the redirect target: without it, a page fetching from
+// desa.example.com and redirected to www.example.com gets blocked by the
+// browser. `*` does not work for credentialed requests (fetch with
+// credentials: 'include') — browsers reject it there, and DNR can't echo the
+// request's Origin back. Opt-in per redirect for that reason.
+const CORS_RESPONSE_HEADERS = [
+  { header: 'Access-Control-Allow-Origin', operation: 'set', value: '*' },
+  { header: 'Access-Control-Allow-Headers', operation: 'set', value: '*' },
+  {
+    header: 'Access-Control-Allow-Methods',
+    operation: 'set',
+    value: 'GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD',
+  },
+  { header: 'Access-Control-Expose-Headers', operation: 'set', value: '*' },
+];
 
 // activeProfiles: [{ key, profile, tabIds }] as resolved by the background,
 // tabIds null = no tab scoping. null means "just the selected profile".
@@ -92,6 +117,17 @@ export function compileRules(data, activeProfiles = null) {
       const headers = (profile[direction] || []).filter(isHeaderEnabled);
       target.push(...buildModifyHeadersRules(headers, direction, conditions, priority));
     }
+
+    const redirects = (profile.redirects || []).filter(isRedirectActive);
+    for (const redirect of redirects) {
+      target.push(...buildRedirectRules(redirect, conditions, priority));
+    }
+    target.push(
+      ...buildCorsRules(
+        redirects.filter(r => r.cors),
+        tabIds
+      )
+    );
   }
 
   return { dynamicRules, sessionRules };
@@ -174,4 +210,55 @@ export function buildModifyHeadersRules(
     action: { type: 'modifyHeaders', [direction]: modifications },
     condition,
   }));
+}
+
+// The profile's conditions (domain filter, tab ids) with the redirect pattern
+// in place of the match-everything urlFilter.
+export function buildRedirectRules(redirect, conditions, priority = PRIORITY.global) {
+  return conditions.map(({ urlFilter: _matchAll, ...condition }) => ({
+    priority,
+    action: {
+      type: 'redirect',
+      redirect: { regexSubstitution: toRegexSubstitution(redirect.target.trim()) },
+    },
+    condition: {
+      ...condition,
+      regexFilter: redirect.pattern.trim(),
+      resourceTypes: [...REDIRECT_RESOURCE_TYPES],
+    },
+  }));
+}
+
+// Users write capture groups as $1 (Requestly's syntax); DNR's
+// regexSubstitution wants \1. A literal backslash has to be escaped first so
+// it isn't read as a group reference.
+export function toRegexSubstitution(target) {
+  return target.replace(/\\/g, '\\\\').replace(/\$(\d)/g, '\\$1');
+}
+
+// One rule per distinct target host. A target whose host contains a $n
+// placeholder can't be scoped to a known host, so it gets no CORS rule.
+export function buildCorsRules(redirects, tabIds) {
+  const hosts = new Set(redirects.map(r => targetHost(r.target)).filter(Boolean));
+  return [...hosts].map(host => ({
+    priority: PRIORITY.cors,
+    action: { type: 'modifyHeaders', responseHeaders: CORS_RESPONSE_HEADERS },
+    condition: {
+      requestDomains: [host],
+      resourceTypes: [...REDIRECT_RESOURCE_TYPES],
+      ...(tabIds !== null ? { tabIds } : {}),
+    },
+  }));
+}
+
+function targetHost(target) {
+  const authority = /^[a-z][a-z0-9+.-]*:\/\/([^/?#]*)/i.exec(target.trim())?.[1];
+  if (!authority || authority.includes('$')) {
+    return null;
+  }
+  try {
+    return new URL(`https://${authority}`).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
 }

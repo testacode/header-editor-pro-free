@@ -123,3 +123,11 @@ Usar `tempfile.mkdtemp()` por corrida, e identificar el tab nuevo por diferencia
 **Ojo con los ids:** el contador de ids vive en memoria y arranca en 1 cada vez que el worker reinicia, mientras las reglas viejas siguen instaladas. Antes de construir, `currentRuleId` se sube por encima del id más alto instalado en cualquiera de los dos stores.
 
 Los delays de Firefox en `clearAllRules()` (que ahora solo se usa en el camino de error) no tienen motivo documentado; quedaron como estaban.
+
+## DNR `regexSubstitution` usa `\1`, no `$1`
+
+Las capturas en el destino de una regla `redirect` se escriben `\1`…`\9` (`\0` = todo el match), según la doc de Chrome y MDN. `$1` llega literal a la URL destino. Los usuarios escriben `$1` (es lo que conocen de Requestly) y `toRegexSubstitution()` en `rule-compiler.js` lo traduce; antes escapa las barras invertidas literales para que no se lean como grupos.
+
+## Un redirect cross-origin sin CORS "falla" aunque la regla esté bien
+
+Verificado en Chrome for Testing (2026-11-05): con un `fetch` desde `localhost:8001` redirigido a `localhost:8002`, la regla se aplica pero el navegador bloquea la respuesta (`TypeError: Failed to fetch`) porque el destino no manda `Access-Control-Allow-Origin`. Por eso existe el toggle CORS por redirección. No ayuda con requests con credenciales: el navegador rechaza `*` ahí y DNR no puede reflejar el `Origin` del request.

@@ -1,6 +1,9 @@
 import { describe, test, expect } from 'vitest';
 import {
   buildConditions,
+  buildCorsRules,
+  REDIRECT_RESOURCE_TYPES,
+  toRegexSubstitution,
   buildModifyHeadersRules,
   compileRules,
   PRIORITY,
@@ -83,9 +86,9 @@ describe('buildModifyHeadersRules', () => {
     ]);
   });
 
-  test('priority is 1', () => {
+  test('default priority is the global one', () => {
     const [rule] = requestRules([{ name: 'X-H', value: 'v', enabled: true }]);
-    expect(rule.priority).toBe(1);
+    expect(rule.priority).toBe(PRIORITY.global);
   });
 
   test('one rule per condition, same action in each', () => {
@@ -205,5 +208,123 @@ describe('compileRules', () => {
     });
 
     expect(compileRules(state)).toEqual(compileRules(state));
+  });
+});
+
+// ─── redirects ────────────────────────────────────────────────────────────
+
+describe('redirects', () => {
+  const redirect = (overrides = {}) => ({
+    id: 'r1',
+    pattern: '^https://desa\\.example\\.com/(.*)',
+    target: 'https://www.example.com/$1',
+    enabled: true,
+    cors: false,
+    ...overrides,
+  });
+  const compile = (redirects, extra = {}) =>
+    compileRules({
+      paused: false,
+      currentProfile: 'p',
+      profiles: { p: { requestHeaders: [], redirects, ...extra } },
+    });
+
+  test('active redirect → regexFilter rule with \\1 substitution, no main_frame', () => {
+    const [rule] = compile([redirect()]).dynamicRules;
+
+    expect(rule.action).toEqual({
+      type: 'redirect',
+      redirect: { regexSubstitution: 'https://www.example.com/\\1' },
+    });
+    expect(rule.condition.regexFilter).toBe('^https://desa\\.example\\.com/(.*)');
+    expect(rule.condition.urlFilter).toBeUndefined();
+    expect(rule.condition.resourceTypes).toEqual(REDIRECT_RESOURCE_TYPES);
+    expect(rule.condition.resourceTypes).not.toContain('main_frame');
+    expect(rule.condition.resourceTypes).not.toContain('sub_frame');
+    expect(rule.priority).toBe(PRIORITY.global);
+  });
+
+  test('disabled or incomplete redirects produce nothing', () => {
+    const rules = compile([
+      redirect({ enabled: false }),
+      redirect({ pattern: '  ' }),
+      redirect({ target: '' }),
+    ]).dynamicRules;
+
+    expect(rules).toEqual([]);
+  });
+
+  test('domain filter → one redirect rule per condition', () => {
+    const rules = compile([redirect()], {
+      filters: { domains: { enabled: true, list: ['example.com'] } },
+    }).dynamicRules;
+
+    expect(rules).toHaveLength(2);
+    expect(rules[0].condition.requestDomains).toEqual(['example.com']);
+    expect(rules[1].condition.initiatorDomains).toEqual(['example.com']);
+  });
+
+  test('tab-scoped profile → redirect lands in session rules with tabIds', () => {
+    const state = {
+      paused: false,
+      currentProfile: 'other',
+      profiles: { other: {}, p: { redirects: [redirect({ cors: true })] } },
+    };
+    const active = [{ key: 'p', profile: state.profiles.p, tabIds: [8] }];
+
+    const { dynamicRules, sessionRules } = compileRules(state, active);
+
+    expect(dynamicRules).toEqual([]);
+    expect(sessionRules.map(r => r.condition.tabIds)).toEqual([[8], [8]]);
+    expect(sessionRules[0].priority).toBe(PRIORITY.tabScoped);
+  });
+
+  test('cors off → no CORS rule; on → one per target host, lowest priority', () => {
+    expect(compile([redirect()]).dynamicRules).toHaveLength(1);
+
+    const rules = compile([
+      redirect({ cors: true }),
+      redirect({ id: 'r2', cors: true, target: 'https://www.example.com/other/$1' }),
+    ]).dynamicRules;
+    const cors = rules.filter(r => r.action.type === 'modifyHeaders');
+
+    expect(cors).toHaveLength(1);
+    expect(cors[0].priority).toBe(PRIORITY.cors);
+    expect(cors[0].condition.requestDomains).toEqual(['www.example.com']);
+    expect(cors[0].action.responseHeaders.map(h => h.header)).toContain(
+      'Access-Control-Allow-Origin'
+    );
+  });
+
+  test('CORS loses to any header the user sets explicitly', () => {
+    expect(PRIORITY.cors).toBeLessThan(PRIORITY.global);
+    expect(PRIORITY.global).toBeLessThan(PRIORITY.tabScoped);
+  });
+
+  test('target whose host is a placeholder gets no CORS rule', () => {
+    expect(buildCorsRules([redirect({ target: 'https://$1/path' })], null)).toEqual([]);
+  });
+
+  test('paused → no redirects either', () => {
+    const state = {
+      paused: true,
+      currentProfile: 'p',
+      profiles: { p: { redirects: [redirect()] } },
+    };
+    expect(compileRules(state)).toEqual({ dynamicRules: [], sessionRules: [] });
+  });
+});
+
+describe('toRegexSubstitution', () => {
+  test('$n → \\n', () => {
+    expect(toRegexSubstitution('https://a.com/$1?x=$2')).toBe('https://a.com/\\1?x=\\2');
+  });
+
+  test('literal backslashes are escaped so they are not read as groups', () => {
+    expect(toRegexSubstitution('https://a.com/\\1')).toBe('https://a.com/\\\\1');
+  });
+
+  test('no placeholders → unchanged', () => {
+    expect(toRegexSubstitution('https://a.com/static')).toBe('https://a.com/static');
   });
 });
