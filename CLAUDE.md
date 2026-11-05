@@ -38,6 +38,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - `npm run dev` - Development with watch mode
 - `npm run build` - Production build to `dist/`
 - `npm run package` - Generate versioned ZIPs
+- `npm run playground` - Chrome for Testing with the extension loaded, a seeded profile and a local demo page (`-- --check` clicks through the demos and exits). See `docs/development.md`
 
 **Testing Extension:**
 1. `npm run build` to generate `dist/`

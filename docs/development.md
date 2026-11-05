@@ -33,6 +33,25 @@
 6. Before pushing: `npm run code-quality` (lint + format check + tests — the same
    gate CI runs)
 
+## Playground
+
+```bash
+npm run playground
+```
+
+Builds `dist/`, launches Chrome for Testing (downloaded once into `~/.cache/puppeteer`)
+with the extension loaded in a throwaway profile, seeds a **Playground** profile and
+opens a local demo page next to the popup. The page shows live what the server
+receives and what the page gets back: request headers, response headers, and a
+redirect to a second origin with and without CORS. Your own Chrome is never touched;
+close the window to stop.
+
+`npm run playground -- --check` clicks through every demo, prints the results and
+exits — a quick end-to-end smoke test.
+
+Chrome for Testing rather than your Chrome because branded Chrome 137+ ignores
+`--load-extension`.
+
 ## Build
 
 The extension uses **Rspack** for bundling:
