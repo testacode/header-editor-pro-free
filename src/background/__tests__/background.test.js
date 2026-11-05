@@ -113,150 +113,6 @@ describe('HeaderEditorBackground', () => {
     });
   });
 
-  // ─── createModifyHeadersRules ────────────────────────────────────────────
-
-  describe('createModifyHeadersRules', () => {
-    // No filters → buildConditions yields the single unrestricted condition
-    const requestRules = headers =>
-      background.createModifyHeadersRules(
-        headers,
-        'requestHeaders',
-        background.buildConditions(undefined, null)
-      );
-
-    test('returns one rule with modifyHeaders action and 13 resourceTypes', () => {
-      const rules = requestRules([
-        { name: 'Authorization', value: 'Bearer token', enabled: true },
-        { name: 'X-Custom', value: 'val', enabled: true },
-      ]);
-
-      expect(rules).toHaveLength(1);
-      expect(rules[0].action.type).toBe('modifyHeaders');
-      expect(rules[0].condition.urlFilter).toBe('*');
-      expect(rules[0].condition.resourceTypes).toHaveLength(13);
-      expect(rules[0].action.requestHeaders).toHaveLength(2);
-    });
-
-    test('increments id on successive calls', () => {
-      const startId = background.currentRuleId;
-      const headers = [{ name: 'X-A', value: 'a', enabled: true }];
-      const [rule1] = requestRules(headers);
-      const [rule2] = requestRules(headers);
-      expect(rule1.id).toBe(startId);
-      expect(rule2.id).toBe(startId + 1);
-    });
-
-    test('value present → operation set', () => {
-      const [rule] = requestRules([{ name: 'X-H', value: 'something', enabled: true }]);
-      expect(rule.action.requestHeaders[0].operation).toBe('set');
-      expect(rule.action.requestHeaders[0].value).toBe('something');
-    });
-
-    test('empty value → operation remove, value undefined', () => {
-      const [rule] = requestRules([{ name: 'X-Remove', value: '', enabled: true }]);
-      expect(rule.action.requestHeaders[0].operation).toBe('remove');
-      expect(rule.action.requestHeaders[0].value).toBeUndefined();
-    });
-
-    test('all headers without name → empty array', () => {
-      const rules = requestRules([
-        { name: '', value: 'x', enabled: true },
-        { name: '   ', value: 'y', enabled: true },
-      ]);
-      expect(rules).toEqual([]);
-    });
-
-    test('empty array → empty array', () => {
-      expect(requestRules([])).toEqual([]);
-    });
-
-    test('filters headers without truthy name, keeps valid ones', () => {
-      const [rule] = requestRules([
-        { name: '', value: 'skip', enabled: true },
-        { name: 'Valid', value: 'keep', enabled: true },
-      ]);
-      expect(rule.action.requestHeaders).toHaveLength(1);
-      expect(rule.action.requestHeaders[0].header).toBe('Valid');
-    });
-
-    test('resourceTypes contains all 13 expected types', () => {
-      const [rule] = requestRules([{ name: 'X-H', value: 'v', enabled: true }]);
-      expect(rule.condition.resourceTypes).toEqual([
-        'main_frame',
-        'sub_frame',
-        'stylesheet',
-        'script',
-        'image',
-        'font',
-        'object',
-        'xmlhttprequest',
-        'ping',
-        'csp_report',
-        'media',
-        'websocket',
-        'other',
-      ]);
-    });
-
-    test('priority is 1', () => {
-      const [rule] = requestRules([{ name: 'X-H', value: 'v', enabled: true }]);
-      expect(rule.priority).toBe(1);
-    });
-
-    test('one rule per condition, same action in each', () => {
-      const conditions = background.buildConditions(
-        { domains: { enabled: true, list: ['example.com'] } },
-        null
-      );
-      const rules = background.createModifyHeadersRules(
-        [{ name: 'X-H', value: 'v', enabled: true }],
-        'requestHeaders',
-        conditions
-      );
-      expect(rules).toHaveLength(2);
-      expect(rules[0].action).toEqual(rules[1].action);
-      expect(rules[0].id).not.toBe(rules[1].id);
-    });
-  });
-
-  // ─── buildConditions / activeDomainList ──────────────────────────────────
-
-  describe('buildConditions', () => {
-    test('no filters → single unrestricted condition', () => {
-      const conditions = background.buildConditions(undefined, null);
-      expect(conditions).toHaveLength(1);
-      expect(conditions[0].urlFilter).toBe('*');
-      expect(conditions[0].requestDomains).toBeUndefined();
-      expect(conditions[0].tabIds).toBeUndefined();
-    });
-
-    test('domain filter → two conditions: requestDomains OR initiatorDomains', () => {
-      const filters = { domains: { enabled: true, list: ['Api.Example.com', ' hub.io ', ''] } };
-      const conditions = background.buildConditions(filters, null);
-
-      expect(conditions).toHaveLength(2);
-      expect(conditions[0].requestDomains).toEqual(['api.example.com', 'hub.io']);
-      expect(conditions[1].initiatorDomains).toEqual(['api.example.com', 'hub.io']);
-    });
-
-    test('domain filter disabled or empty list → unrestricted condition', () => {
-      expect(
-        background.buildConditions({ domains: { enabled: false, list: ['a.com'] } }, null)
-      ).toHaveLength(1);
-      expect(
-        background.buildConditions({ domains: { enabled: true, list: ['  '] } }, null)
-      ).toHaveLength(1);
-    });
-
-    test('tabIds are attached to every condition', () => {
-      const filters = { domains: { enabled: true, list: ['a.com'] } };
-      const conditions = background.buildConditions(filters, [7, 9]);
-
-      expect(conditions).toHaveLength(2);
-      conditions.forEach(condition => expect(condition.tabIds).toEqual([7, 9]));
-    });
-  });
-
   // ─── resolveTabIds ───────────────────────────────────────────────────────
 
   describe('resolveTabIds', () => {
@@ -597,6 +453,28 @@ describe('HeaderEditorBackground', () => {
       expect(calls[0][0].addRules).toHaveLength(1);
     });
 
+    test('every applied rule gets its own id', async () => {
+      await settle(
+        background.applyHeaderRules({
+          paused: false,
+          profiles: {
+            p: {
+              requestHeaders: [{ name: 'X', value: 'v', enabled: true }],
+              responseHeaders: [{ name: 'Y', value: 'w', enabled: true }],
+              filters: { domains: { enabled: true, list: ['a.com'] } },
+            },
+          },
+          currentProfile: 'p',
+        })
+      );
+
+      const ids = chrome.declarativeNetRequest.updateDynamicRules.mock.calls[0][0].addRules.map(
+        rule => rule.id
+      );
+      expect(ids).toHaveLength(4);
+      expect(new Set(ids).size).toBe(4);
+    });
+
     test('new rule ids never collide with installed ones (worker restart)', async () => {
       chrome.declarativeNetRequest.getDynamicRules.mockResolvedValue([{ id: 7 }]);
       chrome.declarativeNetRequest.getSessionRules.mockResolvedValue([{ id: 12 }]);
@@ -934,7 +812,8 @@ describe('HeaderEditorBackground', () => {
             default: expect.objectContaining({ description: '' }),
           }),
         }),
-        expect.any(Array)
+        expect.any(Array),
+        expect.objectContaining({ dynamicRules: [], sessionRules: [] })
       );
     });
 
@@ -1164,6 +1043,20 @@ describe('HeaderEditorBackground', () => {
 
       const changed = baseState();
       changed.profiles.p1.description = 'something else';
+      mockStorage(changed);
+      await settle(background.loadAndApplyRules());
+
+      expect(applySpy).toHaveBeenCalledTimes(1);
+    });
+
+    test('header note change only → does not re-apply (notes never reach the rules)', async () => {
+      const applySpy = vi.spyOn(background, 'applyHeaderRules');
+      mockStorage(baseState());
+
+      await settle(background.loadAndApplyRules());
+
+      const changed = baseState();
+      changed.profiles.p1.requestHeaders[0].note = 'staging token';
       mockStorage(changed);
       await settle(background.loadAndApplyRules());
 

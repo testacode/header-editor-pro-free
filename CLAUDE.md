@@ -12,7 +12,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - `src/manifest.json` - Unified manifest v3 (Chrome + Firefox compatibility)
 - `src/_locales/<locale>/messages.json` - Translation catalogs (en, es, ja, ko, ru, zh_CN, zh_TW). `appName` and `appDesc` back the manifest's `__MSG_` references, so the store listing title and summary are localized too — both have per-locale character limits the tests enforce
 - `src/popup/` - UI components (HTML, CSS, JS) 
-- `src/background/` - Service worker for header modification
+- `src/background/` - Service worker for header modification. `rule-compiler.js` is the pure state → DNR rules translation (no `chrome.*`, rules without ids); `background.js` resolves tab groups, assigns ids, swaps the rules atomically and draws the badges
 - `src/assets/icons/` - Extension icons (16-128px)
 - `site/templates/` + `site/locales/` - Source of the GitHub Pages site (landing, privacy policy, 404), pre-rendered per language by `scripts/build-site.js`
 - `index.html`, `privacy.html`, `404.html`, `es/ ja/ ko/ ru/ zh-CN/ zh-TW/`, `sitemap.xml` - **Generated output, committed** so Pages can serve it. Never hand-edit: run `npm run build:site`. Site locale codes use hyphens (`zh-CN`), unlike the extension's underscores (`zh_CN`) — see `docs/i18n.md`
@@ -117,7 +117,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Testing:**
 - Vitest framework with jsdom environment (modern Jest alternative)
 - Custom Chrome API mocking for Manifest V3 compatibility
-- 421 tests across 8 files: background service worker (declarativeNetRequest rule building, pause/resume), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
+- 429 tests across 9 files: the rule compiler (`src/background/__tests__/rule-compiler.test.js`), background service worker (rule application, pause/resume, tab groups, badges), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
 - Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**
