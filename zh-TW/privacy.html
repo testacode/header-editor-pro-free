@@ -116,7 +116,7 @@
     <h2>本機儲存</h2>
     <p>所有標頭設定、設定檔與偏好設定，都透過瀏覽器的儲存 API 儲存在你的裝置本機。這些資料包括：</p>
     <ul>
-      <li>標頭修改規則與設定檔</li>
+      <li>標頭規則、重新導向、管理的 Cookie 與設定檔</li>
       <li>擴充功能的設定與偏好</li>
       <li>設定檔的名稱及其配置</li>
     </ul>
@@ -125,9 +125,10 @@
     <h2>權限</h2>
     <p>本擴充功能需要下列權限才能運作：</p>
     <ul>
-      <li><strong>declarativeNetRequest:</strong> 用於攔截並修改 HTTP 標頭</li>
+      <li><strong>declarativeNetRequest:</strong> 用於修改 HTTP 標頭、重新導向請求，以及將你管理的 Cookie 加入請求</li>
       <li><strong>storage:</strong> 用於將你的設定儲存在本機</li>
       <li><strong>tabGroups:</strong> 用於讀取 Chrome 分頁群組的名稱與顏色，以便把設定檔限定在該群組</li>
+      <li><strong>cookies:</strong> 當你開啟「此網站的 Cookie」時，用於列出、複製或刪除目前分頁網站的 Cookie，並在你管理的 Cookie 與網站既有的 Cookie 衝突時提醒你。Cookie 只在這些操作時讀取並顯示給你，絕不會儲存到別處或傳送到任何地方。</li>
       <li><strong>存取所有網站 (&lt;all_urls&gt;)：</strong> 標頭規則是由瀏覽器本身透過 declarativeNetRequest 套用。擴充功能不會讀取頁面內容，也從不查看它所修改的請求。</li>
     </ul>
     <p>這些權限僅用於擴充功能的運作，不會用於收集資料。</p>
@@ -142,7 +143,7 @@
     <p>如果你對本隱私權政策或擴充功能的資料處理方式有任何疑問，請透過 GitHub 上的支援管道與我們聯絡。</p>
 
     <div class="footer">
-      <p>最後更新：2026 年 7 月 30 日</p>
+      <p>最後更新：2026 年 11 月 5 日</p>
     </div>
   </body>
 </html>

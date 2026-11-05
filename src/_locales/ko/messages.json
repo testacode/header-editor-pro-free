@@ -293,5 +293,47 @@
   },
   "redirectInvalidPattern": {
     "message": "이 패턴은 사용할 수 없습니다: $1"
+  },
+  "sectionCookies": {
+    "message": "쿠키"
+  },
+  "cookieAdd": {
+    "message": "쿠키 추가"
+  },
+  "cookieDomainPlaceholder": {
+    "message": "domain.com"
+  },
+  "cookieNamePlaceholder": {
+    "message": "이름"
+  },
+  "cookieValuePlaceholder": {
+    "message": "값"
+  },
+  "cookieDelete": {
+    "message": "쿠키 삭제"
+  },
+  "cookieConflict": {
+    "message": "이 사이트에는 이미 $2용 \"$1\" 쿠키가 있습니다. 둘 다 전송되며 대부분의 서버는 먼저 오는 사이트의 쿠키를 읽습니다. 클릭하면 사이트의 쿠키를 삭제합니다."
+  },
+  "cookieConflictConfirm": {
+    "message": "사이트 자체의 \"$1\" 쿠키를 브라우저에서 삭제할까요? 해당 사이트에서 로그아웃될 수 있습니다."
+  },
+  "siteCookiesToggle": {
+    "message": "이 사이트의 쿠키"
+  },
+  "siteCookiesNoSite": {
+    "message": "웹사이트 탭에서 팝업을 열면 쿠키를 볼 수 있습니다."
+  },
+  "siteCookiesFor": {
+    "message": "$1 — 쿠키 $2개"
+  },
+  "siteCookiesCopy": {
+    "message": "이 프로필로 복사"
+  },
+  "siteCookiesDelete": {
+    "message": "브라우저에서 삭제"
+  },
+  "siteCookiesDeleteConfirm": {
+    "message": "\"$1\" 쿠키를 브라우저에서 삭제할까요?"
   }
 }

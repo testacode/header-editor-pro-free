@@ -358,3 +358,103 @@ describe('wholeUrlPattern', () => {
     );
   });
 });
+
+// ─── managed cookies ──────────────────────────────────────────────────────
+
+describe('managed cookies', () => {
+  const cookie = (overrides = {}) => ({
+    id: 'c1',
+    domain: 'example.com',
+    name: 'sid',
+    value: 'abc',
+    enabled: true,
+    ...overrides,
+  });
+  const compile = (cookies, extra = {}) =>
+    compileRules({
+      paused: false,
+      currentProfile: 'p',
+      profiles: { p: { requestHeaders: [], cookies, ...extra } },
+    }).dynamicRules;
+
+  test('one append rule on the Cookie header, scoped to the cookie domain', () => {
+    const [rule] = compile([cookie()]);
+
+    expect(rule.action).toEqual({
+      type: 'modifyHeaders',
+      requestHeaders: [{ header: 'cookie', operation: 'append', value: 'sid=abc' }],
+    });
+    expect(rule.condition.requestDomains).toEqual(['example.com']);
+    expect(rule.condition.resourceTypes).toContain('main_frame');
+  });
+
+  test('cookies for the same domain share a rule; different domains do not', () => {
+    const rules = compile([
+      cookie(),
+      cookie({ id: 'c2', name: 'lang', value: 'es' }),
+      cookie({ id: 'c3', domain: 'other.com', name: 'x', value: '1' }),
+    ]);
+
+    expect(rules).toHaveLength(2);
+    expect(rules[0].action.requestHeaders.map(h => h.value)).toEqual(['sid=abc', 'lang=es']);
+    expect(rules[1].condition.requestDomains).toEqual(['other.com']);
+  });
+
+  test('domain is normalized (scheme, leading dot, port, case)', () => {
+    const [rule] = compile([cookie({ domain: 'https://.Api.Example.com:8443/path' })]);
+    expect(rule.condition.requestDomains).toEqual(['api.example.com']);
+  });
+
+  test('disabled, nameless or domainless cookies produce nothing; empty value is fine', () => {
+    expect(
+      compile([cookie({ enabled: false }), cookie({ name: ' ' }), cookie({ domain: '' })])
+    ).toEqual([]);
+    expect(compile([cookie({ value: '' })])[0].action.requestHeaders[0].value).toBe('sid=');
+  });
+
+  test('profile domain filter: keeps only the overlap on the request side', () => {
+    const rules = compile([cookie({ domain: 'api.example.com' })], {
+      filters: { domains: { enabled: true, list: ['example.com'] } },
+    });
+
+    // request side: api.example.com is inside example.com → kept;
+    // initiator side: to api.example.com, from example.com
+    expect(rules).toHaveLength(2);
+    expect(rules[0].condition.requestDomains).toEqual(['api.example.com']);
+    expect(rules[1].condition).toMatchObject({
+      requestDomains: ['api.example.com'],
+      initiatorDomains: ['example.com'],
+    });
+  });
+
+  test('profile domain filter with no overlap → only the initiator-side rule', () => {
+    const rules = compile([cookie({ domain: 'other.com' })], {
+      filters: { domains: { enabled: true, list: ['example.com'] } },
+    });
+
+    expect(rules).toHaveLength(1);
+    expect(rules[0].condition).toMatchObject({
+      requestDomains: ['other.com'],
+      initiatorDomains: ['example.com'],
+    });
+  });
+
+  test('tab-scoped profile → cookie rules in session rules with tabIds', () => {
+    const state = {
+      paused: false,
+      currentProfile: 'x',
+      profiles: { x: {}, p: { cookies: [cookie()] } },
+    };
+    const { sessionRules } = compileRules(state, [
+      { key: 'p', profile: state.profiles.p, tabIds: [3] },
+    ]);
+
+    expect(sessionRules[0].condition.tabIds).toEqual([3]);
+    expect(sessionRules[0].priority).toBe(PRIORITY.tabScoped);
+  });
+
+  test('paused → no cookie rules', () => {
+    const state = { paused: true, currentProfile: 'p', profiles: { p: { cookies: [cookie()] } } };
+    expect(compileRules(state)).toEqual({ dynamicRules: [], sessionRules: [] });
+  });
+});

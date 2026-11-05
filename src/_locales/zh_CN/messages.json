@@ -293,5 +293,47 @@
   },
   "redirectInvalidPattern": {
     "message": "无法使用此模式：$1"
+  },
+  "sectionCookies": {
+    "message": "Cookie"
+  },
+  "cookieAdd": {
+    "message": "添加 Cookie"
+  },
+  "cookieDomainPlaceholder": {
+    "message": "domain.com"
+  },
+  "cookieNamePlaceholder": {
+    "message": "名称"
+  },
+  "cookieValuePlaceholder": {
+    "message": "值"
+  },
+  "cookieDelete": {
+    "message": "删除 Cookie"
+  },
+  "cookieConflict": {
+    "message": "该网站已有用于 $2 的 Cookie“$1”。两者都会发送，多数服务器读取排在前面的网站自身的值。点击以删除网站的 Cookie。"
+  },
+  "cookieConflictConfirm": {
+    "message": "要从浏览器中删除网站自身的 Cookie“$1”吗？你可能会退出该网站的登录。"
+  },
+  "siteCookiesToggle": {
+    "message": "此网站的 Cookie"
+  },
+  "siteCookiesNoSite": {
+    "message": "在网站标签页中打开弹出窗口即可查看其 Cookie。"
+  },
+  "siteCookiesFor": {
+    "message": "$1 — $2 个 Cookie"
+  },
+  "siteCookiesCopy": {
+    "message": "复制到此配置文件"
+  },
+  "siteCookiesDelete": {
+    "message": "从浏览器中删除"
+  },
+  "siteCookiesDeleteConfirm": {
+    "message": "要从浏览器中删除 Cookie“$1”吗？"
   }
 }

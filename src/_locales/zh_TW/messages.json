@@ -293,5 +293,47 @@
   },
   "redirectInvalidPattern": {
     "message": "無法使用此模式：$1"
+  },
+  "sectionCookies": {
+    "message": "Cookie"
+  },
+  "cookieAdd": {
+    "message": "新增 Cookie"
+  },
+  "cookieDomainPlaceholder": {
+    "message": "domain.com"
+  },
+  "cookieNamePlaceholder": {
+    "message": "名稱"
+  },
+  "cookieValuePlaceholder": {
+    "message": "值"
+  },
+  "cookieDelete": {
+    "message": "刪除 Cookie"
+  },
+  "cookieConflict": {
+    "message": "此網站已有用於 $2 的 Cookie「$1」。兩者都會送出，多數伺服器會讀取排在前面的網站自身的值。點擊以刪除網站的 Cookie。"
+  },
+  "cookieConflictConfirm": {
+    "message": "要從瀏覽器中刪除網站自身的 Cookie「$1」嗎？你可能會被登出該網站。"
+  },
+  "siteCookiesToggle": {
+    "message": "此網站的 Cookie"
+  },
+  "siteCookiesNoSite": {
+    "message": "在網站分頁中開啟彈出視窗即可查看其 Cookie。"
+  },
+  "siteCookiesFor": {
+    "message": "$1 — $2 個 Cookie"
+  },
+  "siteCookiesCopy": {
+    "message": "複製到此設定檔"
+  },
+  "siteCookiesDelete": {
+    "message": "從瀏覽器中刪除"
+  },
+  "siteCookiesDeleteConfirm": {
+    "message": "要從瀏覽器中刪除 Cookie「$1」嗎？"
   }
 }

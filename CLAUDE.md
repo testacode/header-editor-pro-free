@@ -25,6 +25,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - **Copy Header to Profile**: Per-row 📋 button (shown when >1 profile) opens a dropdown to append the header (full header: name, value, enabled state, append mode, note) to another profile's same section, with toast confirmation
 - **Header Notes**: Per-row 📝 button expands an optional free-text note (`header.note`) below the row; button is highlighted and its tooltip shows the note when non-empty. Expanded state is UI-only (WeakSet of header objects). The textarea is a sibling of the draggable `.header-item`, not a child, so text editing works in Chrome. Notes never affect DNR rules
 - **Redirects**: Per-profile regex redirects (`profile.redirects`), compiled to DNR `redirect` rules with `regexSubstitution`. Users write `$1`, the compiler emits `\1`. Subresources only (no `main_frame`/`sub_frame`). Optional per-redirect CORS opens `Access-Control-Allow-*: *` on the target host at the lowest priority (`PRIORITY.cors`), so explicit user headers always win. UI in `src/popup/redirects.js`; pattern validated with `declarativeNetRequest.isRegexSupported` when available
+- **Managed Cookies**: Per-profile cookies (`profile.cookies`) appended to the `Cookie` request header of requests to their domain (DNR `append`, one rule per domain, narrowed by the profile's domain filter) — never written to the cookie jar, so pause/profile switch drop them. ⚠ when the site already has a same-name cookie (it goes first and usually wins), click deletes the site's. "This site's cookies" lists the active tab's real cookies (copy into profile / delete). UI in `src/popup/cookies.js` and `src/popup/site-cookies.js`; needs the `cookies` permission
 - **Profile Filters**: Per-profile scoping by domains (cross-browser, requestDomains/initiatorDomains OR'd via two DNR rules) and by Chrome tab group (session rules with tabIds + tab tracking; ignored on Firefox). Tab-group-scoped profiles apply CONCURRENTLY with the selected profile (`PRIORITY.tabScoped` vs `PRIORITY.global` on conflicts); the toolbar badge shows the governing profile's initial+color per tab
 - **Internationalization**: 7 languages with an in-popup selector (🌐 in the toolbar) that switches without reloading. Preference in `chrome.storage.local.uiLocale`; absent = follow the browser. Strings live in `src/_locales/`, never hardcoded — see `docs/i18n.md`
 - **Professional UI**: Dark theme with left sidebar navigation
@@ -40,6 +41,8 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - `npm run build` - Production build to `dist/`
 - `npm run package` - Generate versioned ZIPs
 - `npm run playground` - Chrome for Testing with the extension loaded, a seeded profile and a local demo page (`-- --check` clicks through the demos and exits). See `docs/development.md`
+
+**Playground = the end-to-end check:** every user-visible feature gets a section in `scripts/playground/page.html` (plus seed data in `run.mjs` and a step in `runChecks`), and `npm run playground -- --check` must pass before opening a PR. Unit tests mock `chrome.*`; this is the only check that runs the real DNR engine.
 
 **Testing Extension:**
 1. `npm run build` to generate `dist/`
@@ -78,6 +81,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
       description: '',            // '' means "none" — the placeholder is the hint
       requestHeaders: [{ name: 'header', value: 'value', enabled: true, appendMode: false, note: '' }], // note: '' = none
       responseHeaders: [],
+      cookies: [{ id: 'cookie_…', domain: 'example.com', name: 'sid', value: 'abc', enabled: true }],
       redirects: [{ id: 'redirect_…', pattern: '^https://dev\\.example\\.com/(.*)', target: 'https://example.com/$1', enabled: true, cors: false }],
       backgroundColor: '#4caf50',
       textColor: '#ffffff',
@@ -122,7 +126,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Testing:**
 - Vitest framework with jsdom environment (modern Jest alternative)
 - Custom Chrome API mocking for Manifest V3 compatibility
-- 507 tests across 11 files: the rule compiler (`src/background/__tests__/rule-compiler.test.js`), the Requestly import parser (`src/popup/__tests__/requestly-import.test.js`), background service worker (rule application, pause/resume, tab groups, badges), popup logic (profiles, headers CRUD, import/export, language selector), redirects (`src/popup/__tests__/redirects.test.js`), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
+- 534 tests across 12 files: the rule compiler (`src/background/__tests__/rule-compiler.test.js`), the Requestly import parser (`src/popup/__tests__/requestly-import.test.js`), background service worker (rule application, pause/resume, tab groups, badges), popup logic (profiles, headers CRUD, import/export, language selector), redirects (`src/popup/__tests__/redirects.test.js`), managed and site cookies (`src/popup/__tests__/cookies.test.js`), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
 - Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**

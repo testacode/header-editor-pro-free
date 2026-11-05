@@ -61,6 +61,15 @@ const seedData = {
           cors: false,
         },
       ],
+      cookies: [
+        {
+          id: 'cookie_playground',
+          domain: 'localhost',
+          name: 'playground',
+          value: 'from-extension',
+          enabled: true,
+        },
+      ],
       backgroundColor: '#7c4dff',
       textColor: '#ffffff',
       filters: {
@@ -87,6 +96,14 @@ function startServers() {
     if (req.url === '/' || req.url === '/index.html') {
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
       return res.end(page);
+    }
+    if (req.url === '/set-site-cookie' || req.url === '/clear-site-cookie') {
+      const set = req.url === '/set-site-cookie';
+      res.writeHead(200, {
+        'set-cookie': set ? 'playground=from-site; Path=/' : 'playground=; Path=/; Max-Age=0',
+        'content-type': 'application/json',
+      });
+      return res.end(JSON.stringify({ set }));
     }
     if (req.url.startsWith('/desa/page')) {
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
@@ -128,7 +145,16 @@ async function chromeForTesting() {
   return executablePath;
 }
 
+// A check must never hang a terminal: give up after a fixed budget.
+const CHECK_TIMEOUT_MS = 30_000;
+
 async function main() {
+  if (CHECK_ONLY) {
+    setTimeout(() => {
+      console.error(`--check timed out after ${CHECK_TIMEOUT_MS / 1000}s`);
+      process.exit(1);
+    }, CHECK_TIMEOUT_MS).unref();
+  }
   console.log('Building the extension…');
   execFileSync('npm', ['run', 'build'], { cwd: ROOT, stdio: 'ignore' });
 
@@ -160,12 +186,15 @@ async function main() {
   await popup.reload();
 
   const demo = await browser.newPage();
-  await demo.goto(APP);
+  await demo.goto(APP, { waitUntil: 'networkidle0' });
 
   if (CHECK_ONLY) {
     await runChecks(demo, popup);
     await browser.close();
-    return;
+    // Keep-alive sockets would hold the servers (and the process) open.
+    servers.forEach(server => server.closeAllConnections());
+    fs.rmSync(userDataDir, { recursive: true, force: true });
+    process.exit(0);
   }
 
   console.log(`\nPlayground ready: ${APP}`);
@@ -187,14 +216,18 @@ async function runChecks(demo, popup) {
     ['send', 'request-out'],
     ['response', 'response-out'],
     ['redirect', 'redirect-out'],
+    ['cookie', 'cookie-out'],
+    ['set-site-cookie', 'cookie-out'],
+    ['clear-site-cookie', 'cookie-out'],
   ]) {
+    await demo.evaluate(id => (document.getElementById(id).textContent = '—'), out);
     await demo.click(`#${button}`);
     await demo.waitForFunction(id => document.getElementById(id).textContent !== '—', {}, out);
     const text = await demo.$eval(`#${out}`, el => el.textContent);
     const interesting = text
       .split('\n')
       .filter(line =>
-        /playground|disabled|redirect|answered|blocked|final url|path seen/i.test(line)
+        /playground|disabled|redirect|answered|blocked|final url|path seen|cookie/i.test(line)
       );
     console.log(`── ${button}\n${interesting.join('\n')}`);
   }

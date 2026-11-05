@@ -2,6 +2,7 @@ import { t, LocalizedError, describeError } from './i18n.js';
 import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normalize.js';
 import { defaultProfile } from './default-data.js';
 import { sanitizeRedirects } from './redirect-normalize.js';
+import { sanitizeCookies } from './cookie-normalize.js';
 
 export class ImportExportManager {
   constructor(popup) {
@@ -91,6 +92,7 @@ export class ImportExportManager {
           requestHeaders: profile.requestHeaders || [],
           responseHeaders: profile.responseHeaders || [],
           redirects: profile.redirects || [],
+          cookies: profile.cookies || [],
           filters: profile.filters,
           backgroundColor: profile.backgroundColor,
           textColor: profile.textColor,
@@ -235,6 +237,7 @@ export class ImportExportManager {
           profileData.responseHeaders
         );
         popup.profiles[popup.currentProfile].redirects = sanitizeRedirects(profileData.redirects);
+        popup.profiles[popup.currentProfile].cookies = sanitizeCookies(profileData.cookies);
         if (profileData.filters && typeof profileData.filters === 'object') {
           popup.profiles[popup.currentProfile].filters = profileData.filters;
         }
@@ -430,6 +433,7 @@ export class ImportExportManager {
         requestHeaders: this.sanitizeHeaders(profileData.requestHeaders),
         responseHeaders: this.sanitizeHeaders(profileData.responseHeaders),
         redirects: sanitizeRedirects(profileData.redirects),
+        cookies: sanitizeCookies(profileData.cookies),
         ...(profileData.filters && typeof profileData.filters === 'object'
           ? { filters: profileData.filters }
           : {}),

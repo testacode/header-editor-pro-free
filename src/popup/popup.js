@@ -16,6 +16,9 @@ import { UpdateNotificationsManager } from './update-notifications.js';
 import { ColorPickerManager } from './color-picker.js';
 import { FiltersManager } from './filters.js';
 import { RedirectsManager } from './redirects.js';
+import { CookiesManager } from './cookies.js';
+import { SiteCookiesManager } from './site-cookies.js';
+import { sanitizeCookies } from './cookie-normalize.js';
 import { sanitizeRedirects } from './redirect-normalize.js';
 import {
   applyI18n,
@@ -52,6 +55,8 @@ export class HeaderEditorPopup {
     this.colorPicker = new ColorPickerManager(this);
     this.filters = new FiltersManager(this);
     this.redirects = new RedirectsManager(this);
+    this.cookies = new CookiesManager(this);
+    this.siteCookies = new SiteCookiesManager(this);
     this.init();
   }
 
@@ -136,6 +141,7 @@ export class HeaderEditorPopup {
       }
 
       profile.redirects = sanitizeRedirects(profile.redirects);
+      profile.cookies = sanitizeCookies(profile.cookies);
     });
   }
 
@@ -212,6 +218,8 @@ export class HeaderEditorPopup {
 
     this.filters.setupEventListeners();
     this.redirects.setupEventListeners();
+    this.cookies.setupEventListeners();
+    this.siteCookies.setupEventListeners();
 
     // Handle file input change
     document.getElementById('import-file-input').addEventListener('change', e => {
@@ -368,6 +376,7 @@ export class HeaderEditorPopup {
     this.renderProfileCircles();
     this.renderHeaders();
     this.redirects.render();
+    this.cookies.render();
     this.filters.render();
     this.updateToolbar();
   }

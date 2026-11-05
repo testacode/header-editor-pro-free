@@ -293,5 +293,47 @@
   },
   "redirectInvalidPattern": {
     "message": "Этот шаблон нельзя использовать: $1"
+  },
+  "sectionCookies": {
+    "message": "Cookie"
+  },
+  "cookieAdd": {
+    "message": "Добавить cookie"
+  },
+  "cookieDomainPlaceholder": {
+    "message": "domain.com"
+  },
+  "cookieNamePlaceholder": {
+    "message": "имя"
+  },
+  "cookieValuePlaceholder": {
+    "message": "значение"
+  },
+  "cookieDelete": {
+    "message": "Удалить cookie"
+  },
+  "cookieConflict": {
+    "message": "У сайта уже есть cookie «$1» для $2. Отправляются обе, и большинство серверов читают первую — сайта. Нажмите, чтобы удалить cookie сайта."
+  },
+  "cookieConflictConfirm": {
+    "message": "Удалить из браузера собственную cookie сайта «$1»? Возможно, вы выйдете из аккаунта на этом сайте."
+  },
+  "siteCookiesToggle": {
+    "message": "Cookie этого сайта"
+  },
+  "siteCookiesNoSite": {
+    "message": "Откройте всплывающее окно на вкладке с сайтом, чтобы увидеть его cookie."
+  },
+  "siteCookiesFor": {
+    "message": "$1 — cookie: $2"
+  },
+  "siteCookiesCopy": {
+    "message": "Скопировать в этот профиль"
+  },
+  "siteCookiesDelete": {
+    "message": "Удалить из браузера"
+  },
+  "siteCookiesDeleteConfirm": {
+    "message": "Удалить cookie «$1» из браузера?"
   }
 }

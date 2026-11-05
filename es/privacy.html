@@ -116,7 +116,7 @@
     <h2>Almacenamiento local</h2>
     <p>Todas las configuraciones de headers, perfiles y preferencias se guardan localmente en tu dispositivo mediante la API de almacenamiento del navegador. Estos datos incluyen:</p>
     <ul>
-      <li>Reglas de modificación de headers y perfiles</li>
+      <li>Reglas de headers, redirecciones, cookies administradas y perfiles</li>
       <li>Preferencias y configuración de la extensión</li>
       <li>Nombres de perfiles y sus configuraciones</li>
     </ul>
@@ -125,9 +125,10 @@
     <h2>Permisos</h2>
     <p>La extensión necesita los siguientes permisos para funcionar:</p>
     <ul>
-      <li><strong>declarativeNetRequest:</strong> Para interceptar y modificar headers HTTP</li>
+      <li><strong>declarativeNetRequest:</strong> Para modificar headers HTTP, redirigir requests y agregar tus cookies administradas a los requests</li>
       <li><strong>storage:</strong> Para guardar tus configuraciones localmente</li>
       <li><strong>tabGroups:</strong> Para leer el nombre y el color de un grupo de pestañas de Chrome, y así poder limitar un perfil a ese grupo</li>
+      <li><strong>cookies:</strong> Para listar, copiar o borrar las cookies del sitio de la pestaña activa cuando abrís "Cookies de este sitio", y para avisarte cuando una cookie que administrás choca con una que el sitio ya tiene. Las cookies se leen solo en esas acciones, se te muestran a vos y nunca se guardan en otro lado ni se envían a ninguna parte.</li>
       <li><strong>Acceso a todos los sitios web (&lt;all_urls&gt;):</strong> Las reglas de headers las aplica el propio navegador a través de declarativeNetRequest. La extensión no lee el contenido de las páginas, y nunca ve las requests que modifica.</li>
     </ul>
     <p>Estos permisos se usan únicamente para el funcionamiento de la extensión, no para recolectar datos.</p>
@@ -142,7 +143,7 @@
     <p>Si tenés alguna consulta sobre esta política de privacidad o sobre el manejo de datos de la extensión, escribinos por los canales de soporte en GitHub.</p>
 
     <div class="footer">
-      <p>Última actualización: 30 de julio de 2026</p>
+      <p>Última actualización: 5 de noviembre de 2026</p>
     </div>
   </body>
 </html>

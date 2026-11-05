@@ -116,7 +116,7 @@
     <h2>本地存储</h2>
     <p>所有请求头配置、配置文件和设置，都通过浏览器的存储 API 保存在你的设备本地。这些数据包括：</p>
     <ul>
-      <li>请求头修改规则和配置文件</li>
+      <li>标头规则、重定向、管理的 Cookie 和配置文件</li>
       <li>扩展的设置与偏好</li>
       <li>配置文件的名称及其配置</li>
     </ul>
@@ -125,9 +125,10 @@
     <h2>权限</h2>
     <p>本扩展需要以下权限才能运行：</p>
     <ul>
-      <li><strong>declarativeNetRequest:</strong> 用于拦截并修改 HTTP 请求头</li>
+      <li><strong>declarativeNetRequest:</strong> 用于修改 HTTP 标头、重定向请求，以及将你管理的 Cookie 添加到请求中</li>
       <li><strong>storage:</strong> 用于将你的配置保存在本地</li>
       <li><strong>tabGroups:</strong> 用于读取 Chrome 标签组的名称和颜色，从而把配置文件限定到该标签组</li>
+      <li><strong>cookies:</strong> 当你打开“此网站的 Cookie”时，用于列出、复制或删除当前标签页网站的 Cookie，并在你管理的 Cookie 与网站已有的 Cookie 冲突时提醒你。Cookie 仅在这些操作时读取并显示给你，绝不会存储到别处或发送到任何地方。</li>
       <li><strong>访问所有网站 (&lt;all_urls&gt;)：</strong> 请求头规则由浏览器自身通过 declarativeNetRequest 应用。扩展不会读取页面内容，也从不查看它所修改的请求。</li>
     </ul>
     <p>这些权限仅用于扩展的功能实现，不用于收集数据。</p>
@@ -142,7 +143,7 @@
     <p>如果你对本隐私政策或扩展的数据处理方式有任何疑问，请通过 GitHub 上的支持渠道联系我们。</p>
 
     <div class="footer">
-      <p>最后更新：2026 年 7 月 30 日</p>
+      <p>最后更新：2026 年 11 月 5 日</p>
     </div>
   </body>
 </html>

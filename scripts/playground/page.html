@@ -88,6 +88,22 @@
       </p>
     </section>
 
+    <section>
+      <h2>4. Cookies</h2>
+      <p class="hint">
+        The profile adds <code>playground=from-extension</code> to the Cookie header of requests
+        to <code>localhost</code>, on top of the site's own cookies, without storing it in the
+        browser. Give the site its own <code>playground</code> cookie: both are sent, the site's
+        first, and the popup marks the managed cookie with ⚠ (click it to delete the site's one).
+        "This site's cookies" in the popup lists the real ones — open the popup from this tab via
+        the puzzle icon for that.
+      </p>
+      <button id="cookie">Send request</button>
+      <button id="set-site-cookie">Give the site its own "playground" cookie</button>
+      <button id="clear-site-cookie">Remove the site's cookie</button>
+      <pre id="cookie-out">—</pre>
+    </section>
+
     <script>
       const show = (id, text, cls = '') => {
         const out = document.getElementById(id);
@@ -108,6 +124,18 @@
         const lines = [...res.headers].map(([k, v]) => `${k}: ${v}`).join('\n');
         show('response-out', highlight(lines));
       };
+
+      const showCookieHeader = async () => {
+        const body = await (await fetch('/echo', { cache: 'no-store' })).json();
+        show('cookie-out', escapeHtml(`cookie: ${body.headers.cookie ?? '(none)'}`));
+      };
+      document.getElementById('cookie').onclick = showCookieHeader;
+      for (const id of ['set-site-cookie', 'clear-site-cookie']) {
+        document.getElementById(id).onclick = async () => {
+          await fetch(`/${id}`, { cache: 'no-store' });
+          await showCookieHeader();
+        };
+      }
 
       document.getElementById('redirect').onclick = async () => {
         try {

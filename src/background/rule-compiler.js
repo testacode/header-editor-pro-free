@@ -8,6 +8,7 @@
 
 import { isHeaderEnabled } from '../popup/header-normalize.js';
 import { isRedirectActive } from '../popup/redirect-normalize.js';
+import { isCookieActive, normalizeCookieDomain } from '../popup/cookie-normalize.js';
 
 // When two rules touch the same header on the same request, the higher
 // priority wins (equal priorities: undefined order). Tab-scoped profiles
@@ -128,6 +129,9 @@ export function compileRules(data, activeProfiles = null) {
         tabIds
       )
     );
+
+    const cookies = (profile.cookies || []).filter(isCookieActive);
+    target.push(...buildCookieRules(cookies, conditions, priority));
   }
 
   return { dynamicRules, sessionRules };
@@ -272,4 +276,54 @@ function targetHost(target) {
   } catch {
     return null;
   }
+}
+
+// Managed cookies ride on the Cookie request header instead of the browser's
+// cookie jar. `append` adds them after the site's own cookies, joined with
+// "; " (verified in Chrome for Testing 157). A cookie with the same name as
+// one the site already has is sent twice and most servers read the first —
+// the site's; the popup warns about that.
+// One rule per cookie domain, sent to that domain and its subdomains.
+export function buildCookieRules(cookies, conditions, priority = PRIORITY.global) {
+  const byDomain = new Map();
+  for (const cookie of cookies) {
+    const domain = normalizeCookieDomain(cookie.domain);
+    const pairs = byDomain.get(domain) ?? [];
+    pairs.push(`${cookie.name.trim()}=${cookie.value}`);
+    byDomain.set(domain, pairs);
+  }
+
+  return [...byDomain].flatMap(([domain, pairs]) =>
+    conditions
+      .map(condition => scopeToDomain(condition, domain))
+      .filter(Boolean)
+      .map(condition => ({
+        priority,
+        action: {
+          type: 'modifyHeaders',
+          requestHeaders: pairs.map(value => ({ header: 'cookie', operation: 'append', value })),
+        },
+        condition,
+      }))
+  );
+}
+
+// Narrow a profile condition to requests going to `domain`. With the profile's
+// domain filter on the request side, only the overlap survives (none → null);
+// on the initiator side the two combine: to `domain`, from a filtered site.
+function scopeToDomain(condition, domain) {
+  if (!condition.requestDomains) {
+    return { ...condition, requestDomains: [domain] };
+  }
+  const overlap = condition.requestDomains.flatMap(filtered => {
+    if (isSameOrSubdomain(domain, filtered)) {
+      return [domain];
+    }
+    return isSameOrSubdomain(filtered, domain) ? [filtered] : [];
+  });
+  return overlap.length > 0 ? { ...condition, requestDomains: [...new Set(overlap)] } : null;
+}
+
+function isSameOrSubdomain(host, parent) {
+  return host === parent || host.endsWith(`.${parent}`);
 }
