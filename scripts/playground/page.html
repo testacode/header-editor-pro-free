@@ -43,6 +43,7 @@
       }
       .ok { color: #81c784; }
       .bad { color: #ff8a80; }
+      .expected { color: #ffd54f; }
       mark { background: #4a3b00; color: #ffe082; }
       a { color: #82b1ff; }
     </style>
@@ -75,7 +76,7 @@
       <h2>3. Redirects</h2>
       <p class="hint">
         The page asks for <code>{{APP}}/desa/api/items?id=7</code>. The profile redirects
-        <code>localhost:5180/desa/(.*)</code> to <code>{{OTHER}}/prod/$1</code>, another origin.
+        <code>{{APP_HOST}}/desa/(.*)</code> to <code>{{OTHER}}/prod/$1</code>, another origin.
         With <b>CORS</b> off the browser blocks the answer; turn the CORS toggle on in the
         popup and try again.
       </p>
@@ -120,12 +121,14 @@
             redirected ? 'ok' : 'bad'
           );
         } catch (error) {
+          // With the seeded profile this is step one of the demo, not a failure.
           show(
             'redirect-out',
-            `✗ ${escapeHtml(String(error))}\n\nThe redirect happened, but {{OTHER}} sends no CORS ` +
-              'headers, so the browser blocked the answer. Turn on the CORS toggle of the ' +
-              'redirect in the popup and try again.',
-            'bad'
+            `Expected with CORS off: the redirect happened, but {{OTHER}} sends no CORS ` +
+              'headers, so the browser blocked the answer.\n' +
+              'Turn on the CORS toggle of the redirect in the popup and try again.\n\n' +
+              `(${escapeHtml(String(error))})`,
+            'expected'
           );
         }
       };

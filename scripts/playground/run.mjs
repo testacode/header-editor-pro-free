@@ -23,11 +23,12 @@ import puppeteer from 'puppeteer-core';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../..');
 const DIST = path.join(ROOT, 'dist');
-const APP_PORT = 5180;
-const OTHER_PORT = 5181;
+const CHECK_ONLY = process.argv.includes('--check');
+// --check gets its own ports so it can run while a playground is open.
+const APP_PORT = CHECK_ONLY ? 5190 : 5180;
+const OTHER_PORT = APP_PORT + 1;
 const APP = `http://localhost:${APP_PORT}`;
 const OTHER = `http://localhost:${OTHER_PORT}`;
-const CHECK_ONLY = process.argv.includes('--check');
 
 // What the "Playground" profile starts with. Every example on the demo page
 // maps to one of these, so the page works before you touch the popup.
@@ -74,6 +75,7 @@ function startServers() {
   const page = fs
     .readFileSync(path.join(HERE, 'page.html'), 'utf8')
     .replaceAll('{{APP}}', APP)
+    .replaceAll('{{APP_HOST}}', `localhost:${APP_PORT}`)
     .replaceAll('{{OTHER}}', OTHER);
 
   const echo = (res, req, from) => {
@@ -100,8 +102,20 @@ function startServers() {
   // No CORS headers of its own: that's what the redirect's CORS toggle is for.
   const other = http.createServer((req, res) => echo(res, req, `other origin (${OTHER})`));
 
-  app.listen(APP_PORT);
-  other.listen(OTHER_PORT);
+  for (const [server, port] of [
+    [app, APP_PORT],
+    [other, OTHER_PORT],
+  ]) {
+    server.on('error', error => {
+      console.error(
+        error.code === 'EADDRINUSE'
+          ? `Port ${port} is busy — is another playground still open? Close it and retry.`
+          : error
+      );
+      process.exit(1);
+    });
+    server.listen(port);
+  }
   return [app, other];
 }
 
