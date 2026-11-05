@@ -12,6 +12,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - `src/manifest.json` - Unified manifest v3 (Chrome + Firefox compatibility)
 - `src/_locales/<locale>/messages.json` - Translation catalogs (en, es, ja, ko, ru, zh_CN, zh_TW). `appName` and `appDesc` back the manifest's `__MSG_` references, so the store listing title and summary are localized too — both have per-locale character limits the tests enforce
 - `src/popup/` - UI components (HTML, CSS, JS) 
+- `src/popup/requestly-import.js` - Pure parser of Requestly rule exports (flat array of rules + groups) into one redirect list per Requestly group (`groupName: null` = ungrouped); non-Redirect rules and unsupported sources are counted in `skipped`. Not wired into the UI yet
 - `src/background/` - Service worker for header modification. `rule-compiler.js` is the pure state → DNR rules translation (no `chrome.*`, rules without ids); `background.js` resolves tab groups, assigns ids, swaps the rules atomically and draws the badges
 - `src/assets/icons/` - Extension icons (16-128px)
 - `site/templates/` + `site/locales/` - Source of the GitHub Pages site (landing, privacy policy, 404), pre-rendered per language by `scripts/build-site.js`
@@ -118,7 +119,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 **Testing:**
 - Vitest framework with jsdom environment (modern Jest alternative)
 - Custom Chrome API mocking for Manifest V3 compatibility
-- 442 tests across 9 files: the rule compiler (`src/background/__tests__/rule-compiler.test.js`), background service worker (rule application, pause/resume, tab groups, badges), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
+- 473 tests across 10 files: the rule compiler (`src/background/__tests__/rule-compiler.test.js`), the Requestly import parser (`src/popup/__tests__/requestly-import.test.js`), background service worker (rule application, pause/resume, tab groups, badges), popup logic (profiles, headers CRUD, import/export, language selector), the i18n helpers, `src/__tests__/locales.test.js`, which cross-checks every translation key used in JS and HTML against all 7 extension catalogs, and `site/__tests__/site-locales.test.js`, which does the same for the site templates and catalogs. Run `npm test`; coverage via `npm run test:coverage`.
 - Commands: `npm test`, `npm run test:watch`, `npm run test:ui`
 
 **Code Quality:**
