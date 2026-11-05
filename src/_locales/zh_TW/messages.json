@@ -273,6 +273,45 @@
   "importedFromJson": {
     "message": "從 JSON 匯入 - 點擊編輯"
   },
+  "validJsonRequestly": {
+    "message": "Requestly 匯出 — 規則數：$1"
+  },
+  "errRequestlyReplace": {
+    "message": "這是 Requestly 匯出檔，可能會建立多個設定檔。請使用「建立新設定檔」方式匯入。"
+  },
+  "importRequestlyDone": {
+    "message": "已從 Requestly 匯入 — 重新導向數：$1，新建設定檔數：$2。"
+  },
+  "importRequestlyNothing": {
+    "message": "未匯入任何內容：這個 Requestly 檔案中沒有可轉換的重新導向。未建立任何設定檔。"
+  },
+  "importRequestlySkipped": {
+    "message": "未匯入的規則（$1）："
+  },
+  "importRequestlyMore": {
+    "message": "…另有 $1 條"
+  },
+  "requestlyUnnamedRule": {
+    "message": "（未命名規則）"
+  },
+  "requestlyProfileName": {
+    "message": "Requestly"
+  },
+  "requestlySkipNotRedirect": {
+    "message": "不是重新導向規則"
+  },
+  "requestlySkipHasFilters": {
+    "message": "使用了無法轉換的篩選條件（方法、資源類型、頁面等）"
+  },
+  "requestlySkipUnsupportedSource": {
+    "message": "不支援的來源類型（路徑，或使用規則運算式的主機）"
+  },
+  "requestlySkipLocalDestination": {
+    "message": "重新導向到本機檔案或模擬回應"
+  },
+  "requestlySkipIncomplete": {
+    "message": "缺少來源或目的地"
+  },
   "sectionRedirects": {
     "message": "重新導向"
   },

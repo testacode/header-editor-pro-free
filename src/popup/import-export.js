@@ -1,8 +1,21 @@
 import { t, LocalizedError, describeError } from './i18n.js';
 import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normalize.js';
 import { defaultProfile } from './default-data.js';
-import { sanitizeRedirects } from './redirect-normalize.js';
+import { sanitizeRedirects, normalizeRedirect } from './redirect-normalize.js';
 import { sanitizeCookies } from './cookie-normalize.js';
+import { parseRequestlyExport, isRequestlyExport, SKIP_REASON } from './requestly-import.js';
+
+// Past this many, the left-out list in the summary ends with "…and N more".
+const MAX_SKIPPED_LISTED = 15;
+
+// Functions, not strings: the language can change while the popup is open.
+const SKIP_REASON_TEXT = {
+  [SKIP_REASON.notRedirect]: () => t('requestlySkipNotRedirect'),
+  [SKIP_REASON.hasFilters]: () => t('requestlySkipHasFilters'),
+  [SKIP_REASON.unsupportedSource]: () => t('requestlySkipUnsupportedSource'),
+  [SKIP_REASON.localDestination]: () => t('requestlySkipLocalDestination'),
+  [SKIP_REASON.incomplete]: () => t('requestlySkipIncomplete'),
+};
 
 export class ImportExportManager {
   constructor(popup) {
@@ -159,6 +172,9 @@ export class ImportExportManager {
       if (popup.currentModalMode === 'import') {
         if (Array.isArray(parsed) && this.isProfileListExport(parsed)) {
           this.setValidationMessage('success', t('validJsonProfiles', parsed.length));
+        } else if (isRequestlyExport(parsed)) {
+          const rules = parsed.filter(record => record?.objectType === 'rule').length;
+          this.setValidationMessage('success', t('validJsonRequestly', rules));
         } else if (Array.isArray(parsed)) {
           // Check if headers have required structure
           for (let i = 0; i < parsed.length; i++) {
@@ -218,6 +234,9 @@ export class ImportExportManager {
     const popup = this.popup;
     if (this.isProfileListExport(importData)) {
       throw new LocalizedError('errProfileListImport');
+    }
+    if (isRequestlyExport(importData)) {
+      throw new LocalizedError('errRequestlyReplace');
     }
     // Handle different import formats
     if (Array.isArray(importData)) {
@@ -334,7 +353,10 @@ export class ImportExportManager {
 
   async importProfile(importData) {
     await this.importProfileFromData(importData);
-    alert(t('importSuccess', this.popup.profiles[this.popup.currentProfile].name));
+    // A Requestly import has already shown its own summary.
+    if (!isRequestlyExport(importData)) {
+      alert(t('importSuccess', this.popup.profiles[this.popup.currentProfile].name));
+    }
   }
 
   // ── Import logic ──────────────────────────────────────────────────────────
@@ -383,6 +405,9 @@ export class ImportExportManager {
       if (result.skippedFeatures > 0) {
         alert(t('importUrlFiltersSkipped', result.skippedFeatures));
       }
+    } else if (isRequestlyExport(importData)) {
+      // Requestly rules export — also an array, so it must be told apart first
+      await this.importRequestly(importData);
     } else if (Array.isArray(importData)) {
       // Plain headers array format
       await this.createProfileFromHeaders(importData);
@@ -392,6 +417,50 @@ export class ImportExportManager {
     } else {
       throw new LocalizedError('errInvalidJsonFormat');
     }
+  }
+
+  // One profile per Requestly group, then a summary naming every rule left out.
+  // With nothing convertible no profile is created, but the summary still says why.
+  async importRequestly(data) {
+    const popup = this.popup;
+    const { profiles, skipped } = parseRequestlyExport(data);
+    const redirectCount = profiles.reduce((sum, profile) => sum + profile.redirects.length, 0);
+
+    if (profiles.length > 0) {
+      profiles.forEach((source, index) => {
+        popup.profileCounter++;
+        const key = `profile_${Date.now()}_rq_${index}`;
+        popup.profiles[key] = {
+          ...defaultProfile(source.groupName || t('requestlyProfileName')),
+          redirects: source.redirects.map(normalizeRedirect),
+        };
+        if (index === 0) {
+          popup.currentProfile = key;
+        }
+      });
+      await popup.saveData();
+      popup.renderUI();
+    }
+
+    alert(this.requestlySummary(profiles.length, redirectCount, skipped));
+  }
+
+  requestlySummary(profileCount, redirectCount, skipped) {
+    const lines = [
+      profileCount > 0
+        ? t('importRequestlyDone', redirectCount, profileCount)
+        : t('importRequestlyNothing'),
+    ];
+    if (skipped.length > 0) {
+      lines.push('', t('importRequestlySkipped', skipped.length));
+      for (const { name, reason } of skipped.slice(0, MAX_SKIPPED_LISTED)) {
+        lines.push(`• ${name || t('requestlyUnnamedRule')} — ${SKIP_REASON_TEXT[reason]()}`);
+      }
+      if (skipped.length > MAX_SKIPPED_LISTED) {
+        lines.push(t('importRequestlyMore', skipped.length - MAX_SKIPPED_LISTED));
+      }
+    }
+    return lines.join('\n');
   }
 
   async createProfileFromHeaders(headersArray) {

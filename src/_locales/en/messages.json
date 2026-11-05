@@ -313,6 +313,58 @@
     "message": "Imported from JSON - click to edit",
     "description": "Description stored on a profile imported from a JSON file."
   },
+  "validJsonRequestly": {
+    "message": "Requestly export — rules: $1",
+    "description": "$1 = how many Requestly rules the file holds. Phrased to avoid plural forms."
+  },
+  "errRequestlyReplace": {
+    "message": "This is a Requestly export, which can create several profiles. Use \"Create new profile\" mode to import it.",
+    "description": "The quoted text is the modalModeNew label — keep both in step."
+  },
+  "importRequestlyDone": {
+    "message": "Imported from Requestly — redirects: $1, profiles created: $2.",
+    "description": "First line of the Requestly import summary. $1 = redirects imported, $2 = profiles created. Phrased to avoid plural forms."
+  },
+  "importRequestlyNothing": {
+    "message": "Nothing was imported: no redirect in this Requestly file can be converted. No profile was created.",
+    "description": "Requestly import summary when no rule could be converted."
+  },
+  "importRequestlySkipped": {
+    "message": "Rules left out ($1):",
+    "description": "Heading of the list of Requestly rules left out. $1 = how many entries."
+  },
+  "importRequestlyMore": {
+    "message": "…and $1 more",
+    "description": "Last line when the left-out list is truncated. $1 = how many were not listed."
+  },
+  "requestlyUnnamedRule": {
+    "message": "(unnamed rule)",
+    "description": "Shown instead of the name of a Requestly rule that has none."
+  },
+  "requestlyProfileName": {
+    "message": "Requestly",
+    "description": "Name of the profile holding Requestly rules that belong to no group. Stored as data."
+  },
+  "requestlySkipNotRedirect": {
+    "message": "not a redirect rule",
+    "description": "Why a Requestly rule was left out: it modifies headers, mocks a response, etc."
+  },
+  "requestlySkipHasFilters": {
+    "message": "uses filters (method, resource type, page…) that can't be converted",
+    "description": "Why a Requestly rule was left out: its request filters would be lost, making it redirect more."
+  },
+  "requestlySkipUnsupportedSource": {
+    "message": "source type not supported (path, or host with a regex)",
+    "description": "Why a Requestly rule was left out: its source condition has no equivalent here."
+  },
+  "requestlySkipLocalDestination": {
+    "message": "redirects to a local file or mock",
+    "description": "Why a Requestly rule was left out: its destination only exists inside Requestly."
+  },
+  "requestlySkipIncomplete": {
+    "message": "missing source or destination",
+    "description": "Why a Requestly rule was left out: it has an empty source or destination."
+  },
   "sectionRedirects": {
     "message": "Redirects"
   },

@@ -273,6 +273,45 @@
   "importedFromJson": {
     "message": "Импортировано из JSON — нажмите для изменения"
   },
+  "validJsonRequestly": {
+    "message": "Экспорт Requestly — правил: $1"
+  },
+  "errRequestlyReplace": {
+    "message": "Это экспорт Requestly, из него может получиться несколько профилей. Импортируйте его через «Создать профиль»."
+  },
+  "importRequestlyDone": {
+    "message": "Импортировано из Requestly — перенаправлений: $1, создано профилей: $2."
+  },
+  "importRequestlyNothing": {
+    "message": "Ничего не импортировано: в этом файле Requestly нет перенаправлений, которые можно преобразовать. Профили не созданы."
+  },
+  "importRequestlySkipped": {
+    "message": "Пропущенные правила ($1):"
+  },
+  "importRequestlyMore": {
+    "message": "…и ещё $1"
+  },
+  "requestlyUnnamedRule": {
+    "message": "(правило без названия)"
+  },
+  "requestlyProfileName": {
+    "message": "Requestly"
+  },
+  "requestlySkipNotRedirect": {
+    "message": "не правило перенаправления"
+  },
+  "requestlySkipHasFilters": {
+    "message": "использует фильтры (метод, тип ресурса, страница…), которые нельзя преобразовать"
+  },
+  "requestlySkipUnsupportedSource": {
+    "message": "тип источника не поддерживается (путь или хост с регулярным выражением)"
+  },
+  "requestlySkipLocalDestination": {
+    "message": "перенаправляет на локальный файл или мок"
+  },
+  "requestlySkipIncomplete": {
+    "message": "не указан источник или адрес назначения"
+  },
   "sectionRedirects": {
     "message": "Перенаправления"
   },

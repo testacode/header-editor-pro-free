@@ -20,6 +20,13 @@ Everything the extension does, from the popup.
   file holding a list of profiles creates one profile per entry,
   including its request and response headers — URL filters are not supported and
   are skipped.
+- **Import from Requestly**: import a Requestly rules export (*Export rules* in
+  Requestly) with the same Import option, in "Create new profile" mode. Each
+  Requestly group becomes a profile with its Redirect rules; rules outside any
+  group go to a profile named "Requestly". A summary then lists every rule left
+  out and why: other rule types, rules using request filters (method, resource
+  type, page), path or host-regex sources, local file/mock destinations, and
+  rules missing a source or destination.
 
 ## Header controls
 
