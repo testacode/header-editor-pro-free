@@ -137,3 +137,7 @@ Las capturas en el destino de una regla `redirect` se escriben `\1`…`\9` (`\0`
 ## Un redirect cross-origin sin CORS "falla" aunque la regla esté bien
 
 Verificado en Chrome for Testing (2026-11-05): con un `fetch` desde `localhost:8001` redirigido a `localhost:8002`, la regla se aplica pero el navegador bloquea la respuesta (`TypeError: Failed to fetch`) porque el destino no manda `Access-Control-Allow-Origin`. Por eso existe el toggle CORS por redirección. No ayuda con requests con credenciales: el navegador rechaza `*` ahí y DNR no puede reflejar el `Origin` del request.
+
+## `append` sobre `Cookie`: las del sitio van primero
+
+Verificado en Chrome for Testing 157 (2026-11-05): DNR `append` sobre el request header `cookie` agrega nuestro `name=value` **después** de las cookies del sitio, separado con `; `. Con el mismo nombre se mandan las dos (`playground=from-site; playground=from-extension`) y la mayoría de los servidores lee la primera, o sea la del sitio. Por DNR no hay forma de reemplazar una sola cookie: `set` pisaría el header entero y con él la sesión. Por eso el popup avisa con ⚠ y ofrece borrar la del sitio (`chrome.cookies.remove`). El playground lo demuestra en la sección 4.

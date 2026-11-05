@@ -116,7 +116,7 @@
     <h2>Local Storage</h2>
     <p>All header configurations, profiles, and settings are stored locally on your device using the browser's storage API. This data includes:</p>
     <ul>
-      <li>Header modification rules and profiles</li>
+      <li>Header rules, redirects, managed cookies and profiles</li>
       <li>Extension settings and preferences</li>
       <li>Profile names and configurations</li>
     </ul>
@@ -125,9 +125,10 @@
     <h2>Permissions</h2>
     <p>The extension requires the following permissions to function:</p>
     <ul>
-      <li><strong>declarativeNetRequest:</strong> To intercept and modify HTTP headers</li>
+      <li><strong>declarativeNetRequest:</strong> To modify HTTP headers, redirect requests and add your managed cookies to requests</li>
       <li><strong>storage:</strong> To save your configurations locally</li>
       <li><strong>tabGroups:</strong> To read the name and colour of a Chrome tab group, so a profile can be scoped to one</li>
+      <li><strong>cookies:</strong> To list, copy or delete the cookies of the site in the active tab when you open "This site's cookies", and to warn you when a cookie you manage clashes with one the site already has. Cookies are read only on those actions, shown to you, and never stored elsewhere or sent anywhere.</li>
       <li><strong>Access to all websites (&lt;all_urls&gt;):</strong> Header rules are applied by the browser itself through declarativeNetRequest. The extension does not read page content, and never sees the requests it modifies.</li>
     </ul>
     <p>These permissions are used solely for the extension's functionality and not for data collection.</p>
@@ -142,7 +143,7 @@
     <p>If you have any questions about this privacy policy or the extension's data practices, please contact us through the extension's support channels on GitHub.</p>
 
     <div class="footer">
-      <p>Last updated: July 30, 2026</p>
+      <p>Last updated: November 5, 2026</p>
     </div>
   </body>
 </html>

@@ -332,5 +332,47 @@
   },
   "redirectInvalidPattern": {
     "message": "このパターンは使用できません: $1"
+  },
+  "sectionCookies": {
+    "message": "Cookie"
+  },
+  "cookieAdd": {
+    "message": "Cookie を追加"
+  },
+  "cookieDomainPlaceholder": {
+    "message": "domain.com"
+  },
+  "cookieNamePlaceholder": {
+    "message": "名前"
+  },
+  "cookieValuePlaceholder": {
+    "message": "値"
+  },
+  "cookieDelete": {
+    "message": "Cookie を削除"
+  },
+  "cookieConflict": {
+    "message": "このサイトには $2 用の「$1」という Cookie がすでにあります。両方が送信され、多くのサーバーは先頭にあるサイト側の値を読みます。クリックするとサイト側の Cookie を削除します。"
+  },
+  "cookieConflictConfirm": {
+    "message": "サイト自身の「$1」Cookie をブラウザから削除しますか？そのサイトからログアウトされる可能性があります。"
+  },
+  "siteCookiesToggle": {
+    "message": "このサイトの Cookie"
+  },
+  "siteCookiesNoSite": {
+    "message": "Web サイトのタブでポップアップを開くと Cookie が表示されます。"
+  },
+  "siteCookiesFor": {
+    "message": "$1 — $2 件の Cookie"
+  },
+  "siteCookiesCopy": {
+    "message": "このプロファイルにコピー"
+  },
+  "siteCookiesDelete": {
+    "message": "ブラウザから削除"
+  },
+  "siteCookiesDeleteConfirm": {
+    "message": "Cookie「$1」をブラウザから削除しますか？"
   }
 }

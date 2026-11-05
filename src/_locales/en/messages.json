@@ -389,5 +389,51 @@
   "redirectInvalidPattern": {
     "message": "This pattern can't be used: $1",
     "description": "Tooltip on an invalid redirect pattern. $1 = the browser's reason."
+  },
+  "sectionCookies": {
+    "message": "Cookies"
+  },
+  "cookieAdd": {
+    "message": "Add cookie"
+  },
+  "cookieDomainPlaceholder": {
+    "message": "domain.com"
+  },
+  "cookieNamePlaceholder": {
+    "message": "name"
+  },
+  "cookieValuePlaceholder": {
+    "message": "value"
+  },
+  "cookieDelete": {
+    "message": "Delete cookie"
+  },
+  "cookieConflict": {
+    "message": "The site already has a cookie named \"$1\" for $2. Both are sent and most servers read the site's, which comes first. Click to delete the site's one.",
+    "description": "Tooltip on the ⚠ next to a managed cookie. $1 = cookie name, $2 = domain."
+  },
+  "cookieConflictConfirm": {
+    "message": "Delete the site's own \"$1\" cookie from the browser? You may be logged out of that site.",
+    "description": "confirm() before deleting the site's real cookie. $1 = cookie name."
+  },
+  "siteCookiesToggle": {
+    "message": "This site's cookies"
+  },
+  "siteCookiesNoSite": {
+    "message": "Open the popup on a website tab to see its cookies."
+  },
+  "siteCookiesFor": {
+    "message": "$1 — $2 cookies",
+    "description": "Header of the site cookie list. $1 = host, $2 = number of cookies."
+  },
+  "siteCookiesCopy": {
+    "message": "Copy into this profile"
+  },
+  "siteCookiesDelete": {
+    "message": "Delete from the browser"
+  },
+  "siteCookiesDeleteConfirm": {
+    "message": "Delete the \"$1\" cookie from the browser?",
+    "description": "confirm() before deleting a real cookie. $1 = cookie name."
   }
 }

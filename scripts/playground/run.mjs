@@ -23,11 +23,12 @@ import puppeteer from 'puppeteer-core';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../..');
 const DIST = path.join(ROOT, 'dist');
-const APP_PORT = 5180;
-const OTHER_PORT = 5181;
+const CHECK_ONLY = process.argv.includes('--check');
+// --check gets its own ports so it can run while a playground is open.
+const APP_PORT = CHECK_ONLY ? 5190 : 5180;
+const OTHER_PORT = APP_PORT + 1;
 const APP = `http://localhost:${APP_PORT}`;
 const OTHER = `http://localhost:${OTHER_PORT}`;
-const CHECK_ONLY = process.argv.includes('--check');
 
 // What the "Playground" profile starts with. Every example on the demo page
 // maps to one of these, so the page works before you touch the popup.
@@ -60,6 +61,15 @@ const seedData = {
           cors: false,
         },
       ],
+      cookies: [
+        {
+          id: 'cookie_playground',
+          domain: 'localhost',
+          name: 'playground',
+          value: 'from-extension',
+          enabled: true,
+        },
+      ],
       backgroundColor: '#7c4dff',
       textColor: '#ffffff',
       filters: {
@@ -74,6 +84,7 @@ function startServers() {
   const page = fs
     .readFileSync(path.join(HERE, 'page.html'), 'utf8')
     .replaceAll('{{APP}}', APP)
+    .replaceAll('{{APP_HOST}}', `localhost:${APP_PORT}`)
     .replaceAll('{{OTHER}}', OTHER);
 
   const echo = (res, req, from) => {
@@ -85,6 +96,14 @@ function startServers() {
     if (req.url === '/' || req.url === '/index.html') {
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
       return res.end(page);
+    }
+    if (req.url === '/set-site-cookie' || req.url === '/clear-site-cookie') {
+      const set = req.url === '/set-site-cookie';
+      res.writeHead(200, {
+        'set-cookie': set ? 'playground=from-site; Path=/' : 'playground=; Path=/; Max-Age=0',
+        'content-type': 'application/json',
+      });
+      return res.end(JSON.stringify({ set }));
     }
     if (req.url.startsWith('/desa/page')) {
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
@@ -100,8 +119,20 @@ function startServers() {
   // No CORS headers of its own: that's what the redirect's CORS toggle is for.
   const other = http.createServer((req, res) => echo(res, req, `other origin (${OTHER})`));
 
-  app.listen(APP_PORT);
-  other.listen(OTHER_PORT);
+  for (const [server, port] of [
+    [app, APP_PORT],
+    [other, OTHER_PORT],
+  ]) {
+    server.on('error', error => {
+      console.error(
+        error.code === 'EADDRINUSE'
+          ? `Port ${port} is busy — is another playground still open? Close it and retry.`
+          : error
+      );
+      process.exit(1);
+    });
+    server.listen(port);
+  }
   return [app, other];
 }
 
@@ -114,7 +145,16 @@ async function chromeForTesting() {
   return executablePath;
 }
 
+// A check must never hang a terminal: give up after a fixed budget.
+const CHECK_TIMEOUT_MS = 30_000;
+
 async function main() {
+  if (CHECK_ONLY) {
+    setTimeout(() => {
+      console.error(`--check timed out after ${CHECK_TIMEOUT_MS / 1000}s`);
+      process.exit(1);
+    }, CHECK_TIMEOUT_MS).unref();
+  }
   console.log('Building the extension…');
   execFileSync('npm', ['run', 'build'], { cwd: ROOT, stdio: 'ignore' });
 
@@ -146,12 +186,15 @@ async function main() {
   await popup.reload();
 
   const demo = await browser.newPage();
-  await demo.goto(APP);
+  await demo.goto(APP, { waitUntil: 'networkidle0' });
 
   if (CHECK_ONLY) {
     await runChecks(demo, popup);
     await browser.close();
-    return;
+    // Keep-alive sockets would hold the servers (and the process) open.
+    servers.forEach(server => server.closeAllConnections());
+    fs.rmSync(userDataDir, { recursive: true, force: true });
+    process.exit(0);
   }
 
   console.log(`\nPlayground ready: ${APP}`);
@@ -173,14 +216,18 @@ async function runChecks(demo, popup) {
     ['send', 'request-out'],
     ['response', 'response-out'],
     ['redirect', 'redirect-out'],
+    ['cookie', 'cookie-out'],
+    ['set-site-cookie', 'cookie-out'],
+    ['clear-site-cookie', 'cookie-out'],
   ]) {
+    await demo.evaluate(id => (document.getElementById(id).textContent = '—'), out);
     await demo.click(`#${button}`);
     await demo.waitForFunction(id => document.getElementById(id).textContent !== '—', {}, out);
     const text = await demo.$eval(`#${out}`, el => el.textContent);
     const interesting = text
       .split('\n')
       .filter(line =>
-        /playground|disabled|redirect|answered|blocked|final url|path seen/i.test(line)
+        /playground|disabled|redirect|answered|blocked|final url|path seen|cookie/i.test(line)
       );
     console.log(`── ${button}\n${interesting.join('\n')}`);
   }

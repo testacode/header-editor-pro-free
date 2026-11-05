@@ -28,6 +28,7 @@ export function defaultProfile(name = 'Default') {
     requestHeaders: [],
     responseHeaders: [],
     redirects: [],
+    cookies: [],
     backgroundColor: '#4caf50',
     textColor: '#ffffff',
     filters: defaultFilters(),

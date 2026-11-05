@@ -61,6 +61,19 @@ profile — so they follow the profile's filters, tab group and pause like heade
 - Only subresources (fetch/XHR, scripts, styles, images…) are redirected, never
   the page you navigate to.
 
+## Cookies
+
+The **Cookies** section adds cookies to requests, per profile: a domain, a name
+and a value. They are not stored in the browser — the extension appends
+`name=value` to the `Cookie` header of requests to that domain (and its
+subdomains), so pausing or switching profile removes them at once.
+
+- If the site already has a cookie with the same name, both are sent and the
+  site's comes first, which is the one most servers read. A ⚠ appears next to
+  the managed cookie; click it to delete the site's own cookie.
+- **This site's cookies** lists the real cookies of the page in the active tab:
+  copy any of them into the profile (+) or delete it from the browser (✕).
+
 ## Profile filters
 
 Both filters live in the **Filters** section below Redirects, and are set
@@ -101,6 +114,8 @@ header.
 - **declarativeNetRequest** — modify HTTP headers efficiently
 - **storage** — save configurations locally on your device
 - **tabGroups** — list your tab groups for the tab group filter (Chrome)
+- **cookies** — list, copy or delete the active site's cookies when you open
+  "This site's cookies", and warn when a managed cookie clashes with the site's
 - **host permissions** — modify headers across all websites
 
 Rules are applied by the browser itself through declarativeNetRequest: the

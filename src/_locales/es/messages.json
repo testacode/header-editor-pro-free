@@ -332,5 +332,47 @@
   },
   "redirectInvalidPattern": {
     "message": "Este patrón no se puede usar: $1"
+  },
+  "sectionCookies": {
+    "message": "Cookies"
+  },
+  "cookieAdd": {
+    "message": "Agregar cookie"
+  },
+  "cookieDomainPlaceholder": {
+    "message": "dominio.com"
+  },
+  "cookieNamePlaceholder": {
+    "message": "nombre"
+  },
+  "cookieValuePlaceholder": {
+    "message": "valor"
+  },
+  "cookieDelete": {
+    "message": "Eliminar cookie"
+  },
+  "cookieConflict": {
+    "message": "El sitio ya tiene una cookie \"$1\" para $2. Se envían las dos y la mayoría de los servidores lee la del sitio, que va primero. Hacé clic para borrar la del sitio."
+  },
+  "cookieConflictConfirm": {
+    "message": "¿Borrar del navegador la cookie \"$1\" del propio sitio? Puede que se cierre tu sesión en ese sitio."
+  },
+  "siteCookiesToggle": {
+    "message": "Cookies de este sitio"
+  },
+  "siteCookiesNoSite": {
+    "message": "Abrí el popup en una pestaña con un sitio web para ver sus cookies."
+  },
+  "siteCookiesFor": {
+    "message": "$1 — $2 cookies"
+  },
+  "siteCookiesCopy": {
+    "message": "Copiar a este perfil"
+  },
+  "siteCookiesDelete": {
+    "message": "Borrar del navegador"
+  },
+  "siteCookiesDeleteConfirm": {
+    "message": "¿Borrar la cookie \"$1\" del navegador?"
   }
 }
