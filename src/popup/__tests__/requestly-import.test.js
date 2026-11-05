@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { parseRequestlyExport } from '../requestly-import.js';
+import { parseRequestlyExport, SKIP_REASON } from '../requestly-import.js';
 
 // Fixtures follow the shape Requestly writes to `requestly_export_<date>.json`:
 // a flat array with the rules first and their groups after them.
@@ -151,7 +151,10 @@ describe('host source operators', () => {
         pair({ key: 'path', operator: 'Contains', value: '/api' }, 'https://t.test/'),
       ]),
     ]);
-    expect(result).toEqual({ profiles: [], skipped: 2 });
+    expect(result).toEqual({
+      profiles: [],
+      skipped: [{ name: 'Redirect rule', reason: SKIP_REASON.unsupportedSource }],
+    });
   });
 });
 
@@ -213,7 +216,10 @@ describe('rules, pairs and status', () => {
         pair({ operator: 'Contains', value: 'e' }, 'https://t.test/e'),
       ]),
     ]);
-    expect(result.skipped).toBe(5);
+    expect(result.skipped).toEqual([
+      { name: 'Redirect rule', reason: SKIP_REASON.localDestination },
+      { name: 'Redirect rule', reason: SKIP_REASON.incomplete },
+    ]);
     expect(result.profiles[0].redirects.map(r => r.target)).toEqual(['https://t.test/e']);
   });
 
@@ -241,7 +247,7 @@ describe('groups', () => {
       group('Group_staging', 'Staging'),
       group('Group_local', 'Local dev'),
     ]);
-    expect(result.skipped).toBe(0);
+    expect(result.skipped).toEqual([]);
     expect(result.profiles.map(p => [p.groupName, p.redirects.length])).toEqual([
       ['Staging', 2],
       [null, 1],
@@ -270,14 +276,28 @@ describe('groups', () => {
 });
 
 describe('mixed rule types', () => {
-  test('non-Redirect rules are skipped and counted', () => {
+  test('non-Redirect rules are skipped and listed by name', () => {
     const result = parseRequestlyExport([
-      { ...redirectRule([]), ruleType: 'Headers', pairs: [{ modifications: {} }] },
-      { ...redirectRule([]), ruleType: 'Replace', pairs: [{ from: 'a', to: 'b' }] },
-      { ...redirectRule([]), ruleType: 'Cancel' },
+      {
+        ...redirectRule([]),
+        name: 'Auth header',
+        ruleType: 'Headers',
+        pairs: [{ modifications: {} }],
+      },
+      {
+        ...redirectRule([]),
+        name: 'Swap text',
+        ruleType: 'Replace',
+        pairs: [{ from: 'a', to: 'b' }],
+      },
+      { ...redirectRule([]), name: 'Block ads', ruleType: 'Cancel' },
       redirectRule([pair({ operator: 'Contains', value: 'x' }, 'https://t.test/')]),
     ]);
-    expect(result.skipped).toBe(3);
+    expect(result.skipped).toEqual([
+      { name: 'Auth header', reason: SKIP_REASON.notRedirect },
+      { name: 'Swap text', reason: SKIP_REASON.notRedirect },
+      { name: 'Block ads', reason: SKIP_REASON.notRedirect },
+    ]);
     expect(result.profiles).toHaveLength(1);
   });
 
@@ -286,7 +306,10 @@ describe('mixed rule types', () => {
       { ...redirectRule([]), ruleType: 'Headers' },
       group('G', 'G'),
     ]);
-    expect(result).toEqual({ profiles: [], skipped: 1 });
+    expect(result).toEqual({
+      profiles: [],
+      skipped: [{ name: 'Redirect rule', reason: SKIP_REASON.notRedirect }],
+    });
   });
 
   test('stray non-record entries are ignored', () => {
@@ -296,7 +319,7 @@ describe('mixed rule types', () => {
       redirectRule([pair({ operator: 'Contains', value: 'x' }, 'https://t.test/')]),
     ]);
     expect(result.profiles).toHaveLength(1);
-    expect(result.skipped).toBe(0);
+    expect(result.skipped).toEqual([]);
   });
 });
 
@@ -312,5 +335,68 @@ describe('unrecognised input', () => {
     expect(() => parseRequestlyExport(input)).toThrow(
       expect.objectContaining({ code: 'notRequestlyExport' })
     );
+  });
+});
+
+describe('Requestly source filters', () => {
+  test('the default empty filter ([{}]) does not narrow the rule → imported', () => {
+    const { profiles, skipped } = parseRequestlyExport([
+      redirectRule([pair({ operator: 'Contains', value: 'x', filters: [{}] }, 'https://t.test/')]),
+    ]);
+    expect(profiles[0].redirects).toHaveLength(1);
+    expect(skipped).toEqual([]);
+  });
+
+  test.each([
+    ['requestMethod', { requestMethod: ['POST'] }],
+    ['resourceType', { resourceType: ['xmlhttprequest'] }],
+    ['pageDomains', { pageDomains: ['despegar.com'] }],
+    ['pageUrl', { pageUrl: { operator: 'Contains', value: '/checkout' } }],
+    ['requestPayload', { requestPayload: { key: 'id', value: '7', operator: 'Equals' } }],
+  ])('a %s filter → pair skipped, rule listed as hasFilters', (_label, filter) => {
+    const result = parseRequestlyExport([
+      redirectRule(
+        [pair({ operator: 'Contains', value: 'x', filters: [filter] }, 'https://t.test/')],
+        { name: 'Only on checkout' }
+      ),
+    ]);
+    expect(result.profiles).toEqual([]);
+    expect(result.skipped).toEqual([{ name: 'Only on checkout', reason: SKIP_REASON.hasFilters }]);
+  });
+
+  test('a rule with one filtered and one plain pair keeps the plain one and lists the rule', () => {
+    const result = parseRequestlyExport([
+      redirectRule(
+        [
+          pair(
+            { operator: 'Contains', value: 'a', filters: [{ requestMethod: ['POST'] }] },
+            'https://t.test/a'
+          ),
+          pair({ operator: 'Contains', value: 'b' }, 'https://t.test/b'),
+        ],
+        { name: 'Mixed' }
+      ),
+    ]);
+    expect(result.profiles[0].redirects.map(r => r.target)).toEqual(['https://t.test/b']);
+    expect(result.skipped).toEqual([{ name: 'Mixed', reason: SKIP_REASON.hasFilters }]);
+  });
+
+  test('the same rule skipped twice for the same reason is listed once', () => {
+    const result = parseRequestlyExport([
+      redirectRule(
+        [
+          pair(
+            { operator: 'Contains', value: 'a', filters: [{ pageDomains: ['x.com'] }] },
+            'https://t.test/'
+          ),
+          pair(
+            { operator: 'Contains', value: 'b', filters: [{ pageDomains: ['y.com'] }] },
+            'https://t.test/'
+          ),
+        ],
+        { name: 'Twice' }
+      ),
+    ]);
+    expect(result.skipped).toEqual([{ name: 'Twice', reason: SKIP_REASON.hasFilters }]);
   });
 });

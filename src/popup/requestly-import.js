@@ -20,12 +20,21 @@ const INACTIVE = 'Inactive';
 const REST_OF_URL = '(?:[/?#].*)?';
 const HOST_CHARS = '[^/?#]*';
 
+// Why a rule (or one of its pairs) was left out. The caller translates these.
+export const SKIP_REASON = {
+  notRedirect: 'notRedirect', // other rule types (headers, mocks…) aren't redirects
+  hasFilters: 'hasFilters', // method/resource/page filters we can't express: it would redirect more
+  unsupportedSource: 'unsupportedSource', // path, host+Matches
+  incomplete: 'incomplete', // empty source or destination
+  localDestination: 'localDestination', // local file or mock: only exists inside Requestly
+};
+
 /**
  * @param {unknown} data - Parsed JSON of a Requestly export.
- * @returns {{ profiles: Array<{ groupName: string|null, redirects: Array<{ pattern: string, target: string, enabled: boolean, cors: false }> }>, skipped: number }}
+ * @returns {{ profiles: Array<{ groupName: string|null, redirects: Array<{ pattern: string, target: string, enabled: boolean, cors: false }> }>, skipped: Array<{ name: string, reason: string }> }}
  *   `groupName: null` holds the rules that belong to no group.
- *   `skipped` counts every non-Redirect rule and every Redirect pair that
- *   could not become a redirect.
+ *   `skipped` lists each rule left out (once per reason), so the user can see
+ *   which ones didn't make it.
  * @throws {Error} with `code = 'notRequestlyExport'` when `data` is not a Requestly export.
  */
 export function parseRequestlyExport(data) {
@@ -37,14 +46,18 @@ export function parseRequestlyExport(data) {
 
   const groups = new Map(data.filter(r => r?.objectType === 'group').map(g => [g.id, g]));
   const profiles = new Map(); // groupId (or null) → profile, in order of first appearance
-  let skipped = 0;
+  const skipped = new Map(); // `${name}|${reason}` → entry, one per rule and reason
+  const skip = (rule, reason) => {
+    const name = typeof rule.name === 'string' && rule.name.trim() ? rule.name.trim() : '';
+    skipped.set(`${name}|${reason}`, { name, reason });
+  };
 
   for (const rule of data) {
     if (rule?.objectType !== 'rule') {
       continue;
     }
     if (rule.ruleType !== 'Redirect' || !Array.isArray(rule.pairs)) {
-      skipped++;
+      skip(rule, SKIP_REASON.notRedirect);
       continue;
     }
 
@@ -53,9 +66,9 @@ export function parseRequestlyExport(data) {
     const enabled = rule.status === ACTIVE && group?.status !== INACTIVE;
 
     for (const pair of rule.pairs) {
-      const redirect = pairToRedirect(pair, enabled);
+      const { redirect, reason } = pairToRedirect(pair, enabled);
       if (!redirect) {
-        skipped++;
+        skip(rule, reason);
         continue;
       }
       const key = group?.id ?? null;
@@ -66,7 +79,7 @@ export function parseRequestlyExport(data) {
     }
   }
 
-  return { profiles: [...profiles.values()], skipped };
+  return { profiles: [...profiles.values()], skipped: [...skipped.values()] };
 }
 
 function isRequestlyExport(data) {
@@ -78,19 +91,38 @@ function isRequestlyExport(data) {
 
 function pairToRedirect(pair, enabled) {
   const target = typeof pair?.destination === 'string' ? pair.destination.trim() : '';
+  const sourceValue = typeof pair?.source?.value === 'string' ? pair.source.value.trim() : '';
+  if (!target || !sourceValue) {
+    return { reason: SKIP_REASON.incomplete };
+  }
   // Local files and mocks only exist inside Requestly.
-  const isUrlDestination =
-    (pair?.destinationType ?? 'url') === 'url' && target && !target.startsWith('file://');
-  if (!isUrlDestination) {
-    return null;
+  if ((pair.destinationType ?? 'url') !== 'url' || target.startsWith('file://')) {
+    return { reason: SKIP_REASON.localDestination };
+  }
+  if (hasActiveFilters(pair.source)) {
+    return { reason: SKIP_REASON.hasFilters };
   }
 
   const pattern = sourceToPattern(pair.source);
   if (!pattern) {
-    return null;
+    return { reason: SKIP_REASON.unsupportedSource };
   }
 
-  return { pattern, target, enabled, cors: false };
+  return { redirect: { pattern, target, enabled, cors: false } };
+}
+
+// Requestly stores `filters: [{}]` by default; only a filter with a value
+// narrows the rule. Shape: RuleSourceFilter in shared/src/types/entities/rules/rule.ts.
+function hasActiveFilters(source) {
+  const filters = Array.isArray(source?.filters) ? source.filters : [];
+  return filters.some(
+    filter =>
+      Boolean(filter?.pageUrl?.value) ||
+      filter?.requestMethod?.length > 0 ||
+      filter?.resourceType?.length > 0 ||
+      filter?.pageDomains?.length > 0 ||
+      Boolean(filter?.requestPayload?.key || filter?.requestPayload?.value)
+  );
 }
 
 /** Returns an RE2 pattern for the request URL, or null when unsupported. */
