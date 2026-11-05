@@ -37,6 +37,9 @@ export class HeaderEditorPopup {
     this.isPinned = false;
     this.colorPickerInteractionsSetup = false;
     this.isDraggingHeader = false;
+    // UI-only: which headers have their note area open. Keyed by the header
+    // object so it survives re-renders and follows the header on reorder.
+    this.expandedNotes = new WeakSet();
     this.infoLinksSetup = false;
     this.profileCounter = 1;
     this.saveTimer = null;
@@ -424,6 +427,9 @@ export class HeaderEditorPopup {
     headers.forEach((header, index) => {
       const headerDiv = this.createHeaderElement(type, header, index);
       list.appendChild(headerDiv);
+      if (this.expandedNotes.has(header)) {
+        list.appendChild(this.createHeaderNoteElement(type, header, index, headerDiv));
+      }
     });
   }
 
@@ -495,6 +501,17 @@ export class HeaderEditorPopup {
     const actions = document.createElement('div');
     actions.className = 'header-actions';
 
+    // Note toggle: opens a free-text note below the row
+    const noteButton = document.createElement('button');
+    noteButton.className = 'header-note-toggle';
+    noteButton.innerHTML =
+      '<svg viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l224 0 0-112c0-26.5 21.5-48 48-48l112 0 0-224c0-35.3-28.7-64-64-64L64 32zM448 352l-45.3 0L336 352c-8.8 0-16 7.2-16 16l0 66.7 0 45.3 32-32 64-64 32-32z"/></svg>';
+    this.updateNoteButton(noteButton, header.note);
+    noteButton.addEventListener('click', () => {
+      this.toggleHeaderNote(div, type, index);
+    });
+    actions.appendChild(noteButton);
+
     // Copy-to-profile button (only useful when there is another profile to copy to)
     if (Object.keys(this.profiles).length > 1) {
       const copyButton = document.createElement('button');
@@ -531,6 +548,48 @@ export class HeaderEditorPopup {
     this.addDragListeners(div, type, index);
 
     return div;
+  }
+
+  updateNoteButton(button, note) {
+    const hasNote = Boolean(note && note.trim());
+    button.classList.toggle('active', hasNote);
+    button.title = hasNote ? note : t('headerNoteAdd');
+  }
+
+  // Rendered as the row's next sibling, outside the draggable .header-item:
+  // Chrome won't place the cursor or select text in a textarea inside it.
+  createHeaderNoteElement(type, header, index, headerItem) {
+    const textarea = document.createElement('textarea');
+    textarea.className = 'header-note';
+    textarea.placeholder = t('headerNotePlaceholder');
+    textarea.value = header.note || '';
+    textarea.addEventListener('input', e => {
+      this.updateHeader(type, index, 'note', e.target.value);
+      this.updateNoteButton(headerItem.querySelector('.header-note-toggle'), e.target.value);
+    });
+    textarea.addEventListener('blur', () => {
+      this.flushSave();
+    });
+    return textarea;
+  }
+
+  toggleHeaderNote(headerItem, type, index) {
+    const header = this.profiles[this.currentProfile][`${type}Headers`][index];
+    if (!header) {
+      return;
+    }
+    if (this.expandedNotes.has(header)) {
+      this.expandedNotes.delete(header);
+      const next = headerItem.nextElementSibling;
+      if (next?.classList.contains('header-note')) {
+        next.remove();
+      }
+      return;
+    }
+    this.expandedNotes.add(header);
+    const note = this.createHeaderNoteElement(type, header, index, headerItem);
+    headerItem.after(note);
+    note.focus();
   }
 
   updateToolbar() {

@@ -144,6 +144,14 @@
     "message": "Append instead of set",
     "description": "Tooltip on the 'A' toggle that switches a header from set to append."
   },
+  "headerNoteAdd": {
+    "message": "Add a note",
+    "description": "Tooltip on the per-header note button when the header has no note yet (with a note, the tooltip is the note itself)."
+  },
+  "headerNotePlaceholder": {
+    "message": "What is this header for?",
+    "description": "Placeholder of the free-text note area shown below a header row."
+  },
   "headerCopyToProfile": {
     "message": "Copy to profile…",
     "description": "Tooltip on the per-header copy button."

@@ -135,6 +135,12 @@
   "headerAppendMode": {
     "message": "Añadir en vez de reemplazar"
   },
+  "headerNoteAdd": {
+    "message": "Agregar una nota"
+  },
+  "headerNotePlaceholder": {
+    "message": "¿Para qué sirve este header?"
+  },
   "headerCopyToProfile": {
     "message": "Copiar a otro perfil…"
   },

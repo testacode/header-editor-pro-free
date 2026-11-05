@@ -135,6 +135,12 @@
   "headerAppendMode": {
     "message": "Добавлять, а не заменять"
   },
+  "headerNoteAdd": {
+    "message": "Добавить заметку"
+  },
+  "headerNotePlaceholder": {
+    "message": "Для чего этот заголовок?"
+  },
   "headerCopyToProfile": {
     "message": "Копировать в профиль…"
   },
