@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Header Editor Pro — Playground</title>
+    <style>
+      body {
+        font: 14px/1.5 system-ui, sans-serif;
+        background: #1a1a1a;
+        color: #eee;
+        max-width: 920px;
+        margin: 24px auto;
+        padding: 0 16px;
+      }
+      h1 { font-size: 20px; }
+      h2 { font-size: 16px; margin: 0 0 4px; }
+      section {
+        background: #232323;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+      }
+      p.hint { color: #aaa; margin: 4px 0 12px; }
+      code { background: #2d2d2d; padding: 1px 4px; border-radius: 3px; }
+      button {
+        background: #4caf50;
+        color: #fff;
+        border: 0;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font: inherit;
+      }
+      pre {
+        background: #111;
+        border-radius: 4px;
+        padding: 12px;
+        overflow: auto;
+        max-height: 260px;
+        margin: 12px 0 0;
+        white-space: pre-wrap;
+      }
+      .ok { color: #81c784; }
+      .bad { color: #ff8a80; }
+      mark { background: #4a3b00; color: #ffe082; }
+      a { color: #82b1ff; }
+    </style>
+  </head>
+  <body>
+    <h1>Header Editor Pro — Playground</h1>
+    <p class="hint">
+      The extension's popup is open in the first tab, with a <b>Playground</b> profile already
+      set up. Change anything there, come back, and press the buttons again.
+    </p>
+
+    <section>
+      <h2>1. Request headers</h2>
+      <p class="hint">
+        What the server receives. <code>X-Playground</code> comes from the profile;
+        <code>X-Disabled</code> shows up once you tick it. Try the pause button too.
+      </p>
+      <button id="send">Send request</button>
+      <pre id="request-out">—</pre>
+    </section>
+
+    <section>
+      <h2>2. Response headers</h2>
+      <p class="hint">What the page receives back. <code>X-Playground-Response</code> is added by the extension.</p>
+      <button id="response">Fetch and show response headers</button>
+      <pre id="response-out">—</pre>
+    </section>
+
+    <section>
+      <h2>3. Redirects</h2>
+      <p class="hint">
+        The page asks for <code>{{APP}}/desa/api/items?id=7</code>. The profile redirects
+        <code>localhost:5180/desa/(.*)</code> to <code>{{OTHER}}/prod/$1</code>, another origin.
+        With <b>CORS</b> off the browser blocks the answer; turn the CORS toggle on in the
+        popup and try again.
+      </p>
+      <button id="redirect">Fetch /desa/api/items?id=7</button>
+      <pre id="redirect-out">—</pre>
+      <p class="hint">
+        Navigations are never redirected:
+        <a href="{{APP}}/desa/page">open {{APP}}/desa/page</a>.
+      </p>
+    </section>
+
+    <script>
+      const show = (id, text, cls = '') => {
+        const out = document.getElementById(id);
+        out.className = cls;
+        out.innerHTML = text;
+      };
+      const escapeHtml = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+      const highlight = text =>
+        escapeHtml(text).replace(/^.*x-(playground|disabled).*$/gim, line => `<mark>${line}</mark>`);
+
+      document.getElementById('send').onclick = async () => {
+        const body = await (await fetch('/echo', { cache: 'no-store' })).json();
+        show('request-out', highlight(JSON.stringify(body.headers, null, 2)));
+      };
+
+      document.getElementById('response').onclick = async () => {
+        const res = await fetch('/echo', { cache: 'no-store' });
+        const lines = [...res.headers].map(([k, v]) => `${k}: ${v}`).join('\n');
+        show('response-out', highlight(lines));
+      };
+
+      document.getElementById('redirect').onclick = async () => {
+        try {
+          const res = await fetch('{{APP}}/desa/api/items?id=7', { cache: 'no-store' });
+          const body = await res.json();
+          const redirected = !body.from.startsWith('app');
+          show(
+            'redirect-out',
+            `${redirected ? '✓ Redirected' : '✗ Not redirected'} — answered by ${escapeHtml(body.from)}\n` +
+              `final URL: ${escapeHtml(res.url)}\npath seen by the server: ${escapeHtml(body.url)}`,
+            redirected ? 'ok' : 'bad'
+          );
+        } catch (error) {
+          show(
+            'redirect-out',
+            `✗ ${escapeHtml(String(error))}\n\nThe redirect happened, but {{OTHER}} sends no CORS ` +
+              'headers, so the browser blocked the answer. Turn on the CORS toggle of the ' +
+              'redirect in the popup and try again.',
+            'bad'
+          );
+        }
+      };
+    </script>
+  </body>
+</html>
