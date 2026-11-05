@@ -312,5 +312,30 @@
   "importedFromJson": {
     "message": "Imported from JSON - click to edit",
     "description": "Description stored on a profile imported from a JSON file."
+  },
+  "sectionRedirects": {
+    "message": "Redirects"
+  },
+  "redirectAdd": {
+    "message": "Add redirect"
+  },
+  "redirectPatternPlaceholder": {
+    "message": "Regex, e.g. ^https://dev\\.example\\.com/(.*)",
+    "description": "Placeholder of the redirect source field. Keep the example regex as is."
+  },
+  "redirectTargetPlaceholder": {
+    "message": "https://example.com/$1",
+    "description": "Placeholder of the redirect destination field. $1 is literal (a capture group), not a substitution."
+  },
+  "redirectCors": {
+    "message": "Also allow cross-origin requests to the target (sets Access-Control-Allow-Origin: *; doesn't work with credentials)",
+    "description": "Tooltip on the CORS toggle of a redirect row."
+  },
+  "redirectDelete": {
+    "message": "Delete redirect"
+  },
+  "redirectInvalidPattern": {
+    "message": "This pattern can't be used: $1",
+    "description": "Tooltip on an invalid redirect pattern. $1 = the browser's reason."
   }
 }

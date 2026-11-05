@@ -272,5 +272,26 @@
   },
   "importedFromJson": {
     "message": "Importado de JSON: haz clic para editar"
+  },
+  "sectionRedirects": {
+    "message": "Redirecciones"
+  },
+  "redirectAdd": {
+    "message": "Agregar redirección"
+  },
+  "redirectPatternPlaceholder": {
+    "message": "Regex, p. ej. ^https://dev\\.example\\.com/(.*)"
+  },
+  "redirectTargetPlaceholder": {
+    "message": "https://example.com/$1"
+  },
+  "redirectCors": {
+    "message": "Permitir también requests cross-origin al destino (setea Access-Control-Allow-Origin: *; no funciona con credenciales)"
+  },
+  "redirectDelete": {
+    "message": "Eliminar redirección"
+  },
+  "redirectInvalidPattern": {
+    "message": "Este patrón no se puede usar: $1"
   }
 }

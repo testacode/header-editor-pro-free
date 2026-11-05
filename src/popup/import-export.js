@@ -1,6 +1,7 @@
 import { t, LocalizedError, describeError } from './i18n.js';
 import { normalizeHeader, isHeaderEnabled, isAppendMode } from './header-normalize.js';
 import { defaultProfile } from './default-data.js';
+import { sanitizeRedirects } from './redirect-normalize.js';
 
 export class ImportExportManager {
   constructor(popup) {
@@ -89,6 +90,7 @@ export class ImportExportManager {
           description: profile.description,
           requestHeaders: profile.requestHeaders || [],
           responseHeaders: profile.responseHeaders || [],
+          redirects: profile.redirects || [],
           filters: profile.filters,
           backgroundColor: profile.backgroundColor,
           textColor: profile.textColor,
@@ -232,6 +234,7 @@ export class ImportExportManager {
         popup.profiles[popup.currentProfile].responseHeaders = this.sanitizeHeaders(
           profileData.responseHeaders
         );
+        popup.profiles[popup.currentProfile].redirects = sanitizeRedirects(profileData.redirects);
         if (profileData.filters && typeof profileData.filters === 'object') {
           popup.profiles[popup.currentProfile].filters = profileData.filters;
         }
@@ -426,6 +429,7 @@ export class ImportExportManager {
         description: profileData.description || t('importedFromJson'),
         requestHeaders: this.sanitizeHeaders(profileData.requestHeaders),
         responseHeaders: this.sanitizeHeaders(profileData.responseHeaders),
+        redirects: sanitizeRedirects(profileData.redirects),
         ...(profileData.filters && typeof profileData.filters === 'object'
           ? { filters: profileData.filters }
           : {}),

@@ -272,5 +272,26 @@
   },
   "importedFromJson": {
     "message": "JSON からインポート - クリックで編集"
+  },
+  "sectionRedirects": {
+    "message": "リダイレクト"
+  },
+  "redirectAdd": {
+    "message": "リダイレクトを追加"
+  },
+  "redirectPatternPlaceholder": {
+    "message": "正規表現（例: ^https://dev\\.example\\.com/(.*)）"
+  },
+  "redirectTargetPlaceholder": {
+    "message": "https://example.com/$1"
+  },
+  "redirectCors": {
+    "message": "転送先へのクロスオリジンリクエストも許可します（Access-Control-Allow-Origin: * を設定。認証情報付きリクエストでは機能しません）"
+  },
+  "redirectDelete": {
+    "message": "リダイレクトを削除"
+  },
+  "redirectInvalidPattern": {
+    "message": "このパターンは使用できません: $1"
   }
 }

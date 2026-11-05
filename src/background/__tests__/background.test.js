@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { HeaderEditorBackground } from '../background.js';
 import { APPLY_RULES_MESSAGE } from '../../messages.js';
+import { PRIORITY } from '../rule-compiler.js';
 
 // The module-level `new HeaderEditorBackground()` at the bottom of background.js
 // runs once on import. setup.js mocks chrome.* and console, so it is harmless.
@@ -201,7 +202,7 @@ describe('HeaderEditorBackground', () => {
 
     const activeOf = (data, key, tabIds) => [{ key, profile: data.profiles[key], tabIds }];
 
-    test('applyHeaderRules with tabIds → session rules with priority 2, not dynamic', async () => {
+    test('applyHeaderRules with tabIds → tab-scoped priority, not dynamic', async () => {
       await settle(
         background.applyHeaderRules(dataWithHeaders, activeOf(dataWithHeaders, 'p', [7, 9]))
       );
@@ -211,7 +212,7 @@ describe('HeaderEditorBackground', () => {
       );
       expect(sessionAdds).toHaveLength(1);
       expect(sessionAdds[0][0].addRules[0].condition.tabIds).toEqual([7, 9]);
-      expect(sessionAdds[0][0].addRules[0].priority).toBe(2);
+      expect(sessionAdds[0][0].addRules[0].priority).toBe(PRIORITY.tabScoped);
 
       const dynamicAdds = chrome.declarativeNetRequest.updateDynamicRules.mock.calls.filter(
         c => c[0].addRules
