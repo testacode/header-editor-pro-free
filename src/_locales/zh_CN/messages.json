@@ -374,5 +374,20 @@
   },
   "siteCookiesDeleteConfirm": {
     "message": "要从浏览器中删除 Cookie“$1”吗？"
+  },
+  "menuShareActive": {
+    "message": "复制已启用的项目以分享"
+  },
+  "shareActiveCopied": {
+    "message": "✓ 已复制 $1 个已启用的项目 — 在“导入”中粘贴即可"
+  },
+  "shareActiveFailed": {
+    "message": "无法复制到剪贴板"
+  },
+  "menuThemeLight": {
+    "message": "浅色主题"
+  },
+  "menuThemeDark": {
+    "message": "深色主题"
   }
 }

@@ -435,5 +435,22 @@
   "siteCookiesDeleteConfirm": {
     "message": "Delete the \"$1\" cookie from the browser?",
     "description": "confirm() before deleting a real cookie. $1 = cookie name."
+  },
+  "menuShareActive": {
+    "message": "Copy active items to share"
+  },
+  "shareActiveCopied": {
+    "message": "✓ Copied $1 active items — paste them into Import",
+    "description": "Toast after \"Copy active items\". $1 = number of headers, redirects and cookies copied."
+  },
+  "shareActiveFailed": {
+    "message": "Couldn't copy to the clipboard"
+  },
+  "menuThemeLight": {
+    "message": "Light theme",
+    "description": "Menu item that switches the popup to the light theme."
+  },
+  "menuThemeDark": {
+    "message": "Dark theme"
   }
 }

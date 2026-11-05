@@ -104,10 +104,18 @@ Left to right:
 | 📌 Pin | Keep the popup open when you click elsewhere |
 | 🎨 Colour | Pick the colour of the profile circle and its badge |
 | 🌐 Language | Switch the interface language, or follow the browser ("Auto") |
-| ⋮ Menu | Import, export, delete profile |
+| ⋮ Menu | Import, export, light/dark theme, copy active items to share, delete profile |
 
 The profile name is editable inline, and "+" quickly adds a request or response
 header.
+
+**Copy active items to share** puts on the clipboard the current profile with
+only what is switched on (request and response headers, redirects, cookies), in
+the export format. A teammate pastes it into **Import** and gets the same
+profile.
+
+**Light theme / Dark theme** switches the popup's colours. Dark is the default;
+the choice is remembered in this browser only.
 
 ## Permissions
 

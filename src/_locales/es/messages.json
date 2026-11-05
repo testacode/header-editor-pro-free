@@ -374,5 +374,20 @@
   },
   "siteCookiesDeleteConfirm": {
     "message": "¿Borrar la cookie \"$1\" del navegador?"
+  },
+  "menuShareActive": {
+    "message": "Copiar lo activo para compartir"
+  },
+  "shareActiveCopied": {
+    "message": "✓ Se copiaron $1 ítems activos — pegalos en Importar"
+  },
+  "shareActiveFailed": {
+    "message": "No se pudo copiar al portapapeles"
+  },
+  "menuThemeLight": {
+    "message": "Tema claro"
+  },
+  "menuThemeDark": {
+    "message": "Tema oscuro"
   }
 }

@@ -16,6 +16,7 @@ import { UpdateNotificationsManager } from './update-notifications.js';
 import { ColorPickerManager } from './color-picker.js';
 import { FiltersManager } from './filters.js';
 import { RedirectsManager } from './redirects.js';
+import { applyTheme, currentTheme, toggleTheme } from './theme.js';
 import { CookiesManager } from './cookies.js';
 import { SiteCookiesManager } from './site-cookies.js';
 import { sanitizeCookies } from './cookie-normalize.js';
@@ -61,6 +62,7 @@ export class HeaderEditorPopup {
   }
 
   async init() {
+    applyTheme(); // synchronous, before the first paint
     // Before the first await: the popup paints translated, and every test that
     // constructs the popup exercises this path. This first pass uses the
     // browser's language; a saved preference is applied below, once storage
@@ -210,6 +212,16 @@ export class HeaderEditorPopup {
     document.getElementById('export-item').addEventListener('click', () => {
       this.importExport.showExportModal();
       this.closeDropdown();
+    });
+
+    document.getElementById('theme-item').addEventListener('click', () => {
+      toggleTheme();
+      this.updateThemeItem();
+    });
+
+    document.getElementById('share-active-item').addEventListener('click', () => {
+      this.closeDropdown();
+      this.importExport.copyActiveItems();
     });
 
     document.getElementById('color-picker-btn').addEventListener('click', () => {
@@ -767,14 +779,14 @@ export class HeaderEditorPopup {
     }
     target[key].push(normalizeHeader(header));
     await this.saveData();
-    this.showCopyToast(target.name);
+    this.showToast(`✓ ${t('headerCopiedToast', target.name)}`);
   }
 
-  showCopyToast(profileName) {
+  showToast(message) {
     document.querySelectorAll('.copy-toast').forEach(toast => toast.remove());
     const toast = document.createElement('div');
     toast.className = 'copy-toast';
-    toast.textContent = `✓ ${t('headerCopiedToast', profileName)}`;
+    toast.textContent = message;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
   }
@@ -918,9 +930,16 @@ export class HeaderEditorPopup {
     deleteItem.classList.toggle('disabled', isDefault);
     deleteItem.classList.toggle('danger', !isDefault);
     deleteLabel.textContent = isDefault ? t('menuCannotDeleteDefault') : t('menuDeleteProfile');
+    this.updateThemeItem();
 
     // Toggle dropdown visibility
     dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // The item offers the theme you'd switch to.
+  updateThemeItem() {
+    document.querySelector('#theme-item span').textContent =
+      currentTheme() === 'light' ? t('menuThemeDark') : t('menuThemeLight');
   }
 
   closeDropdown() {
