@@ -273,6 +273,45 @@
   "importedFromJson": {
     "message": "从 JSON 导入 - 点击编辑"
   },
+  "validJsonRequestly": {
+    "message": "Requestly 导出 — 规则数：$1"
+  },
+  "errRequestlyReplace": {
+    "message": "这是 Requestly 导出文件，可能会创建多个配置。请使用“新建配置”方式导入。"
+  },
+  "importRequestlyDone": {
+    "message": "已从 Requestly 导入 — 重定向数：$1，新建配置数：$2。"
+  },
+  "importRequestlyNothing": {
+    "message": "未导入任何内容：此 Requestly 文件中没有可转换的重定向。未创建任何配置。"
+  },
+  "importRequestlySkipped": {
+    "message": "未导入的规则（$1）："
+  },
+  "importRequestlyMore": {
+    "message": "…另有 $1 条"
+  },
+  "requestlyUnnamedRule": {
+    "message": "（未命名规则）"
+  },
+  "requestlyProfileName": {
+    "message": "Requestly"
+  },
+  "requestlySkipNotRedirect": {
+    "message": "不是重定向规则"
+  },
+  "requestlySkipHasFilters": {
+    "message": "使用了无法转换的过滤条件（方法、资源类型、页面等）"
+  },
+  "requestlySkipUnsupportedSource": {
+    "message": "不支持的来源类型（路径，或使用正则的主机）"
+  },
+  "requestlySkipLocalDestination": {
+    "message": "重定向到本地文件或模拟响应"
+  },
+  "requestlySkipIncomplete": {
+    "message": "缺少来源或目标"
+  },
   "sectionRedirects": {
     "message": "重定向"
   },

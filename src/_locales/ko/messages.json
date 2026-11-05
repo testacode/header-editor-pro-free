@@ -273,6 +273,45 @@
   "importedFromJson": {
     "message": "JSON에서 가져옴 - 클릭하여 편집"
   },
+  "validJsonRequestly": {
+    "message": "Requestly 내보내기 — 규칙 수: $1"
+  },
+  "errRequestlyReplace": {
+    "message": "Requestly 내보내기 파일이며 여러 프로필을 만들 수 있습니다. '새 프로필 만들기'로 가져오세요."
+  },
+  "importRequestlyDone": {
+    "message": "Requestly에서 가져왔습니다 — 리디렉션 수: $1, 만든 프로필 수: $2."
+  },
+  "importRequestlyNothing": {
+    "message": "가져온 항목이 없습니다. 이 Requestly 파일에는 변환할 수 있는 리디렉션이 없습니다. 프로필을 만들지 않았습니다."
+  },
+  "importRequestlySkipped": {
+    "message": "제외된 규칙($1):"
+  },
+  "importRequestlyMore": {
+    "message": "…외 $1개"
+  },
+  "requestlyUnnamedRule": {
+    "message": "(이름 없는 규칙)"
+  },
+  "requestlyProfileName": {
+    "message": "Requestly"
+  },
+  "requestlySkipNotRedirect": {
+    "message": "리디렉션 규칙이 아님"
+  },
+  "requestlySkipHasFilters": {
+    "message": "변환할 수 없는 필터(메서드, 리소스 유형, 페이지 등)를 사용함"
+  },
+  "requestlySkipUnsupportedSource": {
+    "message": "지원하지 않는 소스 유형(경로 또는 정규식 호스트)"
+  },
+  "requestlySkipLocalDestination": {
+    "message": "로컬 파일 또는 모의 응답으로 리디렉션함"
+  },
+  "requestlySkipIncomplete": {
+    "message": "소스 또는 대상이 없음"
+  },
   "sectionRedirects": {
     "message": "리디렉션"
   },

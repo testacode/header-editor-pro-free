@@ -82,7 +82,7 @@ export function parseRequestlyExport(data) {
   return { profiles: [...profiles.values()], skipped: [...skipped.values()] };
 }
 
-function isRequestlyExport(data) {
+export function isRequestlyExport(data) {
   return (
     Array.isArray(data) &&
     data.some(r => r && (r.objectType === 'rule' || r.objectType === 'group'))
