@@ -3,13 +3,15 @@
 //
 // Each scene seeds storage, scrolls the popup to one feature, captures it at
 // 2× and places it on a branded canvas with a caption. Output:
-// screenshots/store/<n>-<scene>.jpg (committed, uploaded by hand).
+// screenshots/store/<n>-<scene>.jpg, plus the two Chrome Web Store promo
+// tiles (promo-tiles.mjs). Committed, uploaded by hand.
 
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { launchWithExtension } from './browser.mjs';
+import { PROMO_TILES } from './promo-tiles.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../..');
@@ -173,6 +175,36 @@ function canvasHtml(popupPng, title, body) {
   </body></html>`;
 }
 
+// Render at 2× and scale down to the exact store size with high-quality
+// resampling, then encode a near-lossless JPEG (the stores reject alpha, so
+// no PNG straight from the browser). A 1× render gives soft text and edges.
+async function render(canvas, html, width, height, name) {
+  await canvas.setViewport({ width, height, deviceScaleFactor: 2 });
+  await canvas.setContent(html, { waitUntil: 'load' });
+  const hiRes = await canvas.screenshot({ encoding: 'base64', type: 'png' });
+  const jpeg = await canvas.evaluate(
+    async (png, w, h) => {
+      const image = document.createElement('img');
+      image.src = `data:image/png;base64,${png}`;
+      await image.decode();
+      const out = document.createElement('canvas');
+      out.width = w;
+      out.height = h;
+      const context = out.getContext('2d');
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = 'high';
+      context.drawImage(image, 0, 0, w, h);
+      return out.toDataURL('image/jpeg', 0.97).split(',')[1];
+    },
+    hiRes,
+    width,
+    height
+  );
+  const file = path.join(OUT, `${name}.jpg`);
+  fs.writeFileSync(file, Buffer.from(jpeg, 'base64'));
+  console.log(`  ${path.relative(ROOT, file)}`);
+}
+
 async function main() {
   console.log('Building the extension…');
   execFileSync('npm', ['run', 'build'], { cwd: ROOT, stdio: 'ignore' });
@@ -187,16 +219,21 @@ async function main() {
   );
 
   const canvas = await browser.newPage();
-  await canvas.setViewport({ width: 1280, height: 800, deviceScaleFactor: 1 });
   for (const scene of SCENES) {
     // eslint-disable-next-line no-await-in-loop -- one popup at a time keeps storage seeding isolated
     const popupPng = await capturePopup(browser, extensionId, scene);
     // eslint-disable-next-line no-await-in-loop
-    await canvas.setContent(canvasHtml(popupPng, scene.title, scene.body));
-    const file = path.join(OUT, `${scene.file}.jpg`);
-    // eslint-disable-next-line no-await-in-loop
-    await canvas.screenshot({ path: file, type: 'jpeg', quality: 90 });
-    console.log(`  ${path.relative(ROOT, file)}`);
+    await render(canvas, canvasHtml(popupPng, scene.title, scene.body), 1280, 800, scene.file);
+  }
+
+  // Promo tiles reuse scene 1's popup (headers + note) and the full-size logo.
+  const promoInputs = {
+    iconPng: fs.readFileSync(path.join(ROOT, 'raw-assets/logo-original.png')).toString('base64'),
+    popupPng: await capturePopup(browser, extensionId, SCENES[0]),
+  };
+  for (const tile of PROMO_TILES) {
+    // eslint-disable-next-line no-await-in-loop -- one canvas, reused per tile
+    await render(canvas, tile.html(promoInputs), tile.width, tile.height, tile.file);
   }
 
   await browser.close();
