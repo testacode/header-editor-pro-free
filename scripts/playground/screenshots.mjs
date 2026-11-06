@@ -3,17 +3,21 @@
 //
 // Each scene seeds storage, scrolls the popup to one feature, captures it at
 // 2× and places it on a branded canvas with a caption. Output:
-// screenshots/store/<n>-<scene>.jpg (committed, uploaded by hand).
+// screenshots/store/<n>-<scene>.jpg, plus the two Chrome Web Store promo
+// tiles (promo-tiles.mjs). Committed, uploaded by hand. The landing page's
+// popup images go to screenshots/site/*.webp.
 
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { launchWithExtension } from './browser.mjs';
+import { PROMO_TILES } from './promo-tiles.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../..');
 const OUT = path.join(ROOT, 'screenshots', 'store');
+const SITE_OUT = path.join(ROOT, 'screenshots', 'site');
 
 const header = (name, value, extra = {}) => ({ name, value, enabled: true, note: '', ...extra });
 const profile = (name, color, extra = {}) => ({
@@ -85,12 +89,16 @@ const lessHeaders = {
 const SCENES = [
   {
     file: '1-headers',
+    site: 'headers',
+    siteClip: '#request-section',
     title: 'Edit any HTTP header',
     body: 'Request and response headers per profile, each with its own switch — and a note to remember why it is there.',
     setup: { openNote: true },
   },
   {
     file: '2-redirects',
+    site: 'redirects',
+    siteClip: '#redirects-section',
     title: 'Redirect between environments',
     body: 'Send requests matching a regex to staging or localhost, with $1 capture groups and optional CORS.',
     section: '#redirects-section',
@@ -98,6 +106,8 @@ const SCENES = [
   },
   {
     file: '3-cookies',
+    site: 'cookies',
+    siteClip: '#cookies-section',
     title: 'Cookies per profile',
     body: 'Add cookies to a domain’s requests without touching the browser’s own — they disappear when you pause.',
     section: '#cookies-section',
@@ -118,7 +128,13 @@ const SCENES = [
   },
 ];
 
-async function capturePopup(browser, extensionId, { section, setup = {}, staging: overrides }) {
+// Returns the whole popup and, when the scene has `siteClip`, just that section
+// (the landing page shows one feature per image, not the whole popup again).
+async function capturePopup(
+  browser,
+  extensionId,
+  { section, siteClip, setup = {}, staging: overrides }
+) {
   const page = await browser.newPage();
   await page.setViewport({ width: 600, height: 600, deviceScaleFactor: 2 });
   await page.goto(`chrome-extension://${extensionId}/popup.html`);
@@ -155,8 +171,9 @@ async function capturePopup(browser, extensionId, { section, setup = {}, staging
     throw new Error(`popup is ${width}px wide, wider than the real 600px popup`);
   }
   const png = await page.screenshot({ encoding: 'base64' });
+  const clip = siteClip ? await (await page.$(siteClip)).screenshot({ encoding: 'base64' }) : null;
   await page.close();
-  return png;
+  return { png, clip };
 }
 
 function canvasHtml(popupPng, title, body) {
@@ -173,10 +190,58 @@ function canvasHtml(popupPng, title, body) {
   </body></html>`;
 }
 
+// Render at 2× and scale down to the exact store size with high-quality
+// resampling, then encode a near-lossless JPEG (the stores reject alpha, so
+// no PNG straight from the browser). A 1× render gives soft text and edges.
+// The bare popup for the landing page: WebP at 2×, no caption or canvas.
+async function saveSiteImage(canvas, popupPng, name) {
+  const webp = await canvas.evaluate(async png => {
+    const image = document.createElement('img');
+    image.src = `data:image/png;base64,${png}`;
+    await image.decode();
+    const out = document.createElement('canvas');
+    out.width = image.naturalWidth;
+    out.height = image.naturalHeight;
+    out.getContext('2d').drawImage(image, 0, 0);
+    return out.toDataURL('image/webp', 0.9).split(',')[1];
+  }, popupPng);
+  const file = path.join(SITE_OUT, `${name}.webp`);
+  fs.writeFileSync(file, Buffer.from(webp, 'base64'));
+  console.log(`  ${path.relative(ROOT, file)}`);
+}
+
+async function render(canvas, html, width, height, name) {
+  await canvas.setViewport({ width, height, deviceScaleFactor: 2 });
+  await canvas.setContent(html, { waitUntil: 'load' });
+  const hiRes = await canvas.screenshot({ encoding: 'base64', type: 'png' });
+  const jpeg = await canvas.evaluate(
+    async (png, w, h) => {
+      const image = document.createElement('img');
+      image.src = `data:image/png;base64,${png}`;
+      await image.decode();
+      const out = document.createElement('canvas');
+      out.width = w;
+      out.height = h;
+      const context = out.getContext('2d');
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = 'high';
+      context.drawImage(image, 0, 0, w, h);
+      return out.toDataURL('image/jpeg', 0.97).split(',')[1];
+    },
+    hiRes,
+    width,
+    height
+  );
+  const file = path.join(OUT, `${name}.jpg`);
+  fs.writeFileSync(file, Buffer.from(jpeg, 'base64'));
+  console.log(`  ${path.relative(ROOT, file)}`);
+}
+
 async function main() {
   console.log('Building the extension…');
   execFileSync('npm', ['run', 'build'], { cwd: ROOT, stdio: 'ignore' });
   fs.mkdirSync(OUT, { recursive: true });
+  fs.mkdirSync(SITE_OUT, { recursive: true });
 
   const { browser, extensionId, userDataDir } = await launchWithExtension(path.join(ROOT, 'dist'));
   // The site's own "debug" cookie, so scene 3 shows the clash warning (⚠).
@@ -187,16 +252,29 @@ async function main() {
   );
 
   const canvas = await browser.newPage();
-  await canvas.setViewport({ width: 1280, height: 800, deviceScaleFactor: 1 });
   for (const scene of SCENES) {
     // eslint-disable-next-line no-await-in-loop -- one popup at a time keeps storage seeding isolated
-    const popupPng = await capturePopup(browser, extensionId, scene);
+    const { png, clip } = await capturePopup(browser, extensionId, scene);
     // eslint-disable-next-line no-await-in-loop
-    await canvas.setContent(canvasHtml(popupPng, scene.title, scene.body));
-    const file = path.join(OUT, `${scene.file}.jpg`);
-    // eslint-disable-next-line no-await-in-loop
-    await canvas.screenshot({ path: file, type: 'jpeg', quality: 90 });
-    console.log(`  ${path.relative(ROOT, file)}`);
+    await render(canvas, canvasHtml(png, scene.title, scene.body), 1280, 800, scene.file);
+    if (scene.site) {
+      // eslint-disable-next-line no-await-in-loop
+      await saveSiteImage(canvas, clip, scene.site);
+    }
+    if (scene === SCENES[0]) {
+      // eslint-disable-next-line no-await-in-loop
+      await saveSiteImage(canvas, png, 'popup'); // the landing page's hero
+    }
+  }
+
+  // Promo tiles reuse scene 1's popup (headers + note) and the full-size logo.
+  const promoInputs = {
+    iconPng: fs.readFileSync(path.join(ROOT, 'raw-assets/logo-original.png')).toString('base64'),
+    popupPng: (await capturePopup(browser, extensionId, SCENES[0])).png,
+  };
+  for (const tile of PROMO_TILES) {
+    // eslint-disable-next-line no-await-in-loop -- one canvas, reused per tile
+    await render(canvas, tile.html(promoInputs), tile.width, tile.height, tile.file);
   }
 
   await browser.close();
