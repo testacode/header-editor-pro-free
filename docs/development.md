@@ -52,6 +52,17 @@ exits — a quick end-to-end smoke test.
 Chrome for Testing rather than your Chrome because branded Chrome 137+ ignores
 `--load-extension`.
 
+### Store screenshots
+
+```bash
+npm run store:screenshots
+```
+
+Renders the popup with realistic demo data, one scene per feature, and places
+each on a 1280×800 canvas with a caption: `screenshots/store/*.jpg`, the size
+both stores accept. Run it before a release that changes the UI and upload the
+images by hand. It fails if the popup renders wider than its 600px.
+
 ## Build
 
 The extension uses **Rspack** for bundling:

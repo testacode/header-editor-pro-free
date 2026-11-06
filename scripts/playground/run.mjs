@@ -7,9 +7,6 @@
 //
 // `npm run playground -- --check` clicks through the demos, prints what
 // happened and exits — a smoke test of the whole setup.
-//
-// Chrome for Testing, because branded Chrome stopped honouring --load-extension
-// (Chrome 137+). It is downloaded once into ~/.cache/puppeteer if missing.
 
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -17,8 +14,7 @@ import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Browser, detectBrowserPlatform, install, resolveBuildId } from '@puppeteer/browsers';
-import puppeteer from 'puppeteer-core';
+import { launchWithExtension } from './browser.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../..');
@@ -136,15 +132,6 @@ function startServers() {
   return [app, other];
 }
 
-async function chromeForTesting() {
-  const cacheDir = path.join(os.homedir(), '.cache', 'puppeteer');
-  const platform = detectBrowserPlatform();
-  const buildId = await resolveBuildId(Browser.CHROME, platform, 'stable');
-  console.log(`Chrome for Testing ${buildId} (downloads once if missing)…`);
-  const { executablePath } = await install({ browser: Browser.CHROME, buildId, cacheDir });
-  return executablePath;
-}
-
 // A check must never hang a terminal: give up after a fixed budget.
 const CHECK_TIMEOUT_MS = 30_000;
 
@@ -159,21 +146,9 @@ async function main() {
   execFileSync('npm', ['run', 'build'], { cwd: ROOT, stdio: 'ignore' });
 
   const servers = startServers();
-  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hep-playground-'));
-  const browser = await puppeteer.launch({
-    executablePath: await chromeForTesting(),
-    headless: false,
-    userDataDir,
-    defaultViewport: null,
-    pipe: true,
-    enableExtensions: [DIST],
-    args: ['--no-first-run', '--window-size=1400,900'],
-  });
-
-  const worker = await browser.waitForTarget(
-    t => t.type() === 'service_worker' && t.url().startsWith('chrome-extension://')
-  );
-  const extensionId = new URL(worker.url()).host;
+  const { browser, extensionId, userDataDir } = await launchWithExtension(DIST, [
+    '--window-size=1400,900',
+  ]);
 
   // The popup, opened as a tab so it stays visible next to the demo. Pinned,
   // or it would close itself the first time you click on the demo page.
@@ -194,7 +169,7 @@ async function main() {
     // Keep-alive sockets would hold the servers (and the process) open.
     servers.forEach(server => server.closeAllConnections());
     fs.rmSync(userDataDir, { recursive: true, force: true });
-    process.exit(0);
+    process.exit(process.exitCode ?? 0);
   }
 
   console.log(`\nPlayground ready: ${APP}`);
@@ -266,6 +241,14 @@ async function runChecks(demo, popup) {
     `── share active\nrequest: ${sharedItems.requestHeaders.map(h => h.name).join(', ')}` +
       ` · redirects: ${sharedItems.redirects.length} · cookies: ${sharedItems.cookies.length}`
   );
+
+  // The popup is a fixed 600px wide; anything wider means a horizontal
+  // scrollbar and cut-off buttons (seed data includes a managed cookie).
+  const popupWidth = await popup.evaluate(() => document.body.scrollWidth);
+  console.log(`── popup width: ${popupWidth}px${popupWidth > 600 ? ' ✗ wider than 600' : ''}`);
+  if (popupWidth > 600) {
+    process.exitCode = 1;
+  }
 
   // Theme: both screenshots land in the temp dir for a visual check.
   const shot = name => path.join(os.tmpdir(), `hep-playground-${name}.png`);
