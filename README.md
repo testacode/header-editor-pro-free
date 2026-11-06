@@ -1,52 +1,74 @@
+<div align="center">
+
+<img src="src/assets/icons/icon128.png" alt="" width="64" height="64">
+
 # Header Editor Pro - Free
 
-<div align="center">
+**Edit HTTP headers, redirect requests and add cookies — one profile per environment**
 
-🚀 **Professional HTTP Header Editor for Chrome & Firefox** 🚀
+A free, open-source extension for Chrome and Firefox. Test against staging, debug
+auth and CORS, and switch environments without touching code.
 
-*Completely free alternative to paid header modification tools*
+[Add to Chrome](https://chromewebstore.google.com/detail/cpdkigffbilaglfmddclhgfflimpaeim) ·
+[Add to Firefox](https://addons.mozilla.org/firefox/addon/header-editor-pro-free/) ·
+[Website](https://testacode.github.io/header-editor-pro-free/)
 
-![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-brightgreen?logo=googlechrome&logoColor=white)
-![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--ons-orange?logo=firefox&logoColor=white)
-[![GitHub](https://img.shields.io/badge/GitHub-Open%20Source-blue?logo=github&logoColor=white)](https://github.com/testacode/header-editor-pro-free)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+<sub>Free · Open source · No account · No tracking</sub>
 
-</div>
-
-## ✨ Features
-
-🔥 **100% FREE** - No subscriptions, no premium features, no limitations  
-🎯 **Unlimited Profiles** - Create as many header configurations as you need  
-⚡ **Real-time Header Modification** - Instant application of request and response headers via the declarativeNetRequest API  
-🎨 **Dark or Light Theme** - Clean, modern interface designed for developers  
-☑️ **Individual Header Controls** - Enable/disable each header independently, set or append, with an optional note  
-🔀 **URL Redirects** - Send requests matching a regex to another URL (`$1` capture groups, optional CORS for cross-origin targets)  
-🍪 **Cookies per Profile** - Add cookies to a domain's requests without touching the browser's cookies, and inspect or delete the current site's  
-📋 **Copy to Another Profile** - Per-row dropdown to copy a header into another profile's matching section  
-🤝 **Share What's Active** - Copy a profile's enabled headers, redirects and cookies for a teammate to import  
-📥 **Import & Export** - JSON backups, profile lists from other header editors, and Requestly redirect rules  
-🎯 **Profile Filters** - Scope a profile to specific domains, or to a Chrome tab group so headers never leak outside it  
-🌐 **7 Languages** - English, 简体中文, 繁體中文, 日本語, 한국어, Русский and Español, switchable from the toolbar ([spot a bad translation?](https://github.com/testacode/header-editor-pro-free/issues/new?template=translation.yml))  
-🔄 **Drag & Drop Reordering** - Reorganize headers by dragging them  
-⏸️ **Pause Functionality** - Temporarily disable without losing configurations  
-🔒 **Privacy Focused** - All data stored locally, no tracking or analytics  
-
-Built for web developers, QA testers and anyone debugging API auth flows, CORS
-or environment-specific behaviour.
-
-<div align="center">
-
-![Header Editor Pro - Free Interface](screenshots/screenshot.jpg)
+<img src="screenshots/site/popup.webp" width="480" alt="The extension popup with a Staging profile: request headers, a note and a redirect">
 
 </div>
 
-## 🚀 Installation
+## What it does
 
-- **Chrome**: [Chrome Web Store](https://chromewebstore.google.com/detail/cpdkigffbilaglfmddclhgfflimpaeim) → "Add to Chrome"
-- **Firefox**: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/header-editor-pro-free/) → "Add to Firefox"
-- **From source**: see [docs/development.md](docs/development.md)
+### Request and response headers
 
-## 📖 Documentation
+Set, append or remove any header. Each one has its own switch and an optional
+note, so six months from now you still know why that token is there.
+
+<img src="screenshots/site/headers.webp" width="534" alt="Request headers with a note open below the Authorization header">
+
+### Redirects between environments
+
+Send requests that match a regular expression to another URL — staging, a local
+server — using `$1` capture groups. Turn on CORS when the target is on another origin.
+
+<img src="screenshots/site/redirects.webp" width="534" alt="Two redirects, one of them with CORS enabled">
+
+### Cookies per profile
+
+Add cookies to a domain's requests without writing them to the browser. They stop
+the moment you pause or switch profile, and a warning tells you when the site
+already sets one with the same name.
+
+<img src="screenshots/site/cookies.webp" width="534" alt="Managed cookies, one of them flagged because the site already has a cookie with that name">
+
+## Also included
+
+- **Profiles and filters** — As many profiles as you need, each limited to some domains or, in Chrome, to a tab group.
+- **Import and export** — JSON backups, profile lists from other header editors, and Requestly redirect rules.
+- **Share what's on** — Copy a profile's enabled items; a teammate imports them as a ready-made profile.
+- **Pause** — Turn every rule off in one click without losing any of them.
+- **Set or append** — Append to multi-value headers such as Accept or Cookie instead of replacing them.
+- **Light or dark, 7 languages** — English, Español, 日本語, 한국어, Русский, 简体中文, 繁體中文 ([spot a bad translation?](https://github.com/testacode/header-editor-pro-free/issues/new?template=translation.yml)).
+
+## Common uses
+
+| | |
+|---|---|
+| Call an authenticated endpoint | `Authorization: Bearer <token>` |
+| Point a frontend at staging | `api.example.com → staging-api.example.com` |
+| Debug CORS | `Access-Control-Allow-Origin: *` |
+| Force a feature flag or A/B variant | `Cookie: ab_variant=B` |
+
+## Your data stays in your browser
+
+Profiles are stored locally. The extension has no servers, no analytics and no
+account, and the rules run inside the browser itself, so it never sees the requests
+it changes. The code is right here if you want to check —
+[read the privacy policy](https://testacode.github.io/header-editor-pro-free/privacy.html).
+
+## Documentation
 
 | Guide | What's in it |
 |---|---|
@@ -56,49 +78,22 @@ or environment-specific behaviour.
 | [Gotchas](docs/GOTCHAS.md) | Hard-won bugs and undocumented behaviour |
 | [History](docs/history/) | Why past releases turned out the way they did |
 
-## 🆚 Why Choose Header Editor Pro - Free?
+## Free, and nobody's paying for it
 
-| Feature | Header Editor Pro - Free | Other Extensions |
-|---------|-------------------------|------------------|
-| **Price** | 🟢 Completely Free | 🔴 $5-15/month subscriptions |
-| **Profiles** | 🟢 Unlimited | 🔴 3 profiles max (free tier) |
-| **UI Quality** | 🟢 Dark or light theme | 🔴 Basic/outdated interfaces |
-| **Privacy** | 🟢 No tracking/analytics | 🔴 Often collect usage data |
-| **Open Source** | 🟢 Full transparency | 🔴 Proprietary/closed source |
-
-## 🔒 Privacy
-
-No data collection, no analytics, no external servers. Every configuration stays
-in local storage on your device, and the code is open for you to check.
-Full [privacy policy](https://testacode.github.io/header-editor-pro-free/privacy.html).
-
-## 💖 Support This Project
-
-This extension costs nothing, and nobody pays me to maintain it or to build new
+This extension costs nothing, and no one pays me to maintain it or to build new
 things into it. It gets better in my own time.
 
-**Want something improved?** [Open an issue](https://github.com/testacode/header-editor-pro-free/issues)
+Want something improved? [Open an issue](https://github.com/testacode/header-editor-pro-free/issues)
 and let's talk it through — that's free too, and it's the best way in.
 
 Chip in and your request moves up my queue. And if you'd rather not, no hard
 feelings — nobody ever turned down a glass of water ;)
 
-[![Buy Me A Coffee](https://img.shields.io/badge/☕%20Buy%20Me%20A%20Coffee-Support-orange?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/charlybrown)
-[![GitHub Sponsors](https://img.shields.io/badge/💝%20GitHub%20Sponsors-Support-pink?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/testacode)
+[Buy me a coffee](https://buymeacoffee.com/charlybrown) ·
+[Sponsor on GitHub](https://github.com/sponsors/testacode)
 
-Either way, it stays free for everyone. Starring the repo and sharing it with
-other developers helps just as much.
-
-## 🔗 Links
-
-- **Website**: [testacode.github.io/header-editor-pro-free](https://testacode.github.io/header-editor-pro-free/)
-- **Issues**: [GitHub Issues](https://github.com/testacode/header-editor-pro-free/issues)
-- **License**: [MIT](LICENSE)
+Either way, it stays free for everyone.
 
 ---
 
-<div align="center">
-
-**Made with ❤️ for the developer community**
-
-</div>
+<sub>[MIT License](LICENSE)</sub>
