@@ -11,6 +11,7 @@
     "build": "rspack build --mode production",
     "build:site": "node scripts/build-site.js",
     "playground": "node scripts/playground/run.mjs",
+    "store:screenshots": "node scripts/playground/screenshots.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
