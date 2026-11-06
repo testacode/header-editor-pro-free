@@ -42,7 +42,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - `npm run dev` - Development with watch mode
 - `npm run build` - Production build to `dist/`
 - `npm run package` - Generate versioned ZIPs
-- `npm run store:screenshots` - Regenerates the 1280×800 store screenshots and the Chrome promo tiles (440×280, 1400×560) in `screenshots/store/` from the real popup with demo data (`scripts/playground/screenshots.mjs`); fails if the popup renders wider than 600px
+- `npm run store:screenshots` - Regenerates the 1280×800 store screenshots and the Chrome promo tiles (440×280, 1400×560) in `screenshots/store/`, plus the landing page's popup images in `screenshots/site/*.webp`, from the real popup with demo data (`scripts/playground/screenshots.mjs`); fails if the popup renders wider than 600px
 - `npm run playground` - Chrome for Testing with the extension loaded, a seeded profile and a local demo page (`-- --check` clicks through the demos and exits). See `docs/development.md`
 
 **Playground = the end-to-end check:** every user-visible feature gets a section in `scripts/playground/page.html` (plus seed data in `run.mjs` and a step in `runChecks`), and `npm run playground -- --check` must pass before opening a PR. Unit tests mock `chrome.*`; this is the only check that runs the real DNR engine.
