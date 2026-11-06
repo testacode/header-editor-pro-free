@@ -61,7 +61,9 @@ npm run store:screenshots
 Renders the popup with realistic demo data, one scene per feature, and places
 each on a 1280×800 canvas with a caption: `screenshots/store/*.jpg`, the size
 both stores accept. It also renders the Chrome Web Store promo tiles,
-`promo-small.jpg` (440×280) and `promo-marquee.jpg` (1400×560). Everything is
+`promo-small.jpg` (440×280) and `promo-marquee.jpg` (1400×560). The landing
+page's images come from the same run: `screenshots/site/popup.webp` (hero) and
+one crop per feature section, so re-run it when the popup UI changes. Everything is
 rendered at 2× and scaled down with high-quality resampling, so text stays
 sharp; JPEG because the stores reject alpha. Run it before a release that changes the UI and upload the
 images by hand. It fails if the popup renders wider than its 600px.
