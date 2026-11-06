@@ -136,10 +136,10 @@
     "message": "Añadir en vez de reemplazar"
   },
   "headerNoteAdd": {
-    "message": "Agregar una nota"
+    "message": "Añadir una nota"
   },
   "headerNotePlaceholder": {
-    "message": "¿Para qué sirve este header?"
+    "message": "¿Para qué sirve esta cabecera?"
   },
   "headerCopyToProfile": {
     "message": "Copiar a otro perfil…"
@@ -316,7 +316,7 @@
     "message": "Redirecciones"
   },
   "redirectAdd": {
-    "message": "Agregar redirección"
+    "message": "Añadir redirección"
   },
   "redirectPatternPlaceholder": {
     "message": "Regex, p. ej. ^https://dev\\.example\\.com/(.*)"
@@ -325,7 +325,7 @@
     "message": "https://example.com/$1"
   },
   "redirectCors": {
-    "message": "Permitir también requests cross-origin al destino (setea Access-Control-Allow-Origin: *; no funciona con credenciales)"
+    "message": "Permitir también peticiones de otro origen al destino (establece Access-Control-Allow-Origin: *; no funciona con credenciales)"
   },
   "redirectDelete": {
     "message": "Eliminar redirección"
@@ -337,7 +337,7 @@
     "message": "Cookies"
   },
   "cookieAdd": {
-    "message": "Agregar cookie"
+    "message": "Añadir cookie"
   },
   "cookieDomainPlaceholder": {
     "message": "dominio.com"
@@ -352,16 +352,16 @@
     "message": "Eliminar cookie"
   },
   "cookieConflict": {
-    "message": "El sitio ya tiene una cookie \"$1\" para $2. Se envían las dos y la mayoría de los servidores lee la del sitio, que va primero. Hacé clic para borrar la del sitio."
+    "message": "El sitio ya tiene una cookie «$1» para $2. Se envían las dos y la mayoría de los servidores lee la del sitio, que va primero. Haz clic para borrar la del sitio."
   },
   "cookieConflictConfirm": {
-    "message": "¿Borrar del navegador la cookie \"$1\" del propio sitio? Puede que se cierre tu sesión en ese sitio."
+    "message": "¿Borrar del navegador la cookie «$1» del propio sitio? Puede que se cierre tu sesión en ese sitio."
   },
   "siteCookiesToggle": {
     "message": "Cookies de este sitio"
   },
   "siteCookiesNoSite": {
-    "message": "Abrí el popup en una pestaña con un sitio web para ver sus cookies."
+    "message": "Abre el popup en una pestaña con un sitio web para ver sus cookies."
   },
   "siteCookiesFor": {
     "message": "$1 — $2 cookies"
@@ -373,13 +373,13 @@
     "message": "Borrar del navegador"
   },
   "siteCookiesDeleteConfirm": {
-    "message": "¿Borrar la cookie \"$1\" del navegador?"
+    "message": "¿Borrar la cookie «$1» del navegador?"
   },
   "menuShareActive": {
     "message": "Copiar lo activo para compartir"
   },
   "shareActiveCopied": {
-    "message": "✓ Se copiaron $1 ítems activos — pegalos en Importar"
+    "message": "✓ Se copiaron $1 elementos activos: pégalos en Importar"
   },
   "shareActiveFailed": {
     "message": "No se pudo copiar al portapapeles"

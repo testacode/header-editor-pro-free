@@ -202,6 +202,9 @@ body {
 /* Main content area */
 .main-content {
   flex: 1;
+  /* A flex item won't shrink below its content's width by default; without
+     this a profile with managed cookies made the popup 11px too wide. */
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
