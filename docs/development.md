@@ -7,14 +7,14 @@
 │   ├── manifest.json    # Unified config for Chrome & Firefox
 │   ├── _locales/        # Extension translation catalogs (7 locales)
 │   ├── popup/           # UI components (HTML, CSS, JS, i18n)
-│   ├── background/      # Service worker logic
+│   ├── background/      # Service worker + pure rule compiler (state → DNR rules)
 │   └── assets/icons/    # Extension icons (16px-128px)
 ├── site/                 # GitHub Pages source — edit here, never the output
 │   ├── templates/       # Page templates with {{key}} placeholders
 │   ├── locales/         # Site translation catalogs (7 locales)
 │   └── __tests__/       # Key-coverage tests for the catalogs
 ├── docs/                 # Contributor docs
-├── scripts/              # Release automation + site build
+├── scripts/              # Release automation, site build, playground
 ├── .github/workflows/    # GitHub Actions
 ├── dist/                 # Built extension (gitignored)
 ├── index.html            # Generated site: English at the root…
@@ -123,4 +123,9 @@ npm run test:coverage # coverage report
 ```
 
 Coverage thresholds are enforced in `vitest.config.js`; a regression breaks CI.
+
+Unit tests mock `chrome.*`, so they never exercise the real rule engine. Before
+opening a PR, also run `npm run playground -- --check` (see [Playground](#playground)):
+it loads the built extension in Chrome for Testing and checks headers, redirects,
+cookies, sharing and the theme end to end.
 Known gotchas live in [GOTCHAS.md](GOTCHAS.md).

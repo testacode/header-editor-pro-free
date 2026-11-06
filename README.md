@@ -18,9 +18,13 @@
 🔥 **100% FREE** - No subscriptions, no premium features, no limitations  
 🎯 **Unlimited Profiles** - Create as many header configurations as you need  
 ⚡ **Real-time Header Modification** - Instant application of request and response headers via the declarativeNetRequest API  
-🎨 **Professional Dark UI** - Clean, modern interface designed for developers  
-☑️ **Individual Header Controls** - Enable/disable each header independently  
+🎨 **Dark or Light Theme** - Clean, modern interface designed for developers  
+☑️ **Individual Header Controls** - Enable/disable each header independently, set or append, with an optional note  
+🔀 **URL Redirects** - Send requests matching a regex to another URL (`$1` capture groups, optional CORS for cross-origin targets)  
+🍪 **Cookies per Profile** - Add cookies to a domain's requests without touching the browser's cookies, and inspect or delete the current site's  
 📋 **Copy to Another Profile** - Per-row dropdown to copy a header into another profile's matching section  
+🤝 **Share What's Active** - Copy a profile's enabled headers, redirects and cookies for a teammate to import  
+📥 **Import & Export** - JSON backups, profile lists from other header editors, and Requestly redirect rules  
 🎯 **Profile Filters** - Scope a profile to specific domains, or to a Chrome tab group so headers never leak outside it  
 🌐 **7 Languages** - English, 简体中文, 繁體中文, 日本語, 한국어, Русский and Español, switchable from the toolbar ([spot a bad translation?](https://github.com/testacode/header-editor-pro-free/issues/new?template=translation.yml))  
 🔄 **Drag & Drop Reordering** - Reorganize headers by dragging them  
@@ -46,8 +50,8 @@ or environment-specific behaviour.
 
 | Guide | What's in it |
 |---|---|
-| [Usage](docs/usage.md) | Profiles, headers, filters, toolbar, permissions |
-| [Development](docs/development.md) | Project structure, local setup, build, releases |
+| [Usage](docs/usage.md) | Profiles, headers, redirects, cookies, filters, toolbar, permissions |
+| [Development](docs/development.md) | Project structure, local setup, playground, build, releases |
 | [i18n](docs/i18n.md) | How translations work, in the extension and on the site |
 | [Gotchas](docs/GOTCHAS.md) | Hard-won bugs and undocumented behaviour |
 
@@ -57,7 +61,7 @@ or environment-specific behaviour.
 |---------|-------------------------|------------------|
 | **Price** | 🟢 Completely Free | 🔴 $5-15/month subscriptions |
 | **Profiles** | 🟢 Unlimited | 🔴 3 profiles max (free tier) |
-| **UI Quality** | 🟢 Professional dark theme | 🔴 Basic/outdated interfaces |
+| **UI Quality** | 🟢 Dark or light theme | 🔴 Basic/outdated interfaces |
 | **Privacy** | 🟢 No tracking/analytics | 🔴 Often collect usage data |
 | **Open Source** | 🟢 Full transparency | 🔴 Proprietary/closed source |
 
