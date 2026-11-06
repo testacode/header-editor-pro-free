@@ -78,7 +78,8 @@ The extension uses **Rspack** for bundling:
 
 The GitHub Pages site is a separate build: `npm run build:site`. See
 [i18n.md](i18n.md#landing-page-github-pages) for how it works — in short, the
-HTML at the repo root is generated output and must never be edited by hand.
+HTML at the repo root and `README.md` are generated output and must never be
+edited by hand.
 
 ## Releases
 

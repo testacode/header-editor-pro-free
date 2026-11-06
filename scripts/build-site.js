@@ -4,7 +4,8 @@
  *
  * Input:  site/templates/<page>.html  +  site/locales/<locale>.json
  * Output: <page>.html at the repo root (English) and <locale>/<page>.html
- *         for every other language, plus a regenerated sitemap.xml.
+ *         for every other language, a regenerated sitemap.xml, and the repo's
+ *         README.md (from site/templates/README.md, English only).
  *
  * Never edit the generated HTML by hand — run `npm run build:site` instead.
  */
@@ -190,6 +191,18 @@ function main() {
 
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), buildSitemap());
 
+  const readmeMissing = [];
+  const readme = render(fs.readFileSync(path.join(TEMPLATES_DIR, 'README.md'), 'utf8'), {
+    catalog: catalogs[DEFAULT_LOCALE],
+    locale: DEFAULT_LOCALE,
+    page: 'index',
+    missing: readmeMissing,
+  });
+  if (readmeMissing.length) {
+    missing.push(`README.md: ${[...new Set(readmeMissing)].join(', ')}`);
+  }
+  fs.writeFileSync(path.join(ROOT, 'README.md'), readme);
+
   if (missing.length) {
     console.error('Missing translation keys:');
     for (const line of missing) {
@@ -198,7 +211,9 @@ function main() {
     process.exit(1);
   }
 
-  console.log(`Built ${written} pages across ${localeCodes.length} locales, plus sitemap.xml`);
+  console.log(
+    `Built ${written} pages across ${localeCodes.length} locales, plus sitemap.xml and README.md`
+  );
 }
 
 main();

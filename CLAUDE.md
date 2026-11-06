@@ -16,7 +16,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - `src/background/` - Service worker for header modification. `rule-compiler.js` is the pure state → DNR rules translation (no `chrome.*`, rules without ids); `background.js` resolves tab groups, assigns ids, swaps the rules atomically and draws the badges
 - `src/assets/icons/` - Extension icons (16-128px)
 - `site/templates/` + `site/locales/` - Source of the GitHub Pages site (landing, privacy policy, 404), pre-rendered per language by `scripts/build-site.js`
-- `index.html`, `privacy.html`, `404.html`, `es/ ja/ ko/ ru/ zh-CN/ zh-TW/`, `sitemap.xml` - **Generated output, committed** so Pages can serve it. Never hand-edit: run `npm run build:site`. Site locale codes use hyphens (`zh-CN`), unlike the extension's underscores (`zh_CN`) — see `docs/i18n.md`
+- `index.html`, `privacy.html`, `404.html`, `es/ ja/ ko/ ru/ zh-CN/ zh-TW/`, `sitemap.xml`, `README.md` (from `site/templates/README.md`, English catalog only) - **Generated output, committed** so Pages can serve it. Never hand-edit: run `npm run build:site`. Site locale codes use hyphens (`zh-CN`), unlike the extension's underscores (`zh_CN`) — see `docs/i18n.md`
 - `dist/` - Build output (gitignored)
 
 **Extension Features:**
@@ -121,7 +121,7 @@ Header Editor Pro - Free is a Chrome/Firefox extension for HTTP header modificat
 - Unified ZIP works for both Chrome Web Store and Firefox Add-ons
 
 **Site Build (separate from the extension):**
-- `npm run build:site` - Renders `site/templates/` × `site/locales/` into 21 pages (3 per language) plus `sitemap.xml`
+- `npm run build:site` - Renders `site/templates/` × `site/locales/` into 21 pages (3 per language) plus `sitemap.xml` and the repo's `README.md`
 - English lands at the repo root; every other language in its own directory
 - Run it after touching any template or catalog, and commit the regenerated HTML
 

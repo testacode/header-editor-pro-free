@@ -80,4 +80,12 @@ describe('site templates', () => {
     expect(html).toContain('{{__homeUrl}}');
     expect(html).not.toContain('{{__assets}}');
   });
+
+  it('README.md only uses keys the English catalog has', () => {
+    const md = fs.readFileSync(path.join(TEMPLATES_DIR, 'README.md'), 'utf8');
+    const keys = [...md.matchAll(/\{\{([\w.-]+)\}\}/g)].map(([, key]) => key);
+    const strings = catalog('en');
+    expect(keys.length).toBeGreaterThan(0);
+    expect(keys.filter(key => !isComputed(key) && !(key in strings))).toEqual([]);
+  });
 });
