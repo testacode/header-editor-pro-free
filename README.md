@@ -54,6 +54,7 @@ or environment-specific behaviour.
 | [Development](docs/development.md) | Project structure, local setup, playground, build, releases |
 | [i18n](docs/i18n.md) | How translations work, in the extension and on the site |
 | [Gotchas](docs/GOTCHAS.md) | Hard-won bugs and undocumented behaviour |
+| [History](docs/history/) | Why past releases turned out the way they did |
 
 ## 🆚 Why Choose Header Editor Pro - Free?
 
